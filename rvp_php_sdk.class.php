@@ -11,7 +11,7 @@
 
     Little Green Viper Software Development: https://littlegreenviper.com
 */
-defined( 'LGV_RVP_PHP_SDK_CATCHER' ) or die ( 'Cannot Execute Directly' );	// Makes sure that this file is in the correct context.
+defined( 'RVP_PHP_SDK' ) or die ( 'Cannot Execute Directly' );	// Makes sure that this file is in the correct context.
 
 define('__SDK_VERSION__', '1.0.0.0000');
 
@@ -19,7 +19,6 @@ define('__SDK_VERSION__', '1.0.0.0000');
 /**
  */
 class RVP_PHP_SDK {
-
     /************************************************************************************************************************/    
     /*#################################################### INTERNAL METHODS ################################################*/
     /************************************************************************************************************************/
