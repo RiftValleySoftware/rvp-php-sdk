@@ -1,6 +1,6 @@
 \mainpage PHP SDK
 
-![BAOBAB](images/BAOBAB.png)
+![PHP BAOBAB SDK](images/PHP-SDK.png)
 
 THE GREAT RIFT VALLEY PLATFORM PHP SDK LIBRARY
 ==============================================
