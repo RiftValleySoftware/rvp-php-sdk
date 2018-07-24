@@ -12,6 +12,9 @@
     Little Green Viper Software Development: https://littlegreenviper.com
 */
 defined( 'RVP_PHP_SDK' ) or die ( 'Cannot Execute Directly' );	// Makes sure that this file is in the correct context.
+require_once(dirname(__FILE__).'/rvp_php_sdk_login.class.php');
+require_once(dirname(__FILE__).'/rvp_php_sdk_user.class.php');
+require_once(dirname(__FILE__).'/rvp_php_sdk_thing.class.php');
 
 define('__SDK_VERSION__', '1.0.0.0000');
 
@@ -19,11 +22,15 @@ define('__SDK_VERSION__', '1.0.0.0000');
 /**
  */
 class RVP_PHP_SDK {
-    protected   $_server_uri;       ///< This is the URI of the BAOBAB server.
-    protected   $_server_secret;    ///< This is the "server secret" that is specified by the admin of the BAOBAB server.
-    protected   $_api_key;          ///< This is the current session API key.
-    protected   $_login_time;       ///< The microtime for the last successful login. Meaningless if _api_key is NULL.
-    protected   $_login_time_limit; ///< If >0, then this is the maximum time at which the current login is valid..
+    protected   $_server_uri;           ///< This is the URI of the BAOBAB server.
+    protected   $_server_secret;        ///< This is the "server secret" that is specified by the admin of the BAOBAB server.
+    protected   $_api_key;              ///< This is the current session API key.
+    protected   $_login_time;           ///< The microtime for the last successful login. Meaningless if _api_key is NULL.
+    protected   $_login_time_limit;     ///< If >0, then this is the maximum time at which the current login is valid.
+    protected   $_error;                ///< This is supposed to be NULL. However, if we have an error, it will contain a code.
+    protected   $_my_login_info;        ///< This will contain any login information for the current login (NULL if not logged in).
+    protected   $_my_user_info;         ///< This will contain any login information for the current login (NULL if not logged in).
+    protected   $_last_response_code;   ///< This will contain any response code from the last cURL call.
     
     /************************************************************************************************************************/    
     /*################################################ INTERNAL STATIC METHODS #############################################*/
@@ -42,7 +49,6 @@ class RVP_PHP_SDK {
                                                                 */
                                         $url_extension,         ///< REQIRED:   This is the query section of the URL for the call.
                                         $data_input = NULL,     ///< OPTIONAL:  Default is NULL. This is an associative array, containing a collection of data, and a MIME type ("data" and "type") to data to be uploaded to the server, along with the URL. This will be Base64-encoded, so it is not necessary for it to be already encoded.
-                                        &$httpCode = NULL,      ///< OPTIONAL:  Default is NULL. If provided, this has a reference to an integer data item that will be set to any HTTP response code.
                                         $display_log = false    ///< OPTIONAL:  Default is false. If true, then the function will echo detailed debug information.
                                         ) {
     
@@ -141,10 +147,7 @@ class RVP_PHP_SDK {
     
         $result = curl_exec($curl); // Do it to it.
     
-        // If they want a report, we send it.
-        if (isset($httpCode)) {
-            $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        }
+        $this->_last_response_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
         curl_close($curl);  // Bye, now.
     
@@ -190,6 +193,33 @@ class RVP_PHP_SDK {
     /***********************/
     /**
      */
+    protected function _get_my_info() {
+        $ret = NULL;
+        
+        if ($this->is_logged_in()) {
+            $info = $this->fetch_data('json/people/logins/my_info');
+            if ($info) {
+                $temp = json_decode($info);
+                if (isset($temp) && isset($temp->people) && isset($temp->people->logins) && isset($temp->people->logins->my_info)) {
+                    $login_info = $temp->people->logins->my_info;
+                    if (isset($login_info->user_object_id) && (1 < intval($login_info->user_object_id))) {
+                        $ret = ['login' => $login_info];
+                        $info = $this->fetch_data('json/people/people/my_info');
+                        if ($info) {
+                            $temp = json_decode($info);
+                            if (isset($temp) && isset($temp->people) && isset($temp->people->people) && isset($temp->people->people->my_info)) {
+                                $user_info = $temp->people->people->my_info;
+                                $ret['user'] = $user_info;
+                            }
+                        }
+                    } else {
+                        $ret = ['login' => $login_info];
+                    }
+                }
+            }
+        }
+        return $ret;
+    }
 
     /************************************************************************************************************************/    
     /*#################################################### PUBLIC METHODS ##################################################*/
@@ -204,11 +234,13 @@ class RVP_PHP_SDK {
                             $in_password = NULL,    ///< OPTIONAL: The password, if we are doing an immediate login.
                             $in_login_timeout = -1  ///< OPTIONAL: If we have a known login timeout, we provide it here.
                         ) {
-        $this->_server_uri = $in_server_uri;        // This is the server's base URI.
+        $this->_server_uri = trim($in_server_uri, '/');        // This is the server's base URI.
         $this->_server_secret  = $in_server_secret; // This is the secret that we need to provide with authentication.
         $this->_api_key = NULL;                     // If we log in, this will be non-NULL, and will contain the active API key for this instance.
         $this->_login_time = 0;                     // This is the microtime that we had a successful login. This plus the time limit are the maximum login age.
         $this->_login_time_limit = -1;              // No timeout to start.
+        $this->_my_login_info = NULL;
+        $this->_my_user_info = NULL;
         
         if ($in_username && $in_password) {
             $this->login($in_username, $in_password, $in_login_timeout);
@@ -223,14 +255,23 @@ class RVP_PHP_SDK {
                     $in_login_timeout = -1  ///< OPTIONAL: If we have a known login timeout, we provide it here.
                     ) {
         if (!$this->_api_key) {
-            $response_code = '';
-            $api_key = self::_call_REST_API('GET', 'login?login_id='.urlencode($in_username).'&password='.urlencode($in_password), NULL, $response_code);
-
-            if (200 == intval($response_code) && isset($api_key) && $api_key) {
-                $this->_login_time = microtime(true);
+            $api_key = $this->fetch_data('login', 'login_id='.urlencode($in_username).'&password='.urlencode($in_password));
+            
+            if (isset($api_key) && $api_key) {
                 $this->_api_key = $api_key;
+                $this->_login_time = microtime(true);
                 $this->_login_time_limit = (0 < $in_login_timeout) ? floatval($in_login_timeout) + $this->_login_time : -1;
-                return true;
+                $this->_my_login_info = NULL;
+                $this->_my_user_info = NULL;
+                $info = $this->_get_my_info();
+                
+                if (isset($info['login'])) {
+                    $this->_my_login_info = new RVP_PHP_SDK_Login($this, $info['login']->id, $info['login']);
+                }
+                
+                if (isset($info['user'])) {
+                    $this->_my_user_info = new RVP_PHP_SDK_User($this, $info['user']->id, $info['user']);
+                }
             }
         }
         
@@ -284,33 +325,33 @@ class RVP_PHP_SDK {
     /***********************/
     /**
      */
-    function get_my_info() {
-        $ret = NULL;
-        
-        if ($this->is_logged_in()) {
-            $response_code = '';
-            $info = $this->_call_REST_API('GET', 'json/people/logins/my_info', NULL, $response_code);
-            if ((200 == intval($response_code)) && $info) {
-                $temp = json_decode($info);
-                if (isset($temp) && isset($temp->people) && isset($temp->people->logins) && isset($temp->people->logins->my_info)) {
-                    $login_info = $temp->people->logins->my_info;
-                    
-                    if (isset($login_info->user_object_id) && (1 < intval($login_info->user_object_id))) {
-                        $ret = ['login' => $login_info];
-                        $info = $this->_call_REST_API('GET', 'json/people/people/my_info', NULL, $response_code);
-                        $temp = json_decode($info);
-                        if (isset($temp) && isset($temp->people) && isset($temp->people->people) && isset($temp->people->people->my_info)) {
-                            $user_info = $temp->people->people->my_info;
-                            $ret['user'] = $user_info;
-                        }
-                    } else {
-                        $ret = ['login' => $login_info];
-                    }
-                }
+    function my_info() {
+        if (isset($this->_my_login_info)) {
+            $ret = ['login' => $this->_my_login_info];
+            
+            if (isset($this->_my_user_info)) {
+                $ret['user'] = $this->_my_user_info;
             }
+            
+            return $ret;
+        } else {
+            return NULL;
+        }
+    }
+    
+    /***********************/
+    /**
+     */
+    function fetch_data(    $in_plugin_path,            ///< REQUIRED: The plugin path to append to the base URI. This is a string.
+                            $in_query_args = NULL       ///< OPTIONAL: Any query arguments to be attached after a question mark. This is a string.
+                        ) {
+        if (isset($in_query_args) && trim($in_query_args)) {
+            $in_plugin_path .= '?'.$in_query_args;
         }
         
-        return $ret;
+        $response = $this->_call_REST_API('GET', $in_plugin_path);
+        
+        return $response;
     }
     
     /***********************/
@@ -321,12 +362,11 @@ class RVP_PHP_SDK {
         $ret = NULL;
         
         if ($this->is_logged_in()) {
-            $response_code = '';
-            $info = $this->_call_REST_API('GET', 'json/people/people/'.intval($in_user_id).'?login_user', NULL, $response_code);
-            if ((200 == intval($response_code)) && $info) {
+            $info = $this->fetch_data('json/people/people/'.intval($in_user_id), 'login_user');
+            if ($info) {
                 $temp = json_decode($info);
                 if (isset($temp) && isset($temp->people) && isset($temp->people->people) && isset($temp->people->people[0])) {
-                    $ret = $temp->people->people[0];
+                    $ret = new RVP_PHP_SDK_User($this, $temp->people->people[0]->id, $temp->people->people[0]);
                 }
             }
         }
@@ -342,12 +382,31 @@ class RVP_PHP_SDK {
         $ret = NULL;
         
         if ($this->is_logged_in()) {
-            $response_code = '';
-            $info = $this->_call_REST_API('GET', 'json/people/logins/'.intval($in_login_id).'?show_details', NULL, $response_code);
-            if ((200 == intval($response_code)) && $info) {
+            $info = $this->fetch_data('json/people/logins/'.intval($in_login_id), 'show_details');
+            if ($info) {
                 $temp = json_decode($info);
                 if (isset($temp) && isset($temp->people) && isset($temp->people->logins) && isset($temp->people->logins[0])) {
-                    $ret = $temp->people->logins[0];
+                    $ret = new RVP_PHP_SDK_Login($this, $temp->people->logins[0]->id, $temp->people->logins[0]);
+                }
+            }
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+     */
+    function get_thing_info(    $in_thing_id    ///< REQUIRED: The integer ID of the thing we want to examine. If we don't have rights to the thing, or the thing does not exist, we get nothing.
+                            ) {
+        $ret = NULL;
+        
+        if ($this->is_logged_in()) {
+            $info = $this->fetch_data('json/things/'.intval($in_thing_id), 'show_details');
+            if ($info) {
+                $temp = json_decode($info);
+                if (isset($temp) && isset($temp->things) && isset($temp->things[0])) {
+                    $ret = new RVP_PHP_SDK_Thing($this, $temp->things[0]->id, $temp->things[0]);
                 }
             }
         }

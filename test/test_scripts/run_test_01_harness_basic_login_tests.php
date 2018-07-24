@@ -14,25 +14,18 @@
 function run_test_01_harness_basic_login_tests($test_harness_instance) {
     if ($test_harness_instance->sdk_instance->is_logged_in()) {
         echo('<h2>Logged In. There are '.$test_harness_instance->sdk_instance->login_time_left().' Seconds Left.</h2>');
-        $info = $test_harness_instance->sdk_instance->get_my_info();
+        $info = $test_harness_instance->sdk_instance->my_info();
     
-//     echo('MY INFO:<pre>');
-//     var_dump($info);
-//     echo('</pre>');
-
-        $info = $test_harness_instance->sdk_instance->get_user_info(1727);
-    
-    echo('DC ADMIN\'S INFO:<pre>');
-    var_dump($info);
+    echo('MY LOGIN INFO:<pre>');
+    var_dump($info['login']->name());
     echo('</pre>');
-        
-        if (isset($info) && isset($info->associated_login)) {
-            $info = $test_harness_instance->sdk_instance->get_login_info($info->associated_login->id);
-    
-    echo('DC ADMIN\'S LOGIN INFO:<pre>');
-    var_dump($info);
+    echo('MY USER INFO:<pre>');
+    var_dump($info['user']->name());
     echo('</pre>');
-        }
+        $info = $test_harness_instance->sdk_instance->get_thing_info(1732);
+    echo('THING INFO:<pre>');
+    var_dump($info->name());
+    echo('</pre>');
     }
 }
 ?>

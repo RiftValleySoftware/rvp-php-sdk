@@ -17,7 +17,7 @@ require_once(dirname(__FILE__).'/test_scripts/run_test_01_harness_basic_login_te
 $function_list = [
                     [   'blurb' => '01 - INITIAL LOGIN TEST',
                         'db' => 'things_tests_2',
-                        'login' => ['MainAdmin', 'CoreysGoryStory', CO_Config::$session_timeout_in_seconds],
+                        'login' => ['MainAdmin', 'CoreysGoryStory', CO_Config::$session_timeout_in_seconds, 'logout'],
                         'closure' => 'run_test_01_harness_basic_login_tests'
                     ]
                 ];

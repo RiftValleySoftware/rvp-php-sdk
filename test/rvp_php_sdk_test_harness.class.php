@@ -144,7 +144,7 @@ class RVP_PHP_SDK_Test_Harness {
     
     function __construct(   $in_function_list   ///< REQUIRED: A List of all the functions we need to call with this test.
                         ) {
-        $server_uri = 'http://localhost/'.dirname($_SERVER['PHP_SELF']).'/baobab.php';
+        $server_uri = 'http://localhost'.dirname($_SERVER['PHP_SELF']).'/baobab.php';
         $server_secret = 'Supercalifragilisticexpialidocious';
         
         foreach ($in_function_list as $test) {
@@ -167,15 +167,22 @@ class RVP_PHP_SDK_Test_Harness {
             }
             
             $login = $test['login'];
+            $logout = false;
             
-            if (isset($login) && is_array($login) && (3 == count($login))) {
+            if (isset($login) && is_array($login) && (2 < count($login))) {
                 echo('<h2>Preparing the SDK.</h2>');
                 $this->sdk_instance = new RVP_PHP_SDK($server_uri, $server_secret, $login[0], $login[1], $login[2]);
+                if (isset($login[3]) && $login[3]) {
+                    $logout = true;
+                }
                 if ($this->sdk_instance->is_logged_in()) {
                     echo('<h2>SDK Ready.</h2>');
                 } else {
                     echo('<h2 style="color:red">SDK NOT READY!</h2>');
                 }
+            } else {
+                $this->sdk_instance = new RVP_PHP_SDK($server_uri, $server_secret);
+                echo('<h2>SDK Ready.</h2>');
             }
             
             $function = $test['closure'];
@@ -183,6 +190,11 @@ class RVP_PHP_SDK_Test_Harness {
                 $function[0]->$function[1]($this);
             } else {
                 $function($this);
+            }
+            
+            if ($logout && $this->sdk_instance && $this->sdk_instance->is_logged_in()) {
+                echo('<h2>SDK Logged Out.</h2>');
+                $this->sdk_instance->logout();
             }
         }
     }
