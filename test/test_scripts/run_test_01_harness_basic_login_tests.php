@@ -22,7 +22,9 @@ function run_test_01_harness_basic_login_tests($test_harness_instance) {
     echo('MY USER INFO:<pre>');
     var_dump($info['user']->name());
     echo('</pre>');
+    
         $info = $test_harness_instance->sdk_instance->get_thing_info(1732);
+        
     echo('THING INFO:<pre>');
     var_dump($info->name());
     echo('</pre>');
