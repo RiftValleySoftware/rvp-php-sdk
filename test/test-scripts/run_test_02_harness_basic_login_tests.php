@@ -18,6 +18,10 @@ define('__LOGIN_WRITE_TOKEN__', 12);
 define('__LOGIN_TIME_DIFF__', 7);
 define('__LOGIN_LANG__', 'en');
 define('__LOGIN_WRITEABLE__', true);
+define('__LOGIN_MANAGER__', true);
+define('__LOGIN_MAIN_ADMIN__', false);
+define('__LOGIN_LOGGED_IN__', true);
+define('__LOGIN_TOKENS__', [12, 7, 8, 9, 10, 11]);
 
 define('__USER_NAME__', 'Main Admin');
 define('__USER_ID__', 1730);
@@ -30,6 +34,7 @@ define('__USER_WRITEABLE__', true);
 
 function run_test_02_harness_basic_login_tests($test_harness_instance) {
     $all_pass = false;
+    $test_count = 1;
     
     if ($test_harness_instance->sdk_instance->is_logged_in()) {
         $all_pass = true;
@@ -39,12 +44,12 @@ function run_test_02_harness_basic_login_tests($test_harness_instance) {
             $pass = (__LOGIN_NAME__ == $info['login']->name());
         
             $all_pass &= $pass;
-            $test_harness_instance->write_log_entry('1 -LOGIN INFO NAME CHECK', $pass);
+            $test_harness_instance->write_log_entry(strval($test_count++).' -LOGIN INFO NAME CHECK', $pass);
 
             $pass = (__LOGIN_ID__ == $info['login']->id());
         
             $all_pass &= $pass;
-            $test_harness_instance->write_log_entry('2 -LOGIN INFO ID CHECK', $pass);
+            $test_harness_instance->write_log_entry(strval($test_count++).' -LOGIN INFO ID CHECK', $pass);
 
             $tokens = $info['login']->tokens();
             
@@ -53,7 +58,7 @@ function run_test_02_harness_basic_login_tests($test_harness_instance) {
                 $pass &= (__LOGIN_WRITE_TOKEN__ == $tokens['write']);
         
                 $all_pass &= $pass;
-                $test_harness_instance->write_log_entry('3 -LOGIN TOKENS CHECK', $pass);
+                $test_harness_instance->write_log_entry(strval($test_count++).' -LOGIN TOKENS CHECK', $pass);
             }
             
             $last_access = $info['login']->last_access();
@@ -64,21 +69,41 @@ function run_test_02_harness_basic_login_tests($test_harness_instance) {
             $pass = $diff < __LOGIN_TIME_DIFF__;
         
             $all_pass &= $pass;
-            $test_harness_instance->write_log_entry('4 -LOGIN LAST ACCESS CHECK ('.$diff.')', $pass);
+            $test_harness_instance->write_log_entry(strval($test_count++).' -LOGIN LAST ACCESS CHECK ('.$diff.')', $pass);
             
             $pass = (__LOGIN_LANG__ == $info['login']->lang());
         
             $all_pass &= $pass;
-            $test_harness_instance->write_log_entry('5 -LOGIN INFO LANG CHECK', $pass);
+            $test_harness_instance->write_log_entry(strval($test_count++).' -LOGIN INFO LANG CHECK', $pass);
             
             $pass = (__LOGIN_WRITEABLE__ == $info['login']->writeable());
         
             $all_pass &= $pass;
-            $test_harness_instance->write_log_entry('6 -LOGIN INFO WRITEABLE CHECK', $pass);
+            $test_harness_instance->write_log_entry(strval($test_count++).' -LOGIN INFO WRITEABLE CHECK', $pass);
+            
+            $pass = (__LOGIN_MANAGER__ == $info['login']->is_manager());
+        
+            $all_pass &= $pass;
+            $test_harness_instance->write_log_entry(strval($test_count++).' -LOGIN INFO MANAGER CHECK', $pass);
+            
+            $pass = (__LOGIN_MAIN_ADMIN__ == $info['login']->is_main_admin());
+        
+            $all_pass &= $pass;
+            $test_harness_instance->write_log_entry(strval($test_count++).' -LOGIN INFO (NOT) MAIN ADMIN CHECK', $pass);
+            
+            $pass = (__LOGIN_LOGGED_IN__ == $info['login']->is_logged_in());
+        
+            $all_pass &= $pass;
+            $test_harness_instance->write_log_entry(strval($test_count++).' -LOGIN INFO IS LOGGED IN CHECK', $pass);
+            
+            $pass = (__LOGIN_TOKENS__ == $info['login']->tokens());
+        
+            $all_pass &= $pass;
+            $test_harness_instance->write_log_entry(strval($test_count++).' -LOGIN INFO TOKENS CHECK', $pass);
         } else {
             $pass = false;
             $all_pass= false;
-            $test_harness_instance->write_log_entry('1 -LOGIN INFO NAME CHECK', $pass);
+            $test_harness_instance->write_log_entry(strval($test_count++).' -LOGIN INFO NAME CHECK', $pass);
         }
         
         if ($all_pass) {
@@ -87,16 +112,17 @@ function run_test_02_harness_basic_login_tests($test_harness_instance) {
             echo('<h4 style="color:red">LOGIN INFO TESTS FAILED!</h4>');
         }
         
+        $user_pass = true;
         if (isset($info['user'])) {
             $pass = (__USER_NAME__ == $info['user']->name());
         
-            $all_pass &= $pass;
-            $test_harness_instance->write_log_entry('7 -USER INFO NAME CHECK', $pass);
+            $user_pass &= $pass;
+            $test_harness_instance->write_log_entry(strval($test_count++).' -USER INFO NAME CHECK', $pass);
 
             $pass = (__USER_ID__ == $info['user']->id());
         
-            $all_pass &= $pass;
-            $test_harness_instance->write_log_entry('8 -USER INFO ID CHECK', $pass);
+            $user_pass &= $pass;
+            $test_harness_instance->write_log_entry(strval($test_count++).' -USER INFO ID CHECK', $pass);
 
             $coords = $info['user']->coords();
             
@@ -104,8 +130,8 @@ function run_test_02_harness_basic_login_tests($test_harness_instance) {
                 $pass &= (__USER_COORDS_LAT__ == $coords['latitude']);
                 $pass &= (__USER_COORDS_LNG__ == $coords['longitude']);
         
-                $all_pass &= $pass;
-                $test_harness_instance->write_log_entry('9 -USER COORDINATES CHECK', $pass);
+                $user_pass &= $pass;
+                $test_harness_instance->write_log_entry(strval($test_count++).' -USER COORDINATES CHECK', $pass);
             }
 
             $tokens = $info['user']->tokens();
@@ -114,24 +140,24 @@ function run_test_02_harness_basic_login_tests($test_harness_instance) {
                 $pass &= (__USER_READ_TOKEN__ == $tokens['read']);
                 $pass &= (__USER_WRITE_TOKEN__ == $tokens['write']);
         
-                $all_pass &= $pass;
-                $test_harness_instance->write_log_entry('10 -USER TOKENS CHECK', $pass);
+                $user_pass &= $pass;
+                $test_harness_instance->write_log_entry(strval($test_count++).' -USER TOKENS CHECK', $pass);
             }
             
             $last_access = $info['user']->last_access();
             $pass = $last_access == strtotime('1970-01-02 00:00:00');        
-            $all_pass &= $pass;
-            $test_harness_instance->write_log_entry('11 -USER LAST ACCESS CHECK', $pass);
+            $user_pass &= $pass;
+            $test_harness_instance->write_log_entry(strval($test_count++).' -USER LAST ACCESS CHECK', $pass);
             
             $pass = (__USER_LANG__ == $info['user']->lang());
         
-            $all_pass &= $pass;
-            $test_harness_instance->write_log_entry('12 -USER INFO LANG CHECK', $pass);
+            $user_pass &= $pass;
+            $test_harness_instance->write_log_entry(strval($test_count++).' -USER INFO LANG CHECK', $pass);
             
             $pass = (__USER_WRITEABLE__ == $info['user']->writeable());
         
-            $all_pass &= $pass;
-            $test_harness_instance->write_log_entry('13 -USER INFO WRITEABLE CHECK', $pass);
+            $user_pass &= $pass;
+            $test_harness_instance->write_log_entry(strval($test_count++).' -USER INFO WRITEABLE CHECK', $pass);
 
             $payload = $info['user']->payload();
             
@@ -139,19 +165,21 @@ function run_test_02_harness_basic_login_tests($test_harness_instance) {
                 $pass = false;
             }
            
-            $all_pass &= $pass;
-            $test_harness_instance->write_log_entry('14 -USER PAYLOAD CHECK', $pass);
+            $user_pass &= $pass;
+            $test_harness_instance->write_log_entry(strval($test_count++).' -USER (LACK OF) PAYLOAD CHECK', $pass);
         } else {
             $pass = false;
-            $all_pass &= $pass;
-            $test_harness_instance->write_log_entry('7 -USER INFO NAME CHECK', $pass);
+            $user_pass &= $pass;
+            $test_harness_instance->write_log_entry(strval($test_count++).' -USER INFO NAME CHECK', $pass);
         }
         
-        if ($all_pass) {
+        if ($user_pass) {
             echo('<h4 style="color:green">USER INFO TESTS PASS</h4>');
         } else {
             echo('<h4 style="color:red">USER INFO TESTS FAILED!</h4>');
         }
+        
+        $all_pass &= $user_pass;
     } else {
         $test_harness_instance->write_log_entry('LOGIN CHECK', false);
         echo('<h4 style="color:red">NOT LOGGED IN!</h4>');

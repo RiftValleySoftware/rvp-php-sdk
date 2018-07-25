@@ -369,6 +369,18 @@ class RVP_PHP_SDK {
     
     /***********************/
     /**
+    \returns true, if we are currently logged in.
+     */
+    function is_manager() {
+        if ($this->is_logged_in()) {
+            return true;
+        }
+        
+        return false;
+    }
+    
+    /***********************/
+    /**
     If we logged in with a known time limit, we report how mucg time we have left.
     
     \returns the number of seconds (float) we have left in our current login.

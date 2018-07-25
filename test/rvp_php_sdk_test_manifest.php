@@ -15,7 +15,7 @@ $rvp_php_sdk_test_manifest = [
                                 [
                                     'blurb'     =>  'INITIAL INSTANTIATION ONLY TEST',
                                     'explain'   =>  'Set Up The SDK With No Login, And Make Sure the Initial Information Is Correct.',
-                                    'db'        =>  'things_tests_2',
+                                    'db'        =>  'sdk_1',
                                     'closure'   =>  [
                                                     'function'  =>  'run_test_01_harness_basic_login_tests',
                                                     'file'      =>  'test-scripts/run_test_01_harness_basic_login_tests.php'
@@ -25,7 +25,7 @@ $rvp_php_sdk_test_manifest = [
                                 [
                                     'blurb'     =>  'INITIAL INSTANTIATION AND LOGIN TEST',
                                     'explain'   =>  'Set Up The SDK With A Login, And Make Sure the Initial Information Is Correct.',
-                                    'db'        =>  'things_tests_2',
+                                    'db'        =>  'sdk_1',
                                     'closure'   =>  [
                                                     'function'  =>  'run_test_02_harness_basic_login_tests',
                                                     'file'      =>  'test-scripts/run_test_02_harness_basic_login_tests.php'

@@ -51,5 +51,90 @@ class RVP_PHP_SDK_Login extends A_RVP_PHP_SDK_Object {
     
     /***********************/
     /**
+    This requires a "detailed" load.
+    
+    \returns true, if this is login is currently logged in.
      */
+    function is_logged_in() {
+        $ret = false;
+        
+        $this->_load_data(false, true);
+        if (isset($this->_object_data) && isset($this->_object_data->current_login) && $this->_object_data->current_login) {
+            $ret = true;
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    This requires a "detailed" load.
+    
+    \returns true, if this is a manager login.
+     */
+    function is_manager() {
+        $ret = false;
+        
+        $this->_load_data(false, true);
+        
+        if (isset($this->_object_data) && isset($this->_object_data->is_manager) && $this->_object_data->is_manager) {
+            $ret = true;
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    This requires a "detailed" load.
+    
+    \returns true, if this is a main admin login.
+     */
+    function is_main_admin() {
+        $ret = false;
+        
+        $this->_load_data(false, true);
+        
+        if (isset($this->_object_data) && isset($this->_object_data->is_main_admin) && $this->_object_data->is_main_admin) {
+            $ret = true;
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    This requires a "detailed" load.
+    
+    \returns an array of integer (security tokens) that comprise the "pool" for this login.
+     */
+    function tokens() {
+        $ret = [];
+        
+        $this->_load_data(false, true);
+        
+        if (isset($this->_object_data) && isset($this->_object_data->security_tokens)) {
+            $ret = $this->_object_data->security_tokens;
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    This requires a "detailed" load.
+    
+    \returns an integer. The ID of any associated user object. It returns 0 if there is no associated user object.
+     */
+    function user_object_id() {
+        $ret = false;
+        
+        $this->_load_data(false, true);
+        
+        if (isset($this->_object_data) && isset($this->_object_data->user_object_id)) {
+            $ret = intval($this->_object_data->user_object_id);
+        }
+        
+        return $ret;
+    }
 };

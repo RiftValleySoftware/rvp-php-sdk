@@ -237,11 +237,18 @@ class RVP_PHP_SDK_Test_Harness {
                 } else {
                     $this->write_log_entry('FAILED DATABASE SETUP', false);
                     echo($result);
+                    echo('</div>');
+                    echo('</div>');
+                    continue;
                 }
             }
             
             $logout = false;
             
+            $this->write_log_entry('END PREP - START TEST');
+            $this->test_start_time = microtime(true);
+            $this->prep_time = $this->test_start_time - $this->prep_start_time;
+
             if (isset($login_setup)) {
                 if (isset($login_setup['logout']) && $login_setup['logout']) {
                     $logout = true;
@@ -251,7 +258,7 @@ class RVP_PHP_SDK_Test_Harness {
                 $this->sdk_instance = new RVP_PHP_SDK(__SERVER_URI__, __SERVER_SECRET__, $login_setup['login_id'], $login_setup['password'], $login_setup['timeout']);
                 
                 if ($this->sdk_instance->is_logged_in()) {
-                    echo('<h3>SDK Ready And Logged In. There are '.$this->sdk_instance->login_time_left().' Seconds Left.</h3>');
+                    echo('<h3>SDK Ready And Logged In. There Are '.$this->sdk_instance->login_time_left().' Seconds Left.</h3>');
                 } else {
                     $this->write_log_entry('FAILED SDK LOGIN', false);
                     echo('<h3 style="color:red">SDK NOT LOGGED IN!</h3>');
@@ -264,9 +271,6 @@ class RVP_PHP_SDK_Test_Harness {
             $function = $test['closure']['function'];
             $function_file = $test['closure']['file'];
             include_once($function_file);
-            $this->test_start_time = microtime(true);
-            $this->prep_time = $this->test_start_time - $this->prep_start_time;
-            $this->write_log_entry('END PREP - START TEST');
             
             if (is_array($function)) {
                 $thispass = $function[0]->$function[1]($this);
@@ -277,7 +281,7 @@ class RVP_PHP_SDK_Test_Harness {
             $allpass &= $thispass;
             
             if ($logout && $this->sdk_instance && $this->sdk_instance->is_logged_in()) {
-                echo('<h3>SDK Logged Out.</h3>');
+                echo('<h3>SDK Logging Out. There Were '.$this->sdk_instance->login_time_left().' Seconds Left In the Login.</h3>');
                 $this->sdk_instance->logout();
             }
             
