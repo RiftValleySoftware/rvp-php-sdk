@@ -18,9 +18,17 @@ define('LGV_CONFIG_CATCHER', true);
 require_once (dirname(__FILE__).'/config/s_config.class.php');
 define('__SERVER_URI__', 'http://localhost'.dirname($_SERVER['PHP_SELF']).'/baobab.php');
 define('__SERVER_SECRET__', 'Supercalifragilisticexpialidocious');
+define('__LOG_FILE__', dirname(__FILE__).'/test_log_file.csv');
 
 class RVP_PHP_SDK_Test_Harness {
     var $sdk_instance = NULL;
+    var $log_file = NULL;
+    var $main_start_time = NULL;
+    var $prep_time = NULL;
+    var $test_time = NULL;
+    var $prep_start_time = NULL;
+    var $test_start_time = NULL;
+    var $current_test_name = NULL;
     
     static function prepare_databases($in_file_prefix) {
         $ret = '';
@@ -49,7 +57,7 @@ class RVP_PHP_SDK_Test_Harness {
                                             $exception->getFile(),
                                             $exception->getLine(),
                                             $exception->getMessage());
-                $ret = '<h1 style="color:red">ERROR WHILE TRYING TO ACCESS DATABASES!</h1>';
+                $ret = '<h2 style="color:red">ERROR WHILE TRYING TO ACCESS DATABASES!</h2>';
                 $ret .= '<pre>'.htmlspecialchars(print_r($error, true)).'</pre>';
         }
     
@@ -74,12 +82,12 @@ class RVP_PHP_SDK_Test_Harness {
                                             $exception->getLine(),
                                             $exception->getMessage());
                                                 
-                $ret = '<h1 style="color:red">ERROR WHILE TRYING TO OPEN DATABASES!</h1>';
+                $ret = '<h2 style="color:red">ERROR WHILE TRYING TO OPEN DATABASES!</h2>';
                 $ret .= '<pre>'.htmlspecialchars(print_r($error, true)).'</pre>';
                 }
             }
         } else {
-            $ret = '<h1 style="color:red">UNABLE TO OPEN DATABASE!</h1>';
+            $ret = '<h2 style="color:red">UNABLE TO OPEN DATABASE!</h2>';
         }
         
         return $ret;
@@ -144,25 +152,90 @@ class RVP_PHP_SDK_Test_Harness {
         return $result;
     }
     
+    function open_log_file( $in_clear_file = false
+                            ) {
+        $this->log_file = fopen(__LOG_FILE__, ($in_clear_file ? 'w' : 'a'));
+        
+        if ($this->log_file && $in_clear_file) {
+            $line = "test_number,test_name,log_message,test_passed,actual_time,current_test_time,total_prep_time,total_test_time\n";
+            
+            fwrite($this->log_file, $line);
+        }
+    }
+    
+    function close_log_file() {
+        if ($this->log_file) {
+            fclose($this->log_file);
+            $this->log_file = NULL;
+        }
+    }
+    
+    function write_log_entry(   $in_message = '',
+                                $in_pass_fail = true
+                            ) {
+        if ($this->log_file) {
+            $test_timestamp = sprintf('%f', $this->test_time);
+            $prep_timestamp = sprintf('%f', $this->prep_time);
+            
+            $timestamp = microtime(true);
+            $main_timestamp = $this->main_start_time ? sprintf('%f', ($timestamp - $this->main_start_time)) : '0';
+            $timestamp = sprintf('%f', $timestamp);
+            
+            $name = str_replace('"', '\\"', $this->current_test_name);
+            $message = str_replace('"', '\\"', $in_message);
+            $pass_fail = $in_pass_fail ? 'PASS' : 'FAIL';
+            $index = strval($this->test_index);
+            
+            $line = "$index,'$name','$message','$pass_fail',$timestamp,$main_timestamp,$prep_timestamp,$test_timestamp\n";
+            
+            fwrite($this->log_file, $line);
+        }
+    }
+    
     function __construct(   $in_function_manifest   ///< REQUIRED: A List of all the functions we need to call with this test.
                         ) {
+        $this->log_file = NULL;
+        $this->main_start_time = microtime(true);
+        $this->prep_start_time = 0;
+        $this->test_start_time = 0;
+        $this->test_index = 0;
+        
+        $this->open_log_file(true);
+        
+        $this->current_test_name = '****';
+        $this->write_log_entry('MAIN TEST START');
+        
+        $allpass = true;
         
         foreach ($in_function_manifest as $test) {
-            $blurb = $test['blurb'];
-            $explain = $test['explain'];
-            $db_prefix = $test['db'];
-            $login_setup = $test['login'];
-
-            if (isset($blurb)) {
-                echo('<h1>'.htmlspecialchars($blurb).'</h1>');
-            }
+            $this_pass = true;
+            
+            $this->prep_time = 0;
+            $this->test_time = 0;
+            $this->test_start_time = 0;
+            $this->prep_start_time = microtime(true);
+            
+            $blurb = (isset($test['blurb']) && trim($test['blurb'])) ? trim($test['blurb']) : 'Unnamed Test';
+            $explain = isset($test['explain']) ? $test['explain'] : NULL;
+            $db_prefix = isset($test['db']) ? $test['db'] : NULL;
+            $login_setup = isset($test['login']) ? $test['login'] : NULL;
+            
+            $this->test_index++;
+            $this->current_test_name = $blurb;
+            $this->write_log_entry('START PREP');
+            $main_id = 'test_wrapper_'.$this->test_index.'_'.uniqid();
+            
+            echo('<div id="'.$main_id.'" class="closed">');
+            echo('<h2 class="header"><a href="javascript:toggle_main_state(\''.$main_id.'\')">TEST SET '.$this->test_index.': '.htmlspecialchars($blurb).'</a></h2>');
+            echo('<div class="container">');
             
             if (isset($db_prefix) && $db_prefix) {
-                echo('<h2>Preparing the "'.htmlspecialchars($db_prefix).'" Databases.</h2>');
+                echo('<h3>Preparing the "'.htmlspecialchars($db_prefix).'" Databases.</h3>');
                 $result = self::prepare_databases($db_prefix);
                 if (!$result) {
-                    echo('<h2>Databases Ready.</h2>');
+                    echo('<h3>Databases Ready.</h3>');
                 } else {
+                    $this->write_log_entry('FAILED DATABASE SETUP', false);
                     echo($result);
                 }
             }
@@ -174,34 +247,55 @@ class RVP_PHP_SDK_Test_Harness {
                     $logout = true;
                 }
                 
-                echo('<h2>Preparing the SDK.</h2>');
+                echo('<h3>Preparing the SDK.</h3>');
                 $this->sdk_instance = new RVP_PHP_SDK(__SERVER_URI__, __SERVER_SECRET__, $login_setup['login_id'], $login_setup['password'], $login_setup['timeout']);
                 
                 if ($this->sdk_instance->is_logged_in()) {
-                    echo('<h2>SDK Ready And Logged In.</h2>');
+                    echo('<h3>SDK Ready And Logged In. There are '.$this->sdk_instance->login_time_left().' Seconds Left.</h3>');
                 } else {
-                    echo('<h2 style="color:red">SDK NOT READY!</h2>');
+                    $this->write_log_entry('FAILED SDK LOGIN', false);
+                    echo('<h3 style="color:red">SDK NOT LOGGED IN!</h3>');
                 }
             } else {
                 $this->sdk_instance = new RVP_PHP_SDK(__SERVER_URI__, __SERVER_SECRET__);
-                echo('<h2>SDK Ready.</h2>');
+                echo('<h3>SDK Ready, But Not Logged In.</h3>');
             }
             
             $function = $test['closure']['function'];
             $function_file = $test['closure']['file'];
             include_once($function_file);
+            $this->test_start_time = microtime(true);
+            $this->prep_time = $this->test_start_time - $this->prep_start_time;
+            $this->write_log_entry('END PREP - START TEST');
             
             if (is_array($function)) {
-                $function[0]->$function[1]($this);
+                $thispass = $function[0]->$function[1]($this);
             } else {
-                $function($this);
+                $thispass = $function($this);
             }
             
+            $allpass &= $thispass;
+            
             if ($logout && $this->sdk_instance && $this->sdk_instance->is_logged_in()) {
-                echo('<h2>SDK Logged Out.</h2>');
+                echo('<h3>SDK Logged Out.</h3>');
                 $this->sdk_instance->logout();
             }
+            
+            $this->test_time = microtime(true) - $this->test_start_time;
+            
+            $this->write_log_entry('END TEST', $thispass);
+            
+            echo('</div>');
+            echo('</div>');
         }
+        
+        $this->prep_time = 0;
+        $this->test_time = 0;
+        $this->test_index = 0;
+        $this->current_test_name = '****';
+        $this->write_log_entry('MAIN TEST END', $allpass);
+        
+        $this->close_log_file();
     }
 };
 ?>

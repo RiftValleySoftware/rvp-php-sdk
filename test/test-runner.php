@@ -11,7 +11,6 @@
 
     Little Green Viper Software Development: https://littlegreenviper.com
 */
-    date_default_timezone_set ( 'UTC' );
     set_time_limit(3600);
     
     require_once(dirname(__FILE__).'/rvp_php_sdk_test_harness.class.php');

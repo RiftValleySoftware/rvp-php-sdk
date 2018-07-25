@@ -12,24 +12,30 @@
     Little Green Viper Software Development: https://littlegreenviper.com
 */
 function run_test_01_harness_basic_login_tests($test_harness_instance) {
-    if ($test_harness_instance->sdk_instance->is_logged_in()) {
-        echo('<h2>Logged In. There are '.$test_harness_instance->sdk_instance->login_time_left().' Seconds Left.</h2>');
-        $info = $test_harness_instance->sdk_instance->my_info();
+    $all_pass = true;
     
-    echo('MY LOGIN INFO:<pre>');
-    var_dump($info['login']->name());
-    echo('</pre>');
-    echo('MY USER INFO:<pre>');
-    var_dump($info['user']->name());
-    echo('</pre>');
-    
-        $info = $test_harness_instance->sdk_instance->get_thing_info(1732);
-        
-    echo('THING INFO:<pre>');
-    var_dump($info->name());
-    echo('</pre>');
+    if (isset($test_harness_instance->sdk_instance)) {
+        if ($test_harness_instance->sdk_instance->valid()) {
+            $test_harness_instance->write_log_entry('1- INSTANTIATION CHECK', true);
+            $test_harness_instance->write_log_entry('2- VALIDITY CHECK', true);
+            if ($test_harness_instance->sdk_instance->is_logged_in()) {
+                $test_harness_instance->write_log_entry('3- LOGIN CHECK', false);
+                echo('<h4 style="color:red">SHOULD NOT BE LOGGED IN!</h4>');
+                $all_pass = false;
+            } else {
+                $test_harness_instance->write_log_entry('3- LOGIN CHECK', true);
+                echo('<h4 style="color:green">NO LOGIN AND VALID -CORRECT!</h4>');
+            }
+        } else {
+            $test_harness_instance->write_log_entry('2- VALIDITY CHECK', false);
+            echo('<h4 style="color:red">SERVER NOT VALID!</h4>');
+        }
     } else {
-        echo('<h2 style="color:red">NOT LOGGED IN!</h2>');
-    }        
+        $all_pass = false;
+        $test_harness_instance->write_log_entry('1- INSTANTIATION CHECK', false);
+        echo('<h4 style="color:red">NO SDK INSTANCE!</h4>');
+    }
+    
+    return $all_pass;     
 }
 ?>
