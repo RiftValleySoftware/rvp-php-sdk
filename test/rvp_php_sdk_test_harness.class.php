@@ -29,6 +29,7 @@ class RVP_PHP_SDK_Test_Harness {
     var $prep_start_time = NULL;
     var $test_start_time = NULL;
     var $current_test_name = NULL;
+    var $test_count = 0;
     
     static function prepare_databases($in_file_prefix) {
         $ret = '';
@@ -157,7 +158,7 @@ class RVP_PHP_SDK_Test_Harness {
         $this->log_file = fopen(__LOG_FILE__, ($in_clear_file ? 'w' : 'a'));
         
         if ($this->log_file && $in_clear_file) {
-            $line = "test_number,test_name,log_message,test_passed,actual_time,current_test_time,total_prep_time,total_test_time\n";
+            $line = "test_suite_number,test_number,test_name,log_message,test_passed,actual_time,current_test_time,total_prep_time,total_test_time\n";
             
             fwrite($this->log_file, $line);
         }
@@ -171,6 +172,7 @@ class RVP_PHP_SDK_Test_Harness {
     }
     
     function write_log_entry(   $in_message = '',
+                                $in_num = 0,
                                 $in_pass_fail = true
                             ) {
         if ($this->log_file) {
@@ -185,8 +187,8 @@ class RVP_PHP_SDK_Test_Harness {
             $message = str_replace('"', '\\"', $in_message);
             $pass_fail = $in_pass_fail ? 'PASS' : 'FAIL';
             $index = strval($this->test_index);
-            
-            $line = "$index,'$name','$message','$pass_fail',$timestamp,$main_timestamp,$prep_timestamp,$test_timestamp\n";
+            $num = (0 == $in_num) ? '*' : intval($in_num);
+            $line = "$index,$num,'$name','$message','$pass_fail',$timestamp,$main_timestamp,$prep_timestamp,$test_timestamp\n";
             
             fwrite($this->log_file, $line);
         }
@@ -206,6 +208,7 @@ class RVP_PHP_SDK_Test_Harness {
         $this->write_log_entry('MAIN TEST START');
         
         $allpass = true;
+        $this->test_count = 0;
         
         foreach ($in_function_manifest as $test) {
             $this_pass = true;
@@ -235,7 +238,7 @@ class RVP_PHP_SDK_Test_Harness {
                 if (!$result) {
                     echo('<h3>Databases Ready.</h3>');
                 } else {
-                    $this->write_log_entry('FAILED DATABASE SETUP', false);
+                    $this->write_log_entry('FAILED DATABASE SETUP', 0, false);
                     echo($result);
                     echo('</div>');
                     echo('</div>');
@@ -260,7 +263,7 @@ class RVP_PHP_SDK_Test_Harness {
                 if ($this->sdk_instance->is_logged_in()) {
                     echo('<h3>SDK Ready And Logged In. There Are '.$this->sdk_instance->login_time_left().' Seconds Left.</h3>');
                 } else {
-                    $this->write_log_entry('FAILED SDK LOGIN', false);
+                    $this->write_log_entry('FAILED SDK LOGIN', 0, false);
                     echo('<h3 style="color:red">SDK NOT LOGGED IN!</h3>');
                 }
             } else {
@@ -279,7 +282,6 @@ class RVP_PHP_SDK_Test_Harness {
             }
             
             $allpass &= $thispass;
-            
             if ($logout && $this->sdk_instance && $this->sdk_instance->is_logged_in()) {
                 echo('<h3>SDK Logging Out. There Were '.$this->sdk_instance->login_time_left().' Seconds Left In the Login.</h3>');
                 $this->sdk_instance->logout();
@@ -287,7 +289,7 @@ class RVP_PHP_SDK_Test_Harness {
             
             $this->test_time = microtime(true) - $this->test_start_time;
             
-            $this->write_log_entry('END TEST', $thispass);
+            $this->write_log_entry('END TEST', 0, $thispass);
             
             echo('</div>');
             echo('</div>');
@@ -297,7 +299,7 @@ class RVP_PHP_SDK_Test_Harness {
         $this->test_time = 0;
         $this->test_index = 0;
         $this->current_test_name = '****';
-        $this->write_log_entry('MAIN TEST END', $allpass);
+        $this->write_log_entry('MAIN TEST END', 0, $allpass);
         
         $this->close_log_file();
     }

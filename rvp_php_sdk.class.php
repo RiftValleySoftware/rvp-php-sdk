@@ -32,7 +32,6 @@ class RVP_PHP_SDK {
     protected   $_server_uri;           ///< This is the URI of the BAOBAB server.
     protected   $_server_secret;        ///< This is the "server secret" that is specified by the admin of the BAOBAB server.
     protected   $_api_key;              ///< This is the current session API key.
-    protected   $_login_time;           ///< The microtime for the last successful login. Meaningless if _api_key is NULL.
     protected   $_login_time_limit;     ///< If >0, then this is the maximum time at which the current login is valid.
     protected   $_error;                ///< This is supposed to be NULL. However, if we have an error, it will contain a code.
     protected   $_my_login_info;        ///< This will contain any login information for the current login (NULL if not logged in).
@@ -266,7 +265,6 @@ class RVP_PHP_SDK {
         $this->_server_uri = trim($in_server_uri, '/'); // This is the server's base URI.
         $this->_server_secret  = $in_server_secret;     // This is the secret that we need to provide with authentication.
         $this->_api_key = NULL;                         // If we log in, this will be non-NULL, and will contain the active API key for this instance.
-        $this->_login_time = 0;                         // This is the microtime that we had a successful login. This plus the time limit are the maximum login age.
         $this->_login_time_limit = -1;                  // No timeout to start.
         $this->_my_login_info = NULL;                   // If we have logged in, we have the info for our login here.
         $this->_my_user_info = NULL;                    // If we have logged in, we have the info for our user (if available) here.
@@ -293,12 +291,11 @@ class RVP_PHP_SDK {
                     $in_login_timeout = -1  ///< OPTIONAL: If we have a known login timeout, we provide it here.
                     ) {
         if (!$this->_api_key && $this->valid()) {
+            $this->_login_time_limit = (0 < $in_login_timeout) ? (floatval($in_login_timeout) + microtime(true)) : -1;
             $api_key = $this->fetch_data('login', 'login_id='.urlencode($in_username).'&password='.urlencode($in_password));
             
             if (isset($api_key) && $api_key) {
                 $this->_api_key = $api_key;
-                $this->_login_time = microtime(true);
-                $this->_login_time_limit = (0 < $in_login_timeout) ? floatval($in_login_timeout) + $this->_login_time : -1;
                 $this->_my_login_info = NULL;
                 $this->_my_user_info = NULL;
                 $info = $this->_get_my_info();
@@ -312,6 +309,11 @@ class RVP_PHP_SDK {
                 }
                 
                 return true;
+            } else {
+                $this->_api_key = NULL;
+                $this->_login_time_limit = -1;
+                $this->_my_login_info = NULL;
+                $this->_my_user_info = NULL;
             }
         }
         
@@ -330,7 +332,6 @@ class RVP_PHP_SDK {
             $this->_call_REST_API('GET', 'logout', NULL, $response_code);
             if (205 == intval($response_code)) {
                 $this->_api_key = NULL;
-                $this->_login_time = 0;
                 $this->_login_time_limit = -1;
                 $this->_my_login_info = NULL;
                 $this->_my_user_info = NULL;
@@ -338,7 +339,6 @@ class RVP_PHP_SDK {
             }
         } else {
             $this->_api_key = NULL;
-            $this->_login_time = 0;
             $this->_login_time_limit = -1;
             $this->_my_login_info = NULL;
             $this->_my_user_info = NULL;
@@ -360,11 +360,7 @@ class RVP_PHP_SDK {
     \returns true, if we are currently logged in.
      */
     function is_logged_in() {
-        if ($this->_api_key && ((0 >= $this->_login_time_limit) || ($this->_login_time_limit > floatval($this->_login_time)))) {
-            return true;
-        }
-        
-        return false;
+        return 0 < $this->login_time_left();
     }
     
     /***********************/
@@ -386,8 +382,8 @@ class RVP_PHP_SDK {
     \returns the number of seconds (float) we have left in our current login.
      */
     function login_time_left() {
-        if ($this->is_logged_in() && (0 < $this->_login_time_limit)) {
-            return max($this->_login_time_limit - floatval($this->_login_time), 0);
+        if (0 < $this->_login_time_limit) {
+            return floor(100 * max($this->_login_time_limit - microtime(true), 0)) / 100;
         }
         
         return 0;
