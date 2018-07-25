@@ -23,8 +23,14 @@ function run_test_01_harness_basic_login_tests($test_harness_instance) {
                 echo('<h4 style="color:red">SHOULD NOT BE LOGGED IN!</h4>');
                 $all_pass = false;
             } else {
-                $test_harness_instance->write_log_entry('3- LOGIN CHECK', true);
-                echo('<h4 style="color:green">NO LOGIN AND VALID -CORRECT!</h4>');
+                if ($test_harness_instance->sdk_instance->plugins() == ['baseline', 'people', 'places', 'things']) {
+                    $test_harness_instance->write_log_entry('3- PLUGIN CHECK', true);
+                    $test_harness_instance->write_log_entry('4- LOGIN CHECK', true);
+                    echo('<h4 style="color:green">NO LOGIN AND VALID PLUGINS!</h4>');
+                } else {
+                    $test_harness_instance->write_log_entry('3- PLUGIN CHECK', false);
+                    echo('<h4 style="color:red">PLUGINS NOT VALID!</h4>');
+                }
             }
         } else {
             $test_harness_instance->write_log_entry('2- VALIDITY CHECK', false);

@@ -401,6 +401,20 @@ class RVP_PHP_SDK {
     
     /***********************/
     /**
+    \returns an array of strings, with the available plugins.
+     */
+    function plugins() {
+        $ret = [];
+        
+        if ($this->valid()) {
+            $ret = $this->_available_plugins;
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
     This method will initiate and complete a data GET connection to the server. It takes care of any authentication.
     
     \returns whatever data was returned. Usually JSON.
