@@ -88,7 +88,7 @@ require_once (dirname(__FILE__).'/config/s_config.class.php');
                     </div>
                 </div>
             </div>
-            <h3 style="margin-top:1em"><a href="test.php">SDK TESTS</a></h3>
+            <h3 style="margin-top:1em"><a href="run-test.php">SDK TESTS</a></h3>
             <h3 style="margin-top:1em"><a href="basalt/test/runTests.php">BASALT TESTS</a></h3>
             <h3 style="margin-top:1em"><a href="basalt/andisol/test/">ANDISOL TESTS</a></h3>
             <h3 style="margin-top:1em"><a href="basalt/andisol/cobra/test/">COBRA TESTS</a></h3>

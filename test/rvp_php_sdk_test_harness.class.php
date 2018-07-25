@@ -16,6 +16,8 @@ require_once (dirname(dirname(__FILE__)).'/rvp_php_sdk.class.php');
 
 define('LGV_CONFIG_CATCHER', true);
 require_once (dirname(__FILE__).'/config/s_config.class.php');
+define('__SERVER_URI__', 'http://localhost'.dirname($_SERVER['PHP_SELF']).'/baobab.php');
+define('__SERVER_SECRET__', 'Supercalifragilisticexpialidocious');
 
 class RVP_PHP_SDK_Test_Harness {
     var $sdk_instance = NULL;
@@ -142,19 +144,18 @@ class RVP_PHP_SDK_Test_Harness {
         return $result;
     }
     
-    function __construct(   $in_function_list   ///< REQUIRED: A List of all the functions we need to call with this test.
+    function __construct(   $in_function_manifest   ///< REQUIRED: A List of all the functions we need to call with this test.
                         ) {
-        $server_uri = 'http://localhost'.dirname($_SERVER['PHP_SELF']).'/baobab.php';
-        $server_secret = 'Supercalifragilisticexpialidocious';
         
-        foreach ($in_function_list as $test) {
+        foreach ($in_function_manifest as $test) {
             $blurb = $test['blurb'];
-            
+            $explain = $test['explain'];
+            $db_prefix = $test['db'];
+            $login_setup = $test['login'];
+
             if (isset($blurb)) {
                 echo('<h1>'.htmlspecialchars($blurb).'</h1>');
             }
-            
-            $db_prefix = $test['db'];
             
             if (isset($db_prefix) && $db_prefix) {
                 echo('<h2>Preparing the "'.htmlspecialchars($db_prefix).'" Databases.</h2>');
@@ -166,26 +167,30 @@ class RVP_PHP_SDK_Test_Harness {
                 }
             }
             
-            $login = $test['login'];
             $logout = false;
             
-            if (isset($login) && is_array($login) && (2 < count($login))) {
-                echo('<h2>Preparing the SDK.</h2>');
-                $this->sdk_instance = new RVP_PHP_SDK($server_uri, $server_secret, $login[0], $login[1], $login[2]);
-                if (isset($login[3]) && $login[3]) {
+            if (isset($login_setup)) {
+                if (isset($login_setup['logout']) && $login_setup['logout']) {
                     $logout = true;
                 }
+                
+                echo('<h2>Preparing the SDK.</h2>');
+                $this->sdk_instance = new RVP_PHP_SDK(__SERVER_URI__, __SERVER_SECRET__, $login_setup['login_id'], $login_setup['password'], $login_setup['timeout']);
+                
                 if ($this->sdk_instance->is_logged_in()) {
-                    echo('<h2>SDK Ready.</h2>');
+                    echo('<h2>SDK Ready And Logged In.</h2>');
                 } else {
                     echo('<h2 style="color:red">SDK NOT READY!</h2>');
                 }
             } else {
-                $this->sdk_instance = new RVP_PHP_SDK($server_uri, $server_secret);
+                $this->sdk_instance = new RVP_PHP_SDK(__SERVER_URI__, __SERVER_SECRET__);
                 echo('<h2>SDK Ready.</h2>');
             }
             
-            $function = $test['closure'];
+            $function = $test['closure']['function'];
+            $function_file = $test['closure']['file'];
+            include_once($function_file);
+            
             if (is_array($function)) {
                 $function[0]->$function[1]($this);
             } else {

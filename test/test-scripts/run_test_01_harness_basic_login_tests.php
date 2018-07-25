@@ -28,6 +28,8 @@ function run_test_01_harness_basic_login_tests($test_harness_instance) {
     echo('THING INFO:<pre>');
     var_dump($info->name());
     echo('</pre>');
-    }
+    } else {
+        echo('<h2 style="color:red">NOT LOGGED IN!</h2>');
+    }        
 }
 ?>
