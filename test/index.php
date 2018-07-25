@@ -11,16 +11,89 @@
 
     Little Green Viper Software Development: https://littlegreenviper.com
 */
-require_once(dirname(__FILE__).'/rvp_php_sdk_test_harness.class.php');
-require_once(dirname(__FILE__).'/test_scripts/run_test_01_harness_basic_login_tests.php');
+define('LGV_CONFIG_CATCHER', true);
+require_once (dirname(__FILE__).'/config/s_config.class.php');
 
-$function_list = [
-                    [   'blurb' => '01 - INITIAL LOGIN TEST',
-                        'db' => 'things_tests_2',
-                        'login' => ['MainAdmin', 'CoreysGoryStory', CO_Config::$session_timeout_in_seconds, 'logout'],
-                        'closure' => 'run_test_01_harness_basic_login_tests'
-                    ]
-                ];
-
-$test_harness_instance = new RVP_PHP_SDK_Test_Harness($function_list);
-?>
+?><!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>BAOBAB</title>
+        <link rel="shortcut icon" href="../images/PHP-SDK.png" type="image/png" />
+        <style>
+            *{margin:0;padding:0}
+            body {
+                font-family: Arial, San-serif;
+                }
+            
+            div.main_div {
+                margin-top:0.25em;
+                margin-bottom: 0.25em;
+                margin-left:1em;
+                padding: 0.5em;
+            }
+            
+            .explain {
+                font-style: italic;
+            }
+            
+            h1.header {
+                font-size: large;
+                margin-top: 1em;
+                text-align:center;
+            }
+            
+        </style>
+    </head>
+    <body>
+        <h1 style="text-align:center">RIFT VALLEY PLATFORM PHP SDK TEST</h1>
+        <div style="text-align:center;padding:1em;">
+            <?php
+                if ( !defined('LGV_BASALT_CATCHER') ) {
+                    define('LGV_BASALT_CATCHER', 1);
+                }
+    
+                require_once(CO_Config::main_class_dir()."/co_basalt.class.php");
+            ?>
+            <img src="../images/PHP-SDK.png" style="display:block;margin:auto;width:80px" alt="SDK Logo" />
+            <h1 class="header">MAIN ENVIRONMENT SETUP</h1>
+            <div style="text-align:left;margin:auto;display:table">
+                <div class="main_div container">
+                    <?php
+                        echo("<div style=\"margin:auto;text-align:center;display:table\">");
+                        echo("<h2>File/Folder Locations</h2>");
+                        echo("<pre style=\"margin:auto;text-align:left;display:table\">");
+                        echo("<strong>BASALT Version</strong>..........".__BASALT_VERSION__."\n");
+                        echo("<strong>ANDISOL Version</strong>.........".__ANDISOL_VERSION__."\n");
+                        echo("<strong>COBRA Version</strong>...........".__COBRA_VERSION__."\n");
+                        echo("<strong>CHAMELEON Version</strong>.......".__CHAMELEON_VERSION__."\n");
+                        echo("<strong>BADGER Version</strong>..........".__BADGER_VERSION__."\n");
+                        echo("<strong>BASALT Base dir</strong>.........".CO_Config::base_dir()."\n");
+                        echo("<strong>ANDISOL Base dir</strong>........".CO_Config::andisol_base_dir()."\n");
+                        echo("<strong>COBRA Base dir</strong>..........".CO_Config::cobra_base_dir()."\n");
+                        echo("<strong>CHAMELEON Base dir</strong>......".CO_Config::chameleon_base_dir()."\n");
+                        echo("<strong>BADGER Base dir</strong>.........".CO_Config::badger_base_dir()."\n");
+                        foreach (CO_Config::db_classes_extension_class_dir() as $dir) {
+                            echo("<strong>Extension classes dir:</strong>..$dir\n");
+                        }
+                        echo("</pre></div>");
+                    ?>
+                    <div class="main_div">
+                        <h2 style="text-align:center">Instructions</h2>
+                        <p class="explain">In order to run these tests, you should set up two (2) blank databases. They can both be the same DB, but that is not the advised configuration for Badger.</p>
+                        <p class="explain">The first (main) database should be called "<?php echo(CO_Config::$data_db_name) ?>", and the second (security) database should be called "<?php echo(CO_Config::$sec_db_name) ?>".</p>
+                        <p class="explain">The main database should be have a full rights login named "<?php echo(CO_Config::$data_db_login) ?>", with a password of "<?php echo(CO_Config::$data_db_password) ?>".</p>
+                        <p class="explain">The security database should have a full rights login named "<?php echo(CO_Config::$sec_db_login) ?>", with a password of "<?php echo(CO_Config::$sec_db_password) ?>".</p>
+                        <p class="explain" style="font-weight:bold;color:red;font-style:italic">This test will wipe out the tables, and set up pre-initialized tables, so it goes without saying that these should be databases (and users) reserved for testing only.</p>
+                    </div>
+                </div>
+            </div>
+            <h3 style="margin-top:1em"><a href="test.php">SDK TESTS</a></h3>
+            <h3 style="margin-top:1em"><a href="basalt/test/runTests.php">BASALT TESTS</a></h3>
+            <h3 style="margin-top:1em"><a href="basalt/andisol/test/">ANDISOL TESTS</a></h3>
+            <h3 style="margin-top:1em"><a href="basalt/andisol/cobra/test/">COBRA TESTS</a></h3>
+            <h3 style="margin-top:1em"><a href="basalt/andisol/cobra/chameleon/test/">CHAMELEON TESTS</a></h3>
+            <h3 style="margin-top:1em"><a href="basalt/andisol/cobra/chameleon/badger/test/">BADGER TESTS</a></h3>
+        </div>
+    </body>
+</html>
