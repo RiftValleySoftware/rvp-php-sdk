@@ -1,7 +1,7 @@
 <?php
 /***************************************************************************************************************************/
 /**
-    BASALT Extension Layer
+    BAOBAB PHP SDK
     
     © Copyright 2018, Little Green Viper Software Development LLC.
     
@@ -16,6 +16,7 @@ require_once(dirname(__FILE__).'/rvp_php_sdk_login.class.php');
 require_once(dirname(__FILE__).'/rvp_php_sdk_user.class.php');
 require_once(dirname(__FILE__).'/rvp_php_sdk_place.class.php');
 require_once(dirname(__FILE__).'/rvp_php_sdk_thing.class.php');
+require_once(dirname(__FILE__).'/lang/common.php');
 
 define('__SDK_VERSION__', '1.0.0.0000');
 
@@ -31,14 +32,17 @@ This object should be used to manage all connections to the server.
  */
 class RVP_PHP_SDK {
     protected   $_server_uri;           ///< This is the URI of the BAOBAB server.
+    protected   $_sdk_lang;             ///< The language specified for this SDK instance. Default is "en" (English).
     protected   $_server_secret;        ///< This is the "server secret" that is specified by the admin of the BAOBAB server.
     protected   $_api_key;              ///< This is the current session API key.
     protected   $_login_time_limit;     ///< If >0, then this is the maximum time at which the current login is valid.
-    protected   $_error;                ///< This is supposed to be NULL. However, if we have an error, it will contain a code.
+    protected   $_error;                ///< This is supposed to be NULL. However, if we have an error, it will contain an integer code.
     protected   $_my_login_info;        ///< This will contain any login information for the current login (NULL if not logged in).
     protected   $_my_user_info;         ///< This will contain any login information for the current login (NULL if not logged in).
     protected   $_last_response_code;   ///< This will contain any response code from the last cURL call.
     protected   $_available_plugins;    ///< This will be an array of string, with available plugins on the server.
+    protected   $_localizations;        ///< An array of string, with the available localizations. The first will always be the default localization.
+    protected   $_localized_errors;     ///< This will be an associative array, with the loaded RVP_Local_Error_* instances for display of error messages.
     
     /************************************************************************************************************************/    
     /*################################################ INTERNAL STATIC METHODS #############################################*/
@@ -201,6 +205,34 @@ class RVP_PHP_SDK {
     
     /***********************/
     /**
+    This loads the localization objects for this instance.
+    
+    \returns an array of string, with each of the localizations loaded.
+     */
+    protected function _load_localizations() {
+        $locale_dir = dirname(__FILE__).'/lang';
+        $locale_name_array = [];
+        foreach (new DirectoryIterator($locale_dir) as $fileInfo) {
+            if (($fileInfo->getExtension() === 'php') && ('index.php' != $fileInfo->getBasename()) && ('common.php' != $fileInfo->getBasename())) {
+                $locale_name_array[] = $fileInfo->getBasename('.php');
+            }
+        }
+        
+        $this->_localizations = [];
+        
+        // Read each available file, and add it to our list.
+        foreach ($locale_name_array as $locale) {
+            if ($locale != $this->_sdk_lang) {
+                $this->_localizations[] = $locale;
+            }
+        }
+        
+        sort($this->_localizations); // Simple alpha-sort.
+        array_unshift($this->_localizations, $this->_sdk_lang); // Make sure the first one is always our default.
+    }
+    
+    /***********************/
+    /**
     \returns an associative array ('login' => login JSON object, 'user' => user JSON object), with the current information for any valid login.
      */
     protected function _get_my_info() {
@@ -270,6 +302,9 @@ class RVP_PHP_SDK {
         $this->_my_login_info = NULL;                   // If we have logged in, we have the info for our login here.
         $this->_my_user_info = NULL;                    // If we have logged in, we have the info for our user (if available) here.
         
+        $this->clear_error();                           // Start off clean.
+        $this->set_lang('en');                          // Set to default (English). The implementor should call this after instantiation to change.
+        
         $this->_available_plugins = $this->_get_plugins();
         
         if ($this->valid()) {
@@ -277,6 +312,17 @@ class RVP_PHP_SDK {
                 $this->login($in_username, $in_password, $in_login_timeout);
             }
         }
+    }
+    
+    /***********************/
+    /**
+    This simply sets the SDK language, and also reloads the localizations.
+     */
+    function set_lang(  $in_lang    ///< REQUIRED: The lang code to set as the default for the SDK instance.
+                    ) {
+        $this->_sdk_lang = $in_lang;
+        
+        $this->_load_localizations();
     }
     
     /***********************/
@@ -346,6 +392,40 @@ class RVP_PHP_SDK {
         }
         
         return false;
+    }
+    
+    /***********************/
+    /**
+    \returns any error we may have, in an associative array ('code' => integer, 'message' => string). The localization will be dependent upon the SDK localization. NULL, if no error.
+     */
+    function get_error() {
+        $ret = NULL;
+        
+        if ($this->_error) {
+            $message_class = 'RVP_Locale_'.$this->_sdk_lang;
+            require_once(dirname(__FILE__).'/lang/'.$this->_sdk_lang.'.php');
+            $ret = ['code' => intval($this->_error)];
+            $ret['message'] = $message_class::get_error_message($ret['code']);
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    Sets the internal error code.
+     */
+    function set_error( $in_code    ///< REQUIRED: This is an integer error code. It can be NULL or 0 to clear the error.
+                        ) {
+        $this->_error = isset($in_code) && (0 != intval($in_code)) ? intval($in_code) : NULL;
+    }
+    
+    /***********************/
+    /**
+    Resets the internal error to NULL.
+     */
+    function clear_error() {
+        $this->set_error(NULL);
     }
     
     /***********************/

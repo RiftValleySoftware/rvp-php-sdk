@@ -1,7 +1,7 @@
 <?php
 /***************************************************************************************************************************/
 /**
-    BASALT Extension Layer
+    BAOBAB PHP SDK
     
     © Copyright 2018, Little Green Viper Software Development LLC.
     
