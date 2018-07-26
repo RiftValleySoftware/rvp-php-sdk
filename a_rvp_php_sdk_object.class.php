@@ -32,15 +32,26 @@ abstract class A_RVP_PHP_SDK_Object {
     
     /***********************/
     /**
-    This is the base "load some data" method. It will send a GET REST request to the API in order to fetch information about this object.
+    This is the base "load some data" method. It will send a JSON GET REST request to the API in order to fetch information about this object.
+    
+    Once it receives the object, it JSON-decodes it, and stores it in the _object_data internal field.
+    
+    IT IS PROBABLT NOT YET READY! Subclasses should overload this, then apply their own filtering to the data after calling this parent method.
+    
+    \returns true, if it loaded the data.
      */
     protected function _load_data(  $in_force = false,  ///< OPTIONAL: If true (default is false), then the load will happen, even if we already have the data.
                                     $in_details = false ///< OPTIONAL: If true, then the load will be a "show details" load, which could bring in a great deal more data.
                                 ) {
+        $ret = false;
+        
         if ($in_force || (NULL == $this->_object_data) || ($in_details && !$this->_details)) {
             $this->_details = $in_details;
-            $this->_object_data = $this->_sdk_object->fetch_data($this->_plugin_path.'/'.$this->_object_id, $in_details ? 'show_details' : NULL); 
+            $this->_object_data = json_decode($this->_sdk_object->fetch_data('json/'.$this->_plugin_path.'/'.$this->_object_id, $in_details ? 'show_details' : NULL));
+            $ret = true;
         }
+        
+        return $ret;
     }
 
     /************************************************************************************************************************/    
@@ -82,7 +93,7 @@ abstract class A_RVP_PHP_SDK_Object {
         $ret = NULL;
         
         $this->_load_data();
-        
+
         if (isset($this->_object_data) && isset($this->_object_data->name)) {
             $ret = $this->_object_data->name;
         }

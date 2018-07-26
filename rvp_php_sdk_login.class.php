@@ -33,7 +33,26 @@ class RVP_PHP_SDK_Login extends A_RVP_PHP_SDK_Object {
     
     /***********************/
     /**
+    This is the specific "load some data" method. It will send a GET REST request to the API in order to fetch information about this object.
+    
+    \returns true, if it loaded the data.
      */
+    protected function _load_data(  $in_force = false,  ///< OPTIONAL: If true (default is false), then the load will happen, even if we already have the data.
+                                    $in_details = false ///< OPTIONAL: If true, then the load will be a "show details" load, which could bring in a great deal more data.
+                                ) {
+        $ret = parent::_load_data($in_force, $in_details);
+        
+        if ($ret) {
+            if (isset($this->_object_data) && isset($this->_object_data->people) && isset($this->_object_data->people->logins) && is_array($this->_object_data->people->logins) && (1 == count($this->_object_data->people->logins))) {
+                $this->_object_data = $this->_object_data->people->logins[0];
+            } else {
+                $this->_object_data = NULL;
+                $this->_details = false;
+            }
+        }
+        
+        return $ret;
+    }
 
     /************************************************************************************************************************/    
     /*#################################################### PUBLIC METHODS ##################################################*/
@@ -46,7 +65,7 @@ class RVP_PHP_SDK_Login extends A_RVP_PHP_SDK_Object {
                             $in_id,             ///< REQUIRED: The server ID of the object. An integer.
                             $in_data = NULL     ///< OPTIONAL: Parsed JSON Data for the object. Default is NULL.
                         ) {
-        parent::__construct($in_sdk_object, $in_id, $in_data, 'people/logins');
+        parent::__construct($in_sdk_object, $in_id, $in_data, false, 'people/logins');
     }
     
     /***********************/

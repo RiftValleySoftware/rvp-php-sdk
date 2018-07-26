@@ -219,7 +219,7 @@ class RVP_PHP_SDK_Test_Harness {
             $this->prep_start_time = microtime(true);
             
             $blurb = (isset($test['blurb']) && trim($test['blurb'])) ? trim($test['blurb']) : 'Unnamed Test';
-            $explain = isset($test['explain']) ? $test['explain'] : NULL;
+            $explain = isset($test['explain']) ? trim($test['explain']) : NULL;
             $db_prefix = isset($test['db']) ? $test['db'] : NULL;
             $login_setup = isset($test['login']) ? $test['login'] : NULL;
             
@@ -230,7 +230,12 @@ class RVP_PHP_SDK_Test_Harness {
             
             echo('<div id="'.$main_id.'" class="closed">');
             echo('<h2 class="header"><a href="javascript:toggle_main_state(\''.$main_id.'\')">TEST SET '.$this->test_index.': '.htmlspecialchars($blurb).'</a></h2>');
+            
             echo('<div class="container">');
+            
+            if ($explain) {
+                echo('<div class="explain">'.htmlspecialchars($explain).'</div>');
+            }
             
             if (isset($db_prefix) && $db_prefix) {
                 echo('<h3>Preparing the "'.htmlspecialchars($db_prefix).'" Databases.</h3>');

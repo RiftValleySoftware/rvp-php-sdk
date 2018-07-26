@@ -14,6 +14,7 @@
 defined( 'RVP_PHP_SDK' ) or die ( 'Cannot Execute Directly' );	// Makes sure that this file is in the correct context.
 require_once(dirname(__FILE__).'/rvp_php_sdk_login.class.php');
 require_once(dirname(__FILE__).'/rvp_php_sdk_user.class.php');
+require_once(dirname(__FILE__).'/rvp_php_sdk_place.class.php');
 require_once(dirname(__FILE__).'/rvp_php_sdk_thing.class.php');
 
 define('__SDK_VERSION__', '1.0.0.0000');
@@ -437,6 +438,61 @@ class RVP_PHP_SDK {
         $response = $this->_call_REST_API('GET', $in_plugin_path);
         
         return $response;
+    }
+    
+    /***********************/
+    /**
+    \returns new user, place and/or thing objects (or NULL) for the given integer ID[s]. These will be "unresolved" objects, sorted by ID.
+     */
+    function get_objects() {
+        $args = array_map('intval', func_get_args());
+        $ret = NULL;
+        $plugin_list = [];
+        $handlers = $this->fetch_data('json/baseline/handlers/'.implode(',', $args));
+        if (isset($handlers)) {
+            $handlers = json_decode($handlers);
+            if (isset($handlers) && isset($handlers->baseline)) {
+                $handlers = $handlers->baseline;
+                if (isset($handlers->people) && is_array($handlers->people) && count($handlers->people)) {
+                    $plugin_list['people'] = $handlers->people;
+                }
+                if (isset($handlers->places) && is_array($handlers->places) && count($handlers->places)) {
+                    $plugin_list['places'] = $handlers->places;
+                }
+                if (isset($handlers->things) && is_array($handlers->things) && count($handlers->things)) {
+                    $plugin_list['things'] = $handlers->things;
+                }
+            }
+        }
+        
+        if (isset($plugin_list) && is_array($plugin_list) && count($plugin_list)) {
+            $ret = [];
+            foreach ($plugin_list as $plugin => $list) {
+                sort($list);
+                foreach ($list as $id) {
+                    $id = intval($id);
+                
+                    if (1 < $id) {
+                        switch ($plugin) {
+                            case 'people':
+                                $ret[] = new RVP_PHP_SDK_User($this, $id);
+                                break;
+                            
+                            case 'places':
+                                $ret[] = new RVP_PHP_SDK_Place($this, $id);
+                                break;
+                            
+                            case 'things':
+                                $ret[] = new RVP_PHP_SDK_Thing($this, $id);
+                                break;  
+                        }
+                    }
+                }
+            }
+            
+            usort($ret, function($a, $b) { return (($a->id() < $b->id()) ? -1 : (($a->id() > $b->id()) ? 1 : 0)); });
+        }
+        return $ret;
     }
     
     /***********************/
