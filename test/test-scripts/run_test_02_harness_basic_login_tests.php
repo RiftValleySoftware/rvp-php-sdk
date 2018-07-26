@@ -109,7 +109,7 @@ function run_test_02_harness_basic_login_tests($test_harness_instance) {
         } else {
             $pass = false;
             $all_pass= false;
-            $test_harness_instance->write_log_entry('LOGIN INFO NAME CHECK', $test_count++, $pass);
+            $test_harness_instance->write_log_entry('LOGIN INFO NAME CHECK', $test_count++, false);
         }
         
         if ($all_pass) {
@@ -173,6 +173,12 @@ function run_test_02_harness_basic_login_tests($test_harness_instance) {
            
             $user_pass &= $pass;
             $test_harness_instance->write_log_entry('USER (LACK OF) PAYLOAD CHECK', $test_count++, $pass);
+            
+            include_once(dirname(__FILE__).'/run_test_02_harness_basic_login_tests_children_data.php');
+            $pass = ($children_array == $info['user']->children_ids());
+            
+            $all_pass &= $pass;
+            $test_harness_instance->write_log_entry('LOGIN INFO CHILD IDS CHECK', $test_count++, $pass);
         } else {
             $pass = false;
             $user_pass &= $pass;

@@ -237,4 +237,26 @@ abstract class A_RVP_PHP_SDK_Object {
         
         return $ret;
     }
+    
+    /***********************/
+    /**
+    This requires a "detailed" load.
+    
+    \returns an associative array ('people' => integer array of IDs, 'places' => integer array of IDs, and 'things' => integer array of IDs), containing the IDs of any "child" objects for this object.
+     */
+    function children_ids() {
+        $ret = NULL;
+        
+        $this->_load_data(false, true);
+        
+        if (isset($this->_object_data) && isset($this->_object_data->children)) {
+            $child_data = $this->_object_data->children;
+
+            if (isset($child_data) && is_array($child_data) && count($child_data)) {
+                $ret = $child_data;
+            }
+        }
+        
+        return $ret;
+    }
 };
