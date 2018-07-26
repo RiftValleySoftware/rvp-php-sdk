@@ -37,10 +37,11 @@ class RVP_PHP_SDK_Place extends A_RVP_PHP_SDK_Object {
     
     \returns true, if it loaded the data.
      */
-    protected function _load_data(  $in_force = false,  ///< OPTIONAL: If true (default is false), then the load will happen, even if we already have the data.
-                                    $in_details = false ///< OPTIONAL: If true, then the load will be a "show details" load, which could bring in a great deal more data.
+    protected function _load_data(  $in_force = false,      ///< OPTIONAL: If true (default is false), then the load will happen, even if we already have the data.
+                                    $in_details = false,    ///< OPTIONAL: Default is false. If true, then the load will be a "show details" load, which could bring in a great deal more data.
+                                    $in_parents = false     ///< OPTIONAL: Default is false. If true, then the load will be a "show details" load, AND it will get the "parents," which can be a time-consuming operation. This will also "force" a load.
                                 ) {
-        $ret = parent::_load_data($in_force, $in_details);
+        $ret = parent::_load_data($in_force, $in_details, $in_parents);
         
         if ($ret) {
             if (isset($this->_object_data) && isset($this->_object_data->places) && isset($this->_object_data->places->results) && is_array($this->_object_data->places->results) && (1 == count($this->_object_data->places->results))) {

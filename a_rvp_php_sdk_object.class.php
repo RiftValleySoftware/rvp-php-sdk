@@ -40,14 +40,15 @@ abstract class A_RVP_PHP_SDK_Object {
     
     \returns true, if it loaded the data.
      */
-    protected function _load_data(  $in_force = false,  ///< OPTIONAL: If true (default is false), then the load will happen, even if we already have the data.
-                                    $in_details = false ///< OPTIONAL: If true, then the load will be a "show details" load, which could bring in a great deal more data.
+    protected function _load_data(  $in_force = false,      ///< OPTIONAL: Default is false. If true, then the load will happen, even if we already have the data.
+                                    $in_details = false,    ///< OPTIONAL: Default is false. If true, then the load will be a "show details" load, which could bring in a great deal more data.
+                                    $in_parents = false     ///< OPTIONAL: Default is false. If true, then the load will be a "show details" load, AND it will get the "parents," which can be a time-consuming operation. This will also "force" a load.
                                 ) {
         $ret = false;
         
-        if ($in_force || (NULL == $this->_object_data) || ($in_details && !$this->_details)) {
+        if ($in_force || $in_parents || (NULL == $this->_object_data) || ($in_details && !$this->_details)) {
             $this->_details = $in_details;
-            $this->_object_data = json_decode($this->_sdk_object->fetch_data('json/'.$this->_plugin_path.'/'.$this->_object_id, $in_details ? 'show_details' : NULL));
+            $this->_object_data = json_decode($this->_sdk_object->fetch_data('json/'.$this->_plugin_path.'/'.$this->_object_id, $in_details ? 'show_details'.($in_parents ? '&show_parents' : '') : NULL));
             $ret = true;
         }
         
@@ -254,6 +255,30 @@ abstract class A_RVP_PHP_SDK_Object {
 
             if (isset($child_data) && is_array($child_data) && count($child_data)) {
                 $ret = $child_data;
+            }
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    This requires a "detailed and parents" load.
+    
+    **NOTE:** Calling this can incur a fairly significant performance penalty!
+    
+    \returns an associative array ('people' => integer array of IDs, 'places' => integer array of IDs, and 'things' => integer array of IDs), containing the IDs of any "parent" objects for this object.
+     */
+    function parent_ids() {
+        $ret = NULL;
+        
+        $this->_load_data(false, true, true);
+        
+        if (isset($this->_object_data) && isset($this->_object_data->parents)) {
+            $parent_data = $this->_object_data->parents;
+
+            if (isset($parent_data) && is_array($parent_data) && count($parent_data)) {
+                $ret = $parent_data;
             }
         }
         
