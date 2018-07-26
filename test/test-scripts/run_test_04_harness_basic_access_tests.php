@@ -144,10 +144,10 @@ function run_test_04_harness_basic_access_tests($test_harness_instance) {
                                     }
                                     
                                     if (__DIVINE_COMEDY_SHA__ == sha1($object->payload()['data'])) {
-                                        $test_harness_instance->write_log_entry('OBJECT 3 PAYLOAD PRESENT CHECK', $test_count++, true);
+                                        $test_harness_instance->write_log_entry('OBJECT 4 PAYLOAD PRESENT CHECK', $test_count++, true);
                                     } else {
                                         $all_pass = false;
-                                        $test_harness_instance->write_log_entry('OBJECT 3 PAYLOAD PRESENT CHECK', $test_count++, false);
+                                        $test_harness_instance->write_log_entry('OBJECT 4 PAYLOAD PRESENT CHECK', $test_count++, false);
                                         echo('<h4 style="color:red">INCORRECT PAYLOAD FOR OBJECT!</h4>');
                                     }
 
