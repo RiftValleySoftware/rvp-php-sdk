@@ -178,7 +178,7 @@ class RVP_PHP_SDK {
                 echo('<div>HTTP CODE:<code>'.htmlspecialchars($httpCode, true).'</code></div>');
             }
         
-            if ((1024 * 1024 * 10) <= strlen($result)) {
+            if ((1024 * 1024 * 2) <= strlen($result)) { // Anything over 2MB gets spewed to a file.
                 $integer = 1;
                 $original_file_name = dirname(dirname(__FILE__)).'/text-dump-result';
                 $file_name = $original_file_name.'.txt';
@@ -191,7 +191,7 @@ class RVP_PHP_SDK {
                 fclose($file_handle);
                 echo('<div>RESULT SAVED TO FILE" '.$file_name.'.</div>');
             } else {
-                echo('<div>RESULT:<pre>'.htmlspecialchars(print_r(chunk_split($result, 2048), true)).'</pre></div>');
+                echo('<div>RESULT:<pre>'.htmlspecialchars(print_r(chunk_split($result, 1024), true)).'</pre></div>');
             }
             echo("</div>");
         }
@@ -252,12 +252,18 @@ class RVP_PHP_SDK {
                             if (isset($temp) && isset($temp->people) && isset($temp->people->people) && isset($temp->people->people->my_info)) {
                                 $user_info = $temp->people->people->my_info;
                                 $ret['user'] = $user_info;
+                            } else {
+                                $this->set_error(_ERR_COMM_ERR__);
                             }
+                        } else {
+                            $this->set_error(_ERR_NO_RESULTS__);
                         }
                     } else {
                         $ret = ['login' => $login_info];
                     }
                 }
+            } else {
+                $this->set_error(_ERR_NO_RESULTS__);
             }
         }
         return $ret;
@@ -275,7 +281,11 @@ class RVP_PHP_SDK {
             $temp = json_decode($info);
             if (isset($temp) && isset($temp->baseline) && isset($temp->baseline->plugins) && is_array($temp->baseline->plugins)) {
                 return $temp->baseline->plugins;
+            } else {
+                $this->set_error(_ERR_COMM_ERR__);
             }
+        } else {
+            $this->set_error(_ERR_NO_RESULTS__);
         }
         
         return $ret;
@@ -341,27 +351,53 @@ class RVP_PHP_SDK {
             $this->_login_time_limit = (0 < $in_login_timeout) ? (floatval($in_login_timeout) + microtime(true)) : -1;
             $api_key = $this->fetch_data('login', 'login_id='.urlencode($in_username).'&password='.urlencode($in_password));
             
-            if (isset($api_key) && $api_key) {
+            if (isset($api_key) && $api_key) {  // If we logged in, then 
                 $this->_api_key = $api_key;
                 $this->_my_login_info = NULL;
                 $this->_my_user_info = NULL;
+                
                 $info = $this->_get_my_info();
                 
-                if (isset($info['login'])) {
-                    $this->_my_login_info = new RVP_PHP_SDK_Login($this, $info['login']->id, $info['login'], true);
-                }
+                if (!$this->get_error()) {
+                    if (isset($info['login'])) {
+                        $this->_my_login_info = new RVP_PHP_SDK_Login($this, $info['login']->id, $info['login'], true);
+                    
+                        if (!($this->_my_login_info instanceof RVP_PHP_SDK_Login)) {
+                            $this->set_error(_ERR_INTERNAL_ERR__);
+                            $this->logout();
+                            $this->_api_key = NULL;
+                            $this->_login_time_limit = -1;
+                            $this->_my_login_info = NULL;
+                            $this->_my_user_info = NULL;
+                            return false;
+                        }
+                    }
                 
-                if (isset($info['user'])) {
-                    $this->_my_user_info = new RVP_PHP_SDK_User($this, $info['user']->id, $info['user'], true);
-                }
+                    if (isset($info['user'])) {
+                        $this->_my_user_info = new RVP_PHP_SDK_User($this, $info['user']->id, $info['user'], true);
+                    
+                        if (!($this->_my_user_info instanceof RVP_PHP_SDK_User)) {
+                            $this->set_error(_ERR_INTERNAL_ERR__);
+                            $this->logout();
+                            $this->_api_key = NULL;
+                            $this->_login_time_limit = -1;
+                            $this->_my_login_info = NULL;
+                            $this->_my_user_info = NULL;
+                            return false;
+                        }
+                    }
                 
-                return true;
+                    return true;
+                }
             } else {
+                $this->set_error(_ERR_INVALID_LOGIN__);
                 $this->_api_key = NULL;
                 $this->_login_time_limit = -1;
                 $this->_my_login_info = NULL;
                 $this->_my_user_info = NULL;
             }
+        } else {
+            $this->set_error(_ERR_PREV_LOGIN__);
         }
         
         return false;
@@ -383,6 +419,8 @@ class RVP_PHP_SDK {
                 $this->_my_login_info = NULL;
                 $this->_my_user_info = NULL;
                 return true;
+            } else {
+                $this->set_error(_ERR_COMM_ERR__);
             }
         } else {
             $this->_api_key = NULL;
@@ -543,6 +581,9 @@ class RVP_PHP_SDK {
                     $plugin_list['things'] = $handlers->things;
                 }
             }
+        } else {
+            $this->set_error(_ERR_COMM_ERR__);
+            return NULL;
         }
         
         if (isset($plugin_list) && is_array($plugin_list) && count($plugin_list)) {
@@ -555,15 +596,33 @@ class RVP_PHP_SDK {
                     if (1 < $id) {
                         switch ($plugin) {
                             case 'people':
-                                $ret[] = new RVP_PHP_SDK_User($this, $id);
+                                $new_object = new RVP_PHP_SDK_User($this, $id);
+                                if (isset($new_object) && ($new_object instanceof RVP_PHP_SDK_User)) {
+                                    $ret[] = $new_object;
+                                } else {
+                                    $this->set_error(_ERR_INTERNAL_ERR__);
+                                    return NULL;
+                                }
                                 break;
                             
                             case 'places':
-                                $ret[] = new RVP_PHP_SDK_Place($this, $id);
+                                $new_object = new RVP_PHP_SDK_Place($this, $id);
+                                if (isset($new_object) && ($new_object instanceof RVP_PHP_SDK_Place)) {
+                                    $ret[] = $new_object;
+                                } else {
+                                    $this->set_error(_ERR_INTERNAL_ERR__);
+                                    return NULL;
+                                }
                                 break;
                             
                             case 'things':
-                                $ret[] = new RVP_PHP_SDK_Thing($this, $id);
+                                $new_object = new RVP_PHP_SDK_Thing($this, $id);
+                                if (isset($new_object) && ($new_object instanceof RVP_PHP_SDK_Thing)) {
+                                    $ret[] = $new_object;
+                                } else {
+                                    $this->set_error(_ERR_INTERNAL_ERR__);
+                                    return NULL;
+                                }
                                 break;  
                         }
                     }
@@ -589,7 +648,13 @@ class RVP_PHP_SDK {
                 $temp = json_decode($info);
                 if (isset($temp) && isset($temp->people) && isset($temp->people->people) && isset($temp->people->people[0])) {
                     $ret = new RVP_PHP_SDK_User($this, $temp->people->people[0]->id, $temp->people->people[0]);
+                    if (!isset($ret) || !($ret instanceof RVP_PHP_SDK_User)) {
+                        $this->set_error(_ERR_INTERNAL_ERR__);
+                        $ret = NULL;
+                    }
                 }
+            } else {
+                $this->set_error(_ERR_COMM_ERR__);
             }
         }
         
@@ -610,7 +675,13 @@ class RVP_PHP_SDK {
                 $temp = json_decode($info);
                 if (isset($temp) && isset($temp->people) && isset($temp->people->logins) && isset($temp->people->logins[0])) {
                     $ret = new RVP_PHP_SDK_Login($this, $temp->people->logins[0]->id, $temp->people->logins[0]);
+                    if (!isset($ret) || !($ret instanceof RVP_PHP_SDK_Login)) {
+                        $this->set_error(_ERR_INTERNAL_ERR__);
+                        $ret = NULL;
+                    }
                 }
+            } else {
+                $this->set_error(_ERR_COMM_ERR__);
             }
         }
         
@@ -631,7 +702,13 @@ class RVP_PHP_SDK {
                 $temp = json_decode($info);
                 if (isset($temp) && isset($temp->things) && isset($temp->things[0])) {
                     $ret = new RVP_PHP_SDK_Thing($this, $temp->things[0]->id, $temp->things[0]);
+                    if (!isset($ret) || !($ret instanceof RVP_PHP_SDK_Thing)) {
+                        $this->set_error(_ERR_INTERNAL_ERR__);
+                        $ret = NULL;
+                    }
                 }
+            } else {
+                $this->set_error(_ERR_COMM_ERR__);
             }
         }
         

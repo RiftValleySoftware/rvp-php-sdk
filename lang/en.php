@@ -31,6 +31,9 @@ class RVP_Locale_en extends A_RVP_Locale {
                    'message_'._ERR_INVALID_AUTHENTICATION__     =>  'Invalid Authentication',
                    'message_'._ERR_NOT_AUTHORIZED__             =>  'Not Authorized to Perform This Operation',
                    'message_'._ERR_NO_RESULTS__                 =>  'No Results',
+                   'message_'._ERR_PREV_LOGIN__                 =>  'There Is Already A Login',
+                   'message_'._ERR_COMM_ERR__                   =>  'There Was A Communication Error With the Server',
+                   'message_'._ERR_INTERNAL_ERR__               =>  'There Was An Internal Program Error',
                 ];
     }
 }
