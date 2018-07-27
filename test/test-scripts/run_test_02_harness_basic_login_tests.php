@@ -176,13 +176,12 @@ function run_test_02_harness_basic_login_tests($test_harness_instance) {
             
             include_once(dirname(__FILE__).'/run_test_02_harness_basic_login_tests_children_data.php');
             $pass = ($children_array == $info['user']->children_ids());
-            
-            $all_pass &= $pass;
+            $user_pass &= $pass;
             $test_harness_instance->write_log_entry('LOGIN INFO CHILD IDS CHECK', $test_count++, $pass);
             
             $pass = (NULL == $info['user']->parent_ids());
             
-            $all_pass &= $pass;
+            $user_pass &= $pass;
             $test_harness_instance->write_log_entry('LOGIN INFO PARENT IDS CHECK', $test_count++, $pass);
         } else {
             $pass = false;

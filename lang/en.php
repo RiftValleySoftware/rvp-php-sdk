@@ -34,6 +34,7 @@ class RVP_Locale_en extends A_RVP_Locale {
                    'message_'._ERR_PREV_LOGIN__                 =>  'There Is Already A Login',
                    'message_'._ERR_COMM_ERR__                   =>  'There Was A Communication Error With the Server',
                    'message_'._ERR_INTERNAL_ERR__               =>  'There Was An Internal Program Error',
+                   'message_'._ERR_NOT_LOGGED_IN__              =>  'Attempted to Log Out When No Login present',
                 ];
     }
 }

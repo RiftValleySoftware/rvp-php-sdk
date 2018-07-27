@@ -251,9 +251,9 @@ abstract class A_RVP_PHP_SDK_Object {
         $this->_load_data(false, true);
         
         if (isset($this->_object_data) && isset($this->_object_data->children)) {
-            $child_data = $this->_object_data->children;
+            $child_data = (array)$this->_object_data->children;
 
-            if (isset($child_data) && is_array($child_data) && count($child_data)) {
+            if (count($child_data)) {
                 $ret = $child_data;
             }
         }

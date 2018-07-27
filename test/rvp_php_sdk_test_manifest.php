@@ -66,5 +66,16 @@ $rvp_php_sdk_test_manifest = [
                                                     'logout'    =>  true
                                                     ]
                                 ],
+                                
+                                [
+                                    'blurb'     =>  'MULTIPLE SUCCESSFUL LOGIN TESTS',
+                                    'explain'   =>  'Set Up The SDK With No Login, Then Log In And Out With Multiple Logins.',
+                                    'db'        =>  'sdk_1',
+                                    'closure'   =>  [
+                                                    'function'  =>  'run_test_05_harness_multiple_logins_tests',
+                                                    'file'      =>  'test-scripts/run_test_05_harness_multiple_logins_tests.php'
+                                                    ]
+                                ],
+                                
                             ];
 ?>

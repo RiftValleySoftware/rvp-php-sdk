@@ -411,9 +411,8 @@ class RVP_PHP_SDK {
      */
     function logout() {
         if ($this->is_logged_in()) {
-            $response_code = '';
-            $this->_call_REST_API('GET', 'logout', NULL, $response_code);
-            if (205 == intval($response_code)) {
+            $this->_call_REST_API('GET', 'logout', NULL);
+            if (205 == intval($this->_last_response_code)) {
                 $this->_api_key = NULL;
                 $this->_login_time_limit = -1;
                 $this->_my_login_info = NULL;
@@ -423,6 +422,7 @@ class RVP_PHP_SDK {
                 $this->set_error(_ERR_COMM_ERR__);
             }
         } else {
+            $this->set_error(_ERR_NOT_LOGGED_IN__);
             $this->_api_key = NULL;
             $this->_login_time_limit = -1;
             $this->_my_login_info = NULL;

@@ -28,7 +28,7 @@ define('_INCLUDE_TIMING_IN_REPORT_', false); // Set to true to include timing in
 class CO_Config {
     use tCO_Basalt_Config; // These are the built-in config methods.
     static private $_god_mode_id = 2;               ///< God Login Security DB ID. This is private, so it can't be programmatically changed.
-    static private $_god_mode_password = 'BWU-HA-HAAAA-HA!'; ///< Plaintext password for the God Mode ID login. This overrides anything in the ID row.
+    static private $_god_mode_password = 'CoreysGoryStory'; ///< Plaintext password for the God Mode ID login. This overrides anything in the ID row.
     static private $_login_validation_callback = NULL;
                                                     /**<    This is a special callback for validating REST logins (BASALT). For most functions in the global scope, this will simply be the function name,
                                                             or as an array (with element 0 being the object, itself, and element 1 being the name of the function).
@@ -83,7 +83,7 @@ class CO_Config {
     static $lang = 'en';                            ///< The default language for the server.
     static $min_pw_len = 8;                         ///< The minimum password length.
     static $session_timeout_in_seconds = 3600;      ///< One-hour API key timeout.
-    static $god_session_timeout_in_seconds  = 3600; ///< API key session timeout for the "God Mode" login, in seconds (integer value). Default is 10 minutes.
+    static $god_session_timeout_in_seconds  = 600;  ///< API key session timeout for the "God Mode" login, in seconds (integer value). Default is 10 minutes.
     static $api_key_includes_ip_address = true;     ///< If true (default is false), then the API key will include the user's IP address in the generation.
     static $block_logins_for_valid_api_key = true;  ///< If this is true, then users cannot log in if there is an active API key in place for that user (forces the user to log out, first).
     static $ssl_requirement_level  = CO_CONFIG_HTTPS_OFF;   /** This is the level of SSL/TLS required for transactions with the server. The possible values are:

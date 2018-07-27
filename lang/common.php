@@ -20,6 +20,7 @@ define('_ERR_NO_RESULTS__', 5);                 ///< The last operation had no r
 define('_ERR_PREV_LOGIN__', 6);                 ///< There is a current login, so you cannot attempt a new login.
 define('_ERR_COMM_ERR__', 7);                   ///< There was some kind of communication error with the server.
 define('_ERR_INTERNAL_ERR__', 8);               ///< There was some kind of internal program error.
+define('_ERR_NOT_LOGGED_IN__', 9);              ///< A Logout Attempt Was Made Where No Login Was Present.
 
 abstract class A_RVP_Locale {
     /***********************/

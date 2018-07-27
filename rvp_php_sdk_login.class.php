@@ -73,6 +73,24 @@ class RVP_PHP_SDK_Login extends A_RVP_PHP_SDK_Object {
     /**
     This requires a "detailed" load.
     
+    \returns the current login ID as a string.
+     */
+    function login_id() {
+        $ret = NULL;
+        
+        $this->_load_data(false, true);
+        
+        if (isset($this->_object_data) && isset($this->_object_data->login_id)) {
+            $ret = $this->_object_data->login_id;
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    This requires a "detailed" load.
+    
     \returns true, if this is login is currently logged in.
      */
     function is_logged_in() {
@@ -96,7 +114,6 @@ class RVP_PHP_SDK_Login extends A_RVP_PHP_SDK_Object {
         $ret = false;
         
         $this->_load_data(false, true);
-        
         if (isset($this->_object_data) && isset($this->_object_data->is_manager) && $this->_object_data->is_manager) {
             $ret = true;
         }
@@ -147,7 +164,7 @@ class RVP_PHP_SDK_Login extends A_RVP_PHP_SDK_Object {
     \returns an integer. The ID of any associated user object. It returns 0 if there is no associated user object.
      */
     function user_object_id() {
-        $ret = false;
+        $ret = 0;
         
         $this->_load_data(false, true);
         
