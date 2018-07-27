@@ -9,6 +9,11 @@ Part of the Rift Valley Platform
 -----------------------------------------------------------------------------------------------------------------
 ![BAOBAB Server and The Rift Valley Platform](images/BothLogos.png)
 
+INTRODUCTION
+============
+The BAOBAB PHP SDK Layer is a general-purpose ORM for the BAOBAB Server. It uses the REST API to communicate with the Server, and presents the server as a PHP Object Model for use by PHP applications.
+![PHP BAOBAB SDK](images/PHPSDKLayers.png)
+
 LICENSE
 =======
 
