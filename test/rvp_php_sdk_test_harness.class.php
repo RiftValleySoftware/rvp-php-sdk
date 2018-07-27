@@ -31,6 +31,67 @@ class RVP_PHP_SDK_Test_Harness {
     var $current_test_name = NULL;
     var $test_count = 0;
     
+	/*******************************************************************/
+	/**
+		\brief Uses the Vincenty calculation to determine the distance (in Kilometers) between the two given lat/long pairs (in Degrees).
+		
+		The Vincenty calculation is more accurate than the Haversine calculation, as it takes into account the "un-spherical" shape of the Earth, but is more computationally intense.
+		We use this calculation to refine the Haversine "triage" in SQL.
+		
+		\returns a Float with the distance, in Kilometers.
+	*/
+	static function get_accurate_distance (	$lat1,  ///< This is the first point latitude (degrees).
+                                            $lon1,  ///< This is the first point longitude (degrees).
+                                            $lat2,  ///< This is the second point latitude (degrees).
+                                            $lon2   ///< This is the second point longitude (degrees).
+                                        )
+	{
+	    if (($lat1 == $lat2) && ($lon1 == $lon2)) { // Just a quick shortcut.
+	        return 0;
+	    }
+	    
+		$a = 6378137;
+		$b = 6356752.3142;
+		$f = 1/298.257223563;  // WGS-84 ellipsiod
+		$L = ($lon2-$lon1)/57.2957795131;
+		$U1 = atan((1.0-$f) * tan($lat1/57.2957795131));
+		$U2 = atan((1.0-$f) * tan($lat2/57.2957795131));
+		$sinU1 = sin($U1);
+		$cosU1 = cos($U1);
+		$sinU2 = sin($U2);
+		$cosU2 = cos($U2);
+		  
+		$lambda = $L;
+		$lambdaP = $L;
+		$iterLimit = 100;
+		
+		do {
+			$sinLambda = sin($lambda);
+			$cosLambda = cos($lambda);
+			$sinSigma = sqrt(($cosU2*$sinLambda) * ($cosU2*$sinLambda) + ($cosU1*$sinU2-$sinU1*$cosU2*$cosLambda) * ($cosU1*$sinU2-$sinU1*$cosU2*$cosLambda));
+    		if ($sinSigma==0)
+    			{
+    			return true;  // co-incident points
+    			}
+			$cosSigma = $sinU1*$sinU2 + ($cosU1*$cosU2*$cosLambda);
+			$sigma = atan2($sinSigma, $cosSigma);
+			$sinAlpha = ($cosU1 * $cosU2 * $sinLambda) / $sinSigma;
+			$cosSqAlpha = 1.0 - $sinAlpha*$sinAlpha;
+			$cos2SigmaM = $cosSigma - 2.0*$sinU1*$sinU2/$cosSqAlpha;
+			$C = $f/(16.0*$cosSqAlpha*(4.0+$f*(4.0-3.0*$cosSqAlpha)));
+			$lambdaP = $lambda;
+			$lambda = $L + (1.0-$C) * $f * $sinAlpha * ($sigma + $C*$sinSigma*($cos2SigmaM+$C*$cosSigma*(-1.0+2.0*$cos2SigmaM*$cos2SigmaM)));
+			} while (abs($lambda-$lambdaP) > 1e-12 && --$iterLimit>0);
+
+		$uSq = $cosSqAlpha * ($a*$a - $b*$b) / ($b*$b);
+		$A = 1.0 + $uSq/16384.0*(4096.0+$uSq*(-768.0+$uSq*(320.0-175.0*$uSq)));
+		$B = $uSq/1024.0 * (256.0+$uSq*(-128.0+$uSq*(74.0-47.0*$uSq)));
+		$deltaSigma = $B*$sinSigma*($cos2SigmaM+$B/4.0*($cosSigma*(-1.0+2.0*$cos2SigmaM*$cos2SigmaM)-$B/6.0*$cos2SigmaM*(-3.0+4.0*$sinSigma*$sinSigma)*(-3.0+4.0*$cos2SigmaM*$cos2SigmaM)));
+		$s = $b*$A*($sigma-$deltaSigma);
+  		
+		return ( abs ( round ( $s ) / 1000.0 ) ); 
+	}
+	
     static function prepare_databases($in_file_prefix) {
         $ret = '';
         

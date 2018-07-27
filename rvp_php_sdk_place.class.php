@@ -67,8 +67,4 @@ class RVP_PHP_SDK_Place extends A_RVP_PHP_SDK_Object {
                         ) {
         parent::__construct($in_sdk_object, $in_id, $in_data, false, 'places');
     }
-    
-    /***********************/
-    /**
-     */
 };

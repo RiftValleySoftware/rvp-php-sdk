@@ -219,6 +219,27 @@ abstract class A_RVP_PHP_SDK_Object {
     /**
     This requires a "detailed" load.
     
+    \returns the "raw" coordinates for a "fuzzy" location, assuming the current login has rights to them. If not, it returns NULL.
+     */
+    function raw_coords() {
+        $ret = NULL;
+        
+        $this->_load_data(false, true);
+        
+echo('<pre>'.htmlspecialchars(print_r($this->_object_data, true)).'</pre>');
+        if (isset($this->_object_data) && isset($this->_object_data->raw_latitude) && isset($this->_object_data->raw_longitude)) {
+            $ret = [];
+            $ret['latitude'] = floatval($this->_object_data->raw_latitude);
+            $ret['longitude'] = floatval($this->_object_data->raw_longitude);
+        }
+                
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    This requires a "detailed" load.
+    
     \returns an associative array ('data' => binary data string, 'type' => string MIME type), containing the data in the payload, and its type. The data is not Base64-encoded.
      */
     function payload() {

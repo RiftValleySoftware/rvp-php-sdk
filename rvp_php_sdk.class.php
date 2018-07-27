@@ -155,6 +155,8 @@ class RVP_PHP_SDK {
 
             if ($this->_api_key) {
                 echo('<div>API KEY:<pre>'.htmlspecialchars($this->_api_key).'</pre></div>');
+            } else {
+                echo('<div>NO API KEY</div>');
             }
         }
     
@@ -728,20 +730,18 @@ class RVP_PHP_SDK {
                             ) {
         $ret = NULL;
         
-        if ($this->is_logged_in()) {
-            $info = $this->fetch_data('json/places/'.intval($in_place_id), 'show_details');
-            if ($info) {
-                $temp = json_decode($info);
-                if (isset($temp) && isset($temp->places) && isset($temp->places[0])) {
-                    $ret = new RVP_PHP_SDK_Place($this, $temp->places[0]->id, $temp->places[0], true);
-                    if (!isset($ret) || !($ret instanceof RVP_PHP_SDK_Place)) {
-                        $this->set_error(_ERR_INTERNAL_ERR__);
-                        $ret = NULL;
-                    }
+        $info = $this->fetch_data('json/places/'.intval($in_place_id), 'show_details');
+        if ($info) {
+            $temp = json_decode($info);
+            if (isset($temp) && isset($temp->places) && isset($temp->places->results) && is_array($temp->places->results) && isset($temp->places->results[0])) {
+                $ret = new RVP_PHP_SDK_Place($this, $temp->places->results[0]->id, $temp->places->results[0], true);
+                if (!isset($ret) || !($ret instanceof RVP_PHP_SDK_Place)) {
+                    $this->set_error(_ERR_INTERNAL_ERR__);
+                    $ret = NULL;
                 }
-            } else {
-                $this->set_error(_ERR_COMM_ERR__);
             }
+        } else {
+            $this->set_error(_ERR_COMM_ERR__);
         }
         
         return $ret;
@@ -755,20 +755,18 @@ class RVP_PHP_SDK {
                             ) {
         $ret = NULL;
         
-        if ($this->is_logged_in()) {
-            $info = $this->fetch_data('json/things/'.intval($in_thing_id), 'show_details');
-            if ($info) {
-                $temp = json_decode($info);
-                if (isset($temp) && isset($temp->things) && isset($temp->things[0])) {
-                    $ret = new RVP_PHP_SDK_Thing($this, $temp->things[0]->id, $temp->things[0], true);
-                    if (!isset($ret) || !($ret instanceof RVP_PHP_SDK_Thing)) {
-                        $this->set_error(_ERR_INTERNAL_ERR__);
-                        $ret = NULL;
-                    }
+        $info = $this->fetch_data('json/things/'.intval($in_thing_id), 'show_details');
+        if ($info) {
+            $temp = json_decode($info);
+            if (isset($temp) && isset($temp->things) && isset($temp->things[0])) {
+                $ret = new RVP_PHP_SDK_Thing($this, $temp->things[0]->id, $temp->things[0], true);
+                if (!isset($ret) || !($ret instanceof RVP_PHP_SDK_Thing)) {
+                    $this->set_error(_ERR_INTERNAL_ERR__);
+                    $ret = NULL;
                 }
-            } else {
-                $this->set_error(_ERR_COMM_ERR__);
             }
+        } else {
+            $this->set_error(_ERR_COMM_ERR__);
         }
         
         return $ret;
