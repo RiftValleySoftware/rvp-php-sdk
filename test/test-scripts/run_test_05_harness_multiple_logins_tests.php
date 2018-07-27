@@ -11,8 +11,6 @@
 
     Little Green Viper Software Development: https://littlegreenviper.com
 */
-define('__PASSWORD__', 'CoreysGoryStory');
-define('__TEST_LOGINS__', ['Login Only' => ['MeLeet'], 'Regular User Login' => ['MDAdmin','DCAdmin','Dilbert','Wally'],'Manager Login' => ['PHB','MainAdmin'],'God User' => ['admin']]);
 function run_test_05_harness_multiple_logins_tests($test_harness_instance) {
     $all_pass = true;
     $test_count = $test_harness_instance->test_count + 1;

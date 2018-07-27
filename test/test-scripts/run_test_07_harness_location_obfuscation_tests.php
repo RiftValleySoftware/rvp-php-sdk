@@ -12,8 +12,7 @@
     Little Green Viper Software Development: https://littlegreenviper.com
 */
 
-define('__TEST_IDS__', [100,101,102,103,104,105]);
-function run_test_06_harness_location_obfuscation_tests($test_harness_instance) {
+function run_test_07_harness_location_obfuscation_tests($test_harness_instance) {
     $all_pass = true;
     $test_count = $test_harness_instance->test_count + 1;
     

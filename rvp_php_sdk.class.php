@@ -326,6 +326,14 @@ class RVP_PHP_SDK {
     
     /***********************/
     /**
+    The basic destructor. We make sure that we log out.
+     */
+    function __destruct() {
+        $this->logout();    // Don't bother checking for current login. Just call logout().
+    }
+    
+    /***********************/
+    /**
     This simply sets the SDK language, and also reloads the localizations.
      */
     function set_lang(  $in_lang    ///< REQUIRED: The lang code to set as the default for the SDK instance.
@@ -351,7 +359,7 @@ class RVP_PHP_SDK {
             $this->_login_time_limit = (0 < $in_login_timeout) ? (floatval($in_login_timeout) + microtime(true)) : -1;
             $api_key = $this->fetch_data('login', 'login_id='.urlencode($in_username).'&password='.urlencode($in_password));
             
-            if (isset($api_key) && $api_key) {  // If we logged in, then 
+            if (isset($api_key) && $api_key) {  // If we logged in, then we get our info.
                 $this->_api_key = $api_key;
                 $this->_my_login_info = NULL;
                 $this->_my_user_info = NULL;
@@ -484,14 +492,38 @@ class RVP_PHP_SDK {
     
     /***********************/
     /**
-    \returns true, if we are currently logged in.
+    \returns true, if we are currently logged in as a manager.
      */
     function is_manager() {
-        if ($this->is_logged_in()) {
-            return true;
+        if (isset($this->_my_login_info)) {
+            return $this->_my_login_info->is_manager();
         }
         
         return false;
+    }
+    
+    /***********************/
+    /**
+    \returns true, if we are currently logged in as a main admin.
+     */
+    function is_main_admin() {
+        if (isset($this->_my_login_info)) {
+            return $this->_my_login_info->is_main_admin();
+        }
+        
+        return false;
+    }
+    
+    /***********************/
+    /**
+    \returns a string, with the current login ID. NULL, if not logged in.
+     */
+    function current_login_id() {
+        if (isset($this->_my_login_info)) {
+            return $this->_my_login_info->login_id();
+        }
+        
+        return NULL;
     }
     
     /***********************/
@@ -643,11 +675,11 @@ class RVP_PHP_SDK {
         $ret = NULL;
         
         if ($this->is_logged_in()) {
-            $info = $this->fetch_data('json/people/people/'.intval($in_user_id), 'login_user');
+            $info = $this->fetch_data('json/people/people/'.intval($in_user_id), 'show_details');
             if ($info) {
                 $temp = json_decode($info);
                 if (isset($temp) && isset($temp->people) && isset($temp->people->people) && isset($temp->people->people[0])) {
-                    $ret = new RVP_PHP_SDK_User($this, $temp->people->people[0]->id, $temp->people->people[0]);
+                    $ret = new RVP_PHP_SDK_User($this, $temp->people->people[0]->id, $temp->people->people[0], true);
                     if (!isset($ret) || !($ret instanceof RVP_PHP_SDK_User)) {
                         $this->set_error(_ERR_INTERNAL_ERR__);
                         $ret = NULL;
@@ -674,8 +706,35 @@ class RVP_PHP_SDK {
             if ($info) {
                 $temp = json_decode($info);
                 if (isset($temp) && isset($temp->people) && isset($temp->people->logins) && isset($temp->people->logins[0])) {
-                    $ret = new RVP_PHP_SDK_Login($this, $temp->people->logins[0]->id, $temp->people->logins[0]);
+                    $ret = new RVP_PHP_SDK_Login($this, $temp->people->logins[0]->id, $temp->people->logins[0], true);
                     if (!isset($ret) || !($ret instanceof RVP_PHP_SDK_Login)) {
+                        $this->set_error(_ERR_INTERNAL_ERR__);
+                        $ret = NULL;
+                    }
+                }
+            } else {
+                $this->set_error(_ERR_COMM_ERR__);
+            }
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    \returns a new place object (or NULL) for the given integer ID.
+     */
+    function get_place_info(    $in_place_id    ///< REQUIRED: The integer ID of the place we want to examine. If we don't have rights to the place, or the place does not exist, we get nothing.
+                            ) {
+        $ret = NULL;
+        
+        if ($this->is_logged_in()) {
+            $info = $this->fetch_data('json/places/'.intval($in_place_id), 'show_details');
+            if ($info) {
+                $temp = json_decode($info);
+                if (isset($temp) && isset($temp->places) && isset($temp->places[0])) {
+                    $ret = new RVP_PHP_SDK_Place($this, $temp->places[0]->id, $temp->places[0], true);
+                    if (!isset($ret) || !($ret instanceof RVP_PHP_SDK_Place)) {
                         $this->set_error(_ERR_INTERNAL_ERR__);
                         $ret = NULL;
                     }
@@ -701,7 +760,7 @@ class RVP_PHP_SDK {
             if ($info) {
                 $temp = json_decode($info);
                 if (isset($temp) && isset($temp->things) && isset($temp->things[0])) {
-                    $ret = new RVP_PHP_SDK_Thing($this, $temp->things[0]->id, $temp->things[0]);
+                    $ret = new RVP_PHP_SDK_Thing($this, $temp->things[0]->id, $temp->things[0], true);
                     if (!isset($ret) || !($ret instanceof RVP_PHP_SDK_Thing)) {
                         $this->set_error(_ERR_INTERNAL_ERR__);
                         $ret = NULL;
