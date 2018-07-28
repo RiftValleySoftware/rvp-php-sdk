@@ -1,6 +1,6 @@
-\mainpage PHP SDK
+\mainpage ADDER PHP SDK
 
-![PHP BAOBAB SDK](images/PHP-SDK.png)
+![PHP BAOBAB SDK](images/ADDER.png)
 
 THE GREAT RIFT VALLEY PLATFORM PHP SDK LIBRARY
 ==============================================
@@ -11,8 +11,8 @@ Part of the Rift Valley Platform
 
 INTRODUCTION
 ============
-The BAOBAB PHP SDK Layer is a general-purpose ORM for the BAOBAB Server. It uses the REST API to communicate with the Server, and presents the server as a PHP Object Model for use by PHP applications.
-![PHP BAOBAB SDK](images/PHPSDKLayers.png)
+The ADDER PHP SDK Layer is a general-purpose ORM for the BAOBAB Server. It uses the REST API to communicate with the Server, and presents the server as a PHP Object Model for use by PHP applications.
+![PHP BAOBAB SDK LAYERS](images/PHPSDKLayers.png)
 
 LICENSE
 =======

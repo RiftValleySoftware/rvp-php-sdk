@@ -226,7 +226,6 @@ abstract class A_RVP_PHP_SDK_Object {
         
         $this->_load_data(false, true);
         
-echo('<pre>'.htmlspecialchars(print_r($this->_object_data, true)).'</pre>');
         if (isset($this->_object_data) && isset($this->_object_data->raw_latitude) && isset($this->_object_data->raw_longitude)) {
             $ret = [];
             $ret['latitude'] = floatval($this->_object_data->raw_latitude);
