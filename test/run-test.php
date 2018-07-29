@@ -271,7 +271,7 @@
             <div id="throbber-container" style="text-align:center">
                 <h3 id="progress-report" style="margin-top:1em"></h3>
                 <img src="basalt/test/images/throbber.gif" alt="throbber" style="position:absolute;width:190px;top:50%;left:50%;margin-top:-95px;margin-left:-95px" />
-                <img src="../images/PHP-SDK.png" alt="icon" style="position:absolute;width:128px;top:50%;left:50%;margin-top:-64px;margin-left:-64px" />
+                <img src="../icon.png" alt="icon" style="position:absolute;width:128px;top:50%;left:50%;margin-top:-64px;margin-left:-64px" />
             </div>
             <?php
             $start_time = microtime(true);

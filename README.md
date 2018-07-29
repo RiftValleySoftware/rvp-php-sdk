@@ -1,6 +1,6 @@
-\mainpage ADDER PHP SDK
+\mainpage BLUE DRAGON PHP SDK
 
-![PHP BAOBAB SDK](images/ADDER.png)
+![PHP BAOBAB SDK](images/BlueDragon.png)
 
 THE GREAT RIFT VALLEY PLATFORM PHP SDK LIBRARY
 ==============================================
@@ -11,7 +11,7 @@ Part of the Rift Valley Platform
 
 INTRODUCTION
 ============
-The ADDER PHP SDK Layer is a general-purpose ORM for the BAOBAB Server. It uses the REST API to communicate with the Server, and presents the server as a PHP Object Model for use by PHP applications.
+The BLUE DRAGON PHP SDK Layer is a general-purpose ORM for the BAOBAB Server. It uses the REST API to communicate with the Server, and presents the server as a PHP Object Model for use by PHP applications.
 ![PHP BAOBAB SDK LAYERS](images/PHPSDKLayers.png)
 
 LICENSE

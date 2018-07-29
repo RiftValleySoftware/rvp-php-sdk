@@ -55,7 +55,7 @@ require_once (dirname(__FILE__).'/config/s_config.class.php');
     
                 require_once(CO_Config::main_class_dir()."/co_basalt.class.php");
             ?>
-            <img src="../images/PHP-SDK.png" style="display:block;margin:auto;width:80px" alt="SDK Logo" />
+            <img src="../icon.png" style="display:block;margin:auto;width:80px" alt="SDK Logo" />
             <h1 class="header">MAIN ENVIRONMENT SETUP</h1>
             <div style="text-align:left;margin:auto;display:table">
                 <div class="main_div container">
