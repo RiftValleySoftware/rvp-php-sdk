@@ -63,20 +63,31 @@ function run_test_07_harness_location_obfuscation_tests_load_locations($sdk_inst
     $ret = [];
 
     foreach ($ids as $id) {
+        echo("<h5>Testing Object $id</h5>");
         for ($c = 0; $c < 3; $c++) {
-            $object = $sdk_instance->get_place_info($id);
-            
-            if (isset($object) && ($object instanceof RVP_PHP_SDK_Place)) {
-                $ret[$id][$c]['id'] = $id;
-                $ret[$id][$c]['coords'] = $object->coords();
-                $raw_coords = $object->raw_coords();
-                if (isset($raw_coords) && is_array($raw_coords)) {
-                    $distance = RVP_PHP_SDK_Test_Harness::get_accurate_distance($raw_coords['latitude'], $raw_coords['longitude'], $ret[$id][$c]['coords']['latitude'], $ret[$id][$c]['coords']['longitude']);
-                    $ret[$id][$c]['raw_coords'] = $raw_coords;
-                    $ret[$id][$c]['distance'] = $distance;
+            $object = $sdk_instance->get_objects($id);
+            if (isset($object) && is_array($object) && count($object)) {
+                $object = $object[0];
+                if (isset($object) && ($object instanceof A_RVP_PHP_SDK_Object) && $object->is_fuzzy()) {
+                    $ret[$id][$c]['id'] = $id;
+                    $ret[$id][$c]['coords'] = $object->coords();
+                    $raw_coords = $object->raw_coords();
+                    if (isset($raw_coords) && is_array($raw_coords)) {
+                        $distance = RVP_PHP_SDK_Test_Harness::get_accurate_distance($raw_coords['latitude'], $raw_coords['longitude'], $ret[$id][$c]['coords']['latitude'], $ret[$id][$c]['coords']['longitude']);
+                        $ret[$id][$c]['raw_coords'] = $raw_coords;
+                        $ret[$id][$c]['distance'] = $distance;
+                    }
+                    $object = NULL;
+                } elseif (isset($object) && ($object instanceof A_RVP_PHP_SDK_Object) && !$object->is_fuzzy()) {
+                    echo("<h5>Object $id Is Not Fuzzy.</h5>");
+                    $object = NULL;
+                    break;
+                } else {
+                    $object = NULL;
+                    break;
                 }
             } else {
-                break;
+                $object = NULL;
             }
         }
     }
@@ -116,21 +127,21 @@ function run_test_07_harness_location_obfuscation_tests_evaluate_results($test_h
             $different_long_lats = (($test_long[0] != $test_long[1]) || ($test_lat[0] != $test_lat[1])) && (($test_long[0] != $test_long[2]) || ($test_lat[0] != $test_lat[2])) && (($test_long[1] != $test_long[2]) || ($test_lat[1] != $test_lat[2]));
         
             if ($different_long_lats) {
-                $test_harness_instance->write_log_entry('OBFUSCATED COORDINATES FOR PLACE ID '.$key, $test_count++, true);
+                $test_harness_instance->write_log_entry('OBFUSCATED COORDINATES FOR OBJECT ID '.$key, $test_count++, true);
             } else {
                 $all_pass = false;
-                $test_harness_instance->write_log_entry('OBFUSCATED COORDINATES FOR PLACE ID '.$key, $test_count++, false);
+                $test_harness_instance->write_log_entry('OBFUSCATED COORDINATES FOR OBJECT ID '.$key, $test_count++, false);
                 echo('<h4 style="color:red">COORDINATES THE SAME!</h4>');
             }
         
             if (count($test_raw_long) && count($test_raw_lat)) {
                 $same_raw_data = ($test_raw_long[0] == $test_raw_long[1]) && ($test_raw_lat[0] == $test_raw_lat[1]) && ($test_raw_long[0] == $test_raw_long[2]) && ($test_raw_lat[0] == $test_raw_lat[2]) && ($test_raw_long[1] == $test_raw_long[2]) && ($test_raw_lat[1] == $test_raw_lat[2]);
                 if ($same_raw_data) {
-                    $test_harness_instance->write_log_entry('CONSISTENT RAW LOCATION FOR PLACE ID '.$key, $test_count++, true);
+                    $test_harness_instance->write_log_entry('CONSISTENT RAW LOCATION FOR OBJECT ID '.$key, $test_count++, true);
                 } else {
                     $all_pass = false;
-                    $test_harness_instance->write_log_entry('CONSISTENT RAW LOCATION FOR PLACE ID '.$key, $test_count++, false);
-                    echo('<h4 style="color:red">RAW COORDINATES ARE NOT THE SAME FOR PLACE ID '.$key.'!</h4>');
+                    $test_harness_instance->write_log_entry('CONSISTENT RAW LOCATION FOR OBJECT ID '.$key, $test_count++, false);
+                    echo('<h4 style="color:red">RAW COORDINATES ARE NOT THE SAME FOR OBJECT ID '.$key.'!</h4>');
                 }
             }
         } else {

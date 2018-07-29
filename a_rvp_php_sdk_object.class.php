@@ -219,6 +219,24 @@ abstract class A_RVP_PHP_SDK_Object {
     /**
     This requires a "detailed" load.
     
+    \returns true, if the object declares that it is "fuzzy" (has location obfuscation).
+     */
+    function is_fuzzy() {
+        $ret = false;
+        
+        $this->_load_data(false, true);
+        
+        if (isset($this->_object_data) && isset($this->_object_data->fuzzy)) {
+            $ret = true;
+        }
+                
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    This requires a "detailed" load.
+    
     \returns the "raw" coordinates for a "fuzzy" location, assuming the current login has rights to them. If not, it returns NULL.
      */
     function raw_coords() {
