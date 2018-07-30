@@ -106,5 +106,15 @@ $rvp_php_sdk_test_manifest = [
                                                     ]
                                 ],
                                 
+                                [
+                                    'blurb'     =>  'BASELINE SEARCH TESTS',
+                                    'explain'   =>  'Without logging in, try doing a series of simple searches, using the Baseline plugin.',
+                                    'db'        =>  'sdk_1',
+                                    'closure'   =>  [
+                                                    'function'  =>  'run_test_08_harness_baseline_search_tests',
+                                                    'file'      =>  'test-scripts/run_test_08_harness_baseline_search_tests.php'
+                                                    ]
+                                ],
+                                
                             ];
 ?>

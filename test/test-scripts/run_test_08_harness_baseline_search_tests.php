@@ -11,6 +11,7 @@
 
     Little Green Viper Software Development: https://littlegreenviper.com
 */
+define('__SEARCH_SPEC__', ['latitude' => 38.881317, 'longitude' => -77.036635, 'radius' => 10]);
 
 function run_test_08_harness_baseline_search_tests($test_harness_instance) {
     $all_pass = true;
@@ -18,6 +19,8 @@ function run_test_08_harness_baseline_search_tests($test_harness_instance) {
     
     if (isset($test_harness_instance->sdk_instance)) {
         if ($test_harness_instance->sdk_instance->valid()) {
+            $results = $test_harness_instance->sdk_instance->general_location_search(__SEARCH_SPEC__);
+echo('<pre>'.htmlspecialchars(print_r($results, true)).'</pre>');
         } else {
             $all_pass = false;
             $test_harness_instance->write_log_entry('VALIDITY CHECK', $test_count++, false);

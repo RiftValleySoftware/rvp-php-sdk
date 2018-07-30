@@ -207,6 +207,72 @@ class RVP_PHP_SDK {
     
     /***********************/
     /**
+    \returns an array of unresolved objects (of any kind) that meet the ID requirements. NOTE: If the current user does not have permission to view resources, or the resources don't exist, they will not be returned.
+     */
+    protected function _decode_handlers (   $in_handlers    ///< An associative array ('people' => array of int, 'places' => array of int, 'things' => array of int), with lists of IDs for various resources.
+                                        ) {
+        $ret = NULL;
+        $plugin_list = [];
+        if (isset($in_handlers->people) && is_array($in_handlers->people) && count($in_handlers->people)) {
+            $plugin_list['people'] = $in_handlers->people;
+        }
+        if (isset($in_handlers->places) && is_array($in_handlers->places) && count($in_handlers->places)) {
+            $plugin_list['places'] = $in_handlers->places;
+        }
+        if (isset($in_handlers->things) && is_array($in_handlers->things) && count($in_handlers->things)) {
+            $plugin_list['things'] = $in_handlers->things;
+        }
+        
+        if (isset($plugin_list) && is_array($plugin_list) && count($plugin_list)) {
+            $ret = [];
+            foreach ($plugin_list as $plugin => $list) {
+                sort($list);
+                foreach ($list as $id) {
+                    $id = intval($id);
+                
+                    if (1 < $id) {
+                        switch ($plugin) {
+                            case 'people':
+                                $new_object = new RVP_PHP_SDK_User($this, $id);
+                                if (isset($new_object) && ($new_object instanceof RVP_PHP_SDK_User)) {
+                                    $ret[] = $new_object;
+                                } else {
+                                    $this->set_error(_ERR_INTERNAL_ERR__);
+                                    return NULL;
+                                }
+                                break;
+                            
+                            case 'places':
+                                $new_object = new RVP_PHP_SDK_Place($this, $id);
+                                if (isset($new_object) && ($new_object instanceof RVP_PHP_SDK_Place)) {
+                                    $ret[] = $new_object;
+                                } else {
+                                    $this->set_error(_ERR_INTERNAL_ERR__);
+                                    return NULL;
+                                }
+                                break;
+                            
+                            case 'things':
+                                $new_object = new RVP_PHP_SDK_Thing($this, $id);
+                                if (isset($new_object) && ($new_object instanceof RVP_PHP_SDK_Thing)) {
+                                    $ret[] = $new_object;
+                                } else {
+                                    $this->set_error(_ERR_INTERNAL_ERR__);
+                                    return NULL;
+                                }
+                                break;  
+                        }
+                    }
+                }
+            }
+            
+            usort($ret, function($a, $b) { return (($a->id() < $b->id()) ? -1 : (($a->id() > $b->id()) ? 1 : 0)); });
+        }
+        return $ret;
+    }
+    
+    /***********************/
+    /**
     This loads the localization objects for this instance.
     
     \returns an array of string, with each of the localizations loaded.
@@ -604,67 +670,13 @@ class RVP_PHP_SDK {
         if (isset($handlers)) {
             $handlers = json_decode($handlers);
             if (isset($handlers) && isset($handlers->baseline)) {
-                $handlers = $handlers->baseline;
-                if (isset($handlers->people) && is_array($handlers->people) && count($handlers->people)) {
-                    $plugin_list['people'] = $handlers->people;
-                }
-                if (isset($handlers->places) && is_array($handlers->places) && count($handlers->places)) {
-                    $plugin_list['places'] = $handlers->places;
-                }
-                if (isset($handlers->things) && is_array($handlers->things) && count($handlers->things)) {
-                    $plugin_list['things'] = $handlers->things;
-                }
+                $ret = $this->_decode_handlers($handlers->baseline);
             }
         } else {
             $this->set_error(_ERR_COMM_ERR__);
             return NULL;
         }
-        
-        if (isset($plugin_list) && is_array($plugin_list) && count($plugin_list)) {
-            $ret = [];
-            foreach ($plugin_list as $plugin => $list) {
-                sort($list);
-                foreach ($list as $id) {
-                    $id = intval($id);
-                
-                    if (1 < $id) {
-                        switch ($plugin) {
-                            case 'people':
-                                $new_object = new RVP_PHP_SDK_User($this, $id);
-                                if (isset($new_object) && ($new_object instanceof RVP_PHP_SDK_User)) {
-                                    $ret[] = $new_object;
-                                } else {
-                                    $this->set_error(_ERR_INTERNAL_ERR__);
-                                    return NULL;
-                                }
-                                break;
-                            
-                            case 'places':
-                                $new_object = new RVP_PHP_SDK_Place($this, $id);
-                                if (isset($new_object) && ($new_object instanceof RVP_PHP_SDK_Place)) {
-                                    $ret[] = $new_object;
-                                } else {
-                                    $this->set_error(_ERR_INTERNAL_ERR__);
-                                    return NULL;
-                                }
-                                break;
-                            
-                            case 'things':
-                                $new_object = new RVP_PHP_SDK_Thing($this, $id);
-                                if (isset($new_object) && ($new_object instanceof RVP_PHP_SDK_Thing)) {
-                                    $ret[] = $new_object;
-                                } else {
-                                    $this->set_error(_ERR_INTERNAL_ERR__);
-                                    return NULL;
-                                }
-                                break;  
-                        }
-                    }
-                }
-            }
-            
-            usort($ret, function($a, $b) { return (($a->id() < $b->id()) ? -1 : (($a->id() > $b->id()) ? 1 : 0)); });
-        }
+
         return $ret;
     }
     
@@ -767,6 +779,28 @@ class RVP_PHP_SDK {
             }
         } else {
             $this->set_error(_ERR_COMM_ERR__);
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    \returns an array of objects (of any kind) that fall within the search radius. NOTE: If the objects don't have an assigned long/lat, they will not be returned in this search.
+     */
+    function general_location_search(   $in_location    ///< An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
+                                    ) {
+        $ret = NULL;
+        $plugin_list = [];
+        $handlers = $this->fetch_data('json/baseline/search/?search_latitude='.floatval($in_location['latitude']).'&search_longitude='.floatval($in_location['longitude']).'&search_radius='.floatval($in_location['radius']));
+        if (isset($handlers)) {
+            $handlers = json_decode($handlers);
+            if (isset($handlers) && isset($handlers->baseline)) {
+                $ret = $this->_decode_handlers($handlers->baseline);
+            }
+        } else {
+            $this->set_error(_ERR_COMM_ERR__);
+            return NULL;
         }
         
         return $ret;
