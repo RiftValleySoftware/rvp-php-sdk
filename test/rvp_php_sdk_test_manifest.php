@@ -18,31 +18,31 @@ define('__TEST_LOGINS__', ['Login Only' => ['MeLeet'], 'Regular User Login' => [
 define('__TEST_07_IDS__', [100,101,102,103,104,105,106,1725,1726,1727,1728,1729,1730,1732,1733,1734,1735]);
 
 $rvp_php_sdk_test_manifest = [
-                                [
-                                    'blurb'     =>  'INITIAL INSTANTIATION TEST (NO LOGIN)',
-                                    'explain'   =>  'Set Up The SDK With No Login, And Make Sure the Initial Information Is Correct.',
-                                    'db'        =>  'sdk_1',
-                                    'closure'   =>  [
-                                                    'function'  =>  'run_test_01_harness_basic_login_tests',
-                                                    'file'      =>  'test-scripts/run_test_01_harness_basic_login_tests.php'
-                                                    ]
-                                ],
-                                
-                                [
-                                    'blurb'     =>  'INITIAL INSTANTIATION TEST (WITH LOGIN)',
-                                    'explain'   =>  'Set Up The SDK With A Login, And Make Sure the Initial Information Is Correct.',
-                                    'db'        =>  'sdk_1',
-                                    'closure'   =>  [
-                                                    'function'  =>  'run_test_02_harness_basic_login_tests',
-                                                    'file'      =>  'test-scripts/run_test_02_harness_basic_login_tests.php'
-                                                    ],
-                                    'login'     =>  [
-                                                    'login_id'  =>  'MainAdmin',
-                                                    'password'  =>  'CoreysGoryStory',
-                                                    'timeout'   =>  CO_Config::$session_timeout_in_seconds,
-                                                    'logout'    =>  true
-                                                    ]
-                                ],
+//                                 [
+//                                     'blurb'     =>  'INITIAL INSTANTIATION TEST (NO LOGIN)',
+//                                     'explain'   =>  'Set Up The SDK With No Login, And Make Sure the Initial Information Is Correct.',
+//                                     'db'        =>  'sdk_1',
+//                                     'closure'   =>  [
+//                                                     'function'  =>  'run_test_01_harness_basic_login_tests',
+//                                                     'file'      =>  'test-scripts/run_test_01_harness_basic_login_tests.php'
+//                                                     ]
+//                                 ],
+//                                 
+//                                 [
+//                                     'blurb'     =>  'INITIAL INSTANTIATION TEST (WITH LOGIN)',
+//                                     'explain'   =>  'Set Up The SDK With A Login, And Make Sure the Initial Information Is Correct.',
+//                                     'db'        =>  'sdk_1',
+//                                     'closure'   =>  [
+//                                                     'function'  =>  'run_test_02_harness_basic_login_tests',
+//                                                     'file'      =>  'test-scripts/run_test_02_harness_basic_login_tests.php'
+//                                                     ],
+//                                     'login'     =>  [
+//                                                     'login_id'  =>  'MainAdmin',
+//                                                     'password'  =>  'CoreysGoryStory',
+//                                                     'timeout'   =>  CO_Config::$session_timeout_in_seconds,
+//                                                     'logout'    =>  true
+//                                                     ]
+//                                 ],
                                 
                                 [
                                     'blurb'     =>  'ACCESS OBJECTS TEST (NO LOGIN)',
@@ -107,8 +107,8 @@ $rvp_php_sdk_test_manifest = [
                                 ],
                                 
                                 [
-                                    'blurb'     =>  'BASELINE SEARCH TESTS',
-                                    'explain'   =>  'Without logging in, try doing a series of simple searches, using the Baseline plugin.',
+                                    'blurb'     =>  'NON-LOGGED-IN LOCATION SEARCH TESTS',
+                                    'explain'   =>  'Without logging in, try doing a series of simple location-based searches, using each of the plugins.',
                                     'db'        =>  'sdk_1',
                                     'closure'   =>  [
                                                     'function'  =>  'run_test_08_harness_baseline_search_tests',
@@ -116,5 +116,21 @@ $rvp_php_sdk_test_manifest = [
                                                     ]
                                 ],
                                 
+                                [
+                                    'blurb'     =>  'LOGGED-IN LOCATION SEARCH TESTS',
+                                    'explain'   =>  'After logging in, try doing a series of simple location-based searches, using each of the plugins.',
+                                    'db'        =>  'sdk_1',
+                                    'closure'   =>  [
+                                                    'function'  =>  'run_test_09_harness_baseline_search_tests',
+                                                    'file'      =>  'test-scripts/run_test_09_harness_baseline_search_tests.php'
+                                                    ],
+                                    'login'     =>  [
+                                                    'login_id'  =>  'MainAdmin',
+                                                    'password'  =>  'CoreysGoryStory',
+                                                    'timeout'   =>  CO_Config::$session_timeout_in_seconds,
+                                                    'logout'    =>  true
+                                                    ]
+                                ],
+
                             ];
 ?>

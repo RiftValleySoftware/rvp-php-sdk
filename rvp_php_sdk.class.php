@@ -265,9 +265,8 @@ class RVP_PHP_SDK {
                     }
                 }
             }
-            
-            usort($ret, function($a, $b) { return (($a->id() < $b->id()) ? -1 : (($a->id() > $b->id()) ? 1 : 0)); });
         }
+        
         return $ret;
     }
     
@@ -676,7 +675,22 @@ class RVP_PHP_SDK {
             $this->set_error(_ERR_COMM_ERR__);
             return NULL;
         }
-
+        
+        if (isset($ret) && is_array($ret) && (1 < count($ret))) {
+            usort($ret, function($a, $b) {
+                            if ($a->id() == $b->id()) {
+                                return 0;
+                            }
+                        
+                            if ($a->id() < $b->id()) {
+                                return -1;
+                            }
+                        
+                            return 1;
+                        }
+            );
+        }
+        
         return $ret;
     }
     
@@ -797,6 +811,119 @@ class RVP_PHP_SDK {
             $handlers = json_decode($handlers);
             if (isset($handlers) && isset($handlers->baseline)) {
                 $ret = $this->_decode_handlers($handlers->baseline);
+            }
+        } else {
+            $this->set_error(_ERR_COMM_ERR__);
+            return NULL;
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    \returns an array of user (or login) objects that fall within the search radius. NOTE: If the objects don't have an assigned long/lat, they will not be returned in this search.
+     */
+    function people_location_search(    $in_location,               ///< An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
+                                        $in_get_logins_only = false ///< If true (Default is false), then only login objects associated with the user objects that fall within the search will be returned.
+                                    ) {
+        $ret = NULL;
+        $plugin_list = [];
+        $url = 'json/people/people/?search_latitude='.floatval($in_location['latitude']).'&search_longitude='.floatval($in_location['longitude']).'&search_radius='.floatval($in_location['radius']);
+
+        if ($in_get_logins_only) {
+            $url .= '&login_user';
+        }
+        
+        $results = json_decode($this->fetch_data($url));
+            
+        if (isset($results) && isset($results->people) && isset($results->people->people)) {
+            $result_array = (array)$results->people->people;
+            $ret = [];
+            foreach ($result_array as $result) {
+                if ($in_get_logins_only) {
+                    if (isset($result->associated_login) && (1 < $result->associated_login->id)) {
+                        $ret[] = new RVP_PHP_SDK_Login($this, $result->associated_login->id, $result->associated_login, true);
+                        if (!isset($ret[count($ret) - 1]) || !($ret[count($ret) - 1] instanceof RVP_PHP_SDK_Login)) {
+                            $this->set_error(_ERR_INTERNAL_ERR__);
+                            $ret = NULL;
+                            break;
+                        }
+                    }
+                } elseif (isset($result) && isset($result->id) && (1 < $result->id)) {
+                    $ret[] = new RVP_PHP_SDK_User($this, $result->id, $result);
+                    if (!isset($ret[count($ret) - 1]) || !($ret[count($ret) - 1] instanceof RVP_PHP_SDK_User)) {
+                        $this->set_error(_ERR_INTERNAL_ERR__);
+                        $ret = NULL;
+                        break;
+                    }
+                }
+            }
+        } else {
+            $this->set_error(_ERR_COMM_ERR__);
+            return NULL;
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    \returns an array of place objects that fall within the search radius. NOTE: If the objects don't have an assigned long/lat, they will not be returned in this search.
+     */
+    function place_location_search( $in_location    ///< An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
+                                    ) {
+        $ret = NULL;
+        $plugin_list = [];
+        $url = 'json/places/?search_latitude='.floatval($in_location['latitude']).'&search_longitude='.floatval($in_location['longitude']).'&search_radius='.floatval($in_location['radius']);
+        
+        $results = json_decode($this->fetch_data($url));
+            
+        if (isset($results) && isset($results->places) && isset($results->places->results)) {
+            $result_array = (array)$results->places->results;
+            $ret = [];
+            foreach ($result_array as $result) {
+                if (isset($result) && isset($result->id) && (1 < $result->id)) {
+                    $ret[] = new RVP_PHP_SDK_Place($this, $result->id, $result);
+                    if (!isset($ret[count($ret) - 1]) || !($ret[count($ret) - 1] instanceof RVP_PHP_SDK_Place)) {
+                        $this->set_error(_ERR_INTERNAL_ERR__);
+                        $ret = NULL;
+                        break;
+                    }
+                }
+            }
+        } else {
+            $this->set_error(_ERR_COMM_ERR__);
+            return NULL;
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    \returns an array of thing objects that fall within the search radius. NOTE: If the objects don't have an assigned long/lat, they will not be returned in this search.
+     */
+    function thing_location_search( $in_location    ///< An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
+                                    ) {
+        $ret = NULL;
+        $plugin_list = [];
+        $url = 'json/things/?search_latitude='.floatval($in_location['latitude']).'&search_longitude='.floatval($in_location['longitude']).'&search_radius='.floatval($in_location['radius']);
+        
+        $results = json_decode($this->fetch_data($url));
+            
+        if (isset($results) && isset($results->things)) {
+            $result_array = (array)$results->things;
+            $ret = [];
+            foreach ($result_array as $result) {
+                if (isset($result) && isset($result->id) && (1 < $result->id)) {
+                    $ret[] = new RVP_PHP_SDK_Thing($this, $result->id, $result);
+                    if (!isset($ret[count($ret) - 1]) || !($ret[count($ret) - 1] instanceof RVP_PHP_SDK_Thing)) {
+                        $this->set_error(_ERR_INTERNAL_ERR__);
+                        $ret = NULL;
+                        break;
+                    }
+                }
             }
         } else {
             $this->set_error(_ERR_COMM_ERR__);

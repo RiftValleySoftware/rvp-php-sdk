@@ -155,6 +155,37 @@ class RVP_PHP_SDK_Test_Harness {
         return $ret;
     }
 
+    static function in_array_r($needle, $haystack, $strict = false) {
+        foreach ($haystack as $item) {
+            if (($strict ? $item === $needle : $item == $needle) || (is_array($item) && RVP_PHP_SDK_Test_Harness::in_array_r($needle, $item, $strict))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    static function are_arrays_equal(   $in_array_1,
+                                        $in_array_2
+                                    ) {
+                                     
+        $diff = [];
+        
+        foreach ($in_array_1 as $element) {
+            if (!RVP_PHP_SDK_Test_Harness::in_array_r($element, $in_array_2)) {
+                $diff[] = $element;
+            }
+        }
+        
+        foreach ($in_array_2 as $element) {
+            if (!RVP_PHP_SDK_Test_Harness::in_array_r($element, $in_array_1)) {
+                $diff[] = $element;
+            }
+        }
+
+        return 0 == count($diff);
+    }
+    
     static function prettify_json($json) {
         $json .= "\n";
         $result = '';

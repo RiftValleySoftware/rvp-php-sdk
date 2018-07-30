@@ -217,6 +217,24 @@ abstract class A_RVP_PHP_SDK_Object {
     
     /***********************/
     /**
+    This requires a a "detailed" load.
+    
+    \returns the distance, if provided. Otherwise, it returns 0.
+     */
+    function distance() {
+        $ret = 0;
+        
+        $this->_load_data(false, true);
+        
+        if (isset($this->_object_data) && isset($this->_object_data->distance_in_km)) {
+            $ret = floatval($this->_object_data->distance_in_km);
+        }
+                
+        return $ret;
+    }
+    
+    /***********************/
+    /**
     This requires a "detailed" load.
     
     \returns true, if the object declares that it is "fuzzy" (has location obfuscation).

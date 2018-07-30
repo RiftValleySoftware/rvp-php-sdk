@@ -119,27 +119,27 @@ function run_test_03_harness_basic_access_tests($test_harness_instance) {
                                 } else {
                                     $all_pass = false;
                                     $test_harness_instance->write_log_entry('OBJECT 3 PAYLOAD TYPE CHECK', $test_count++, false);
-                                    echo('<h4 style="color:red">INCORRECT PAYLOAD TYPE FOR OBJECT!</h4>');
+                                    echo('<h4 style="color:red">INCORRECT PAYLOAD TYPE FOR OBJECT ('.htmlspecialchars($object->payload()['type']).'!</h4>');
                                 }
                             } else {
                                 $all_pass = false;
                                 $test_harness_instance->write_log_entry('OBJECT 3 TYPE CHECK', $test_count++, false);
-                                echo('<h4 style="color:red">INCORRECT TYPE FOR OBJECT!</h4>');
+                                echo('<h4 style="color:red">INCORRECT TYPE FOR OBJECT! (is \''.htmlspecialchars(get_class($object)).'\', but expected \'RVP_PHP_SDK_Thing\')</h4>');
                             }
                         } else {
                             $all_pass = false;
                             $test_harness_instance->write_log_entry('OBJECT 2 TYPE CHECK', $test_count++, false);
-                            echo('<h4 style="color:red">INCORRECT TYPE FOR OBJECT!</h4>');
+                            echo('<h4 style="color:red">INCORRECT TYPE FOR OBJECT! (is \''.htmlspecialchars(get_class($object)).'\', but expected \'RVP_PHP_SDK_User\')</h4>');
                         }
                     } else {
                         $all_pass = false;
                         $test_harness_instance->write_log_entry('OBJECT 1 TYPE CHECK', $test_count++, false);
-                        echo('<h4 style="color:red">INCORRECT TYPE FOR OBJECT!</h4>');
+                        echo('<h4 style="color:red">INCORRECT TYPE FOR OBJECT! (is \''.htmlspecialchars(get_class($object)).'\', but expected \'RVP_PHP_SDK_Place\')</h4>');
                     }
                 } else {
                     $all_pass = false;
                     $test_harness_instance->write_log_entry('OBJECT 0 TYPE CHECK', $test_count++, false);
-                    echo('<h4 style="color:red">INCORRECT TYPE FOR OBJECT!</h4>');
+                    echo('<h4 style="color:red">INCORRECT TYPE FOR OBJECT! (is \''.htmlspecialchars(get_class($object)).'\', but expected \'RVP_PHP_SDK_Place\')</h4>');
                 }
             } else {
                 $all_pass = false;
