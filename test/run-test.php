@@ -16,7 +16,7 @@
 <html lang="en">
     <head>
         <meta charset="utf-8" />
-        <title>BAOBAB SERVER PHP SDK Test Harness</title>
+        <title>BLUE DRAGON PHP SDK Test Harness</title>
         <link rel="shortcut icon" href="icon.png" type="image/png" />
         <style>
             *{margin:0;padding:0}
@@ -266,7 +266,7 @@
         </script>
     </head>
     <body>
-        <h1 style="text-align:center">BAOBAB PHP SDK TESTS</h1>
+        <h1 style="text-align:center">BLUE DRAGON PHP SDK TESTS</h1>
         <div style="text-align:center;padding:1em;">
             <div id="throbber-container" style="text-align:center">
                 <h3 id="progress-report" style="margin-top:1em"></h3>
@@ -277,7 +277,7 @@
             $start_time = microtime(true);
             ?>
             <div id="tests-wrapped-up" style="display:none">
-                <img src="icon.png" style="display:block;margin:auto;width:80px" alt="" />
+                <img src="../icon.png" style="display:block;margin:auto;width:80px" alt="" />
                 <div id="tests-displayed"></div>
                 <div id="test-results-displayed"></div>
                 <h3 style="margin-top:1em"><a href="./">RETURN TO MAIN ENVIRONMENT SETUP</a></h3>
