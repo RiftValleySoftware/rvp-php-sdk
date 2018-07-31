@@ -41,6 +41,7 @@ class RVP_Locale_en extends A_RVP_Locale {
                    'message_'._ERR_COMM_ERR__                   =>  'There Was A Communication Error With the Server',
                    'message_'._ERR_INTERNAL_ERR__               =>  'There Was An Internal Program Error',
                    'message_'._ERR_NOT_LOGGED_IN__              =>  'Attempted to Log Out When No Login present',
+                   'message_'._ERR_INVALID_PARAMETERS__         =>  'The parameters provided were incorrect or out of bounds',
                 ];
     }
 }
