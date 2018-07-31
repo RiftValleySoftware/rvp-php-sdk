@@ -16,6 +16,8 @@ define('__DIVINE_COMEDY_SHA__', '49aaef8684cf794b035c2c0522a6d1ac71ee029f');
 define('__PASSWORD__', 'CoreysGoryStory');
 define('__TEST_LOGINS__', ['Login Only' => ['MeLeet'], 'Regular User Login' => ['MDAdmin'],'Manager Login' => ['MainAdmin'],'God User' => ['admin']]);
 define('__TEST_07_IDS__', [100,101,102,106,1725,1726,1727,1731,1732,1733,1734,1735]);
+define('__TEST_11_OBJECT_IDS__', [2,835,874,1729,1730,1731,1732,1734,1738,1739,1744,1745,1750,1751]);
+define('__TEST_11_TOKEN_IDS__', [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]);
 
 $rvp_php_sdk_test_manifest = [
                                 [

@@ -264,7 +264,7 @@ class RVP_PHP_SDK {
     /**
     \returns an array of unresolved objects (of any kind) that meet the ID requirements. NOTE: If the current user does not have permission to view resources, or the resources don't exist, they will not be returned.
      */
-    protected function _decode_handlers (   $in_handlers    ///< An associative array ('people' => array of int, 'places' => array of int, 'things' => array of int), with lists of IDs for various resources.
+    protected function _decode_handlers (   $in_handlers    ///< REQUIRED: An associative array ('people' => array of int, 'places' => array of int, 'things' => array of int), with lists of IDs for various resources.
                                         ) {
         $ret = NULL;
         $plugin_list = [];
@@ -857,7 +857,7 @@ class RVP_PHP_SDK {
     /**
     \returns an array of objects (of any kind) that fall within the search radius. NOTE: If the objects don't have an assigned long/lat, they will not be returned in this search.
      */
-    function general_location_search(   $in_location    ///< An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
+    function general_location_search(   $in_location    ///< REQUIRED: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
                                     ) {
         $ret = NULL;
         $handlers = $this->fetch_data('json/baseline/search/?search_latitude='.floatval($in_location['latitude']).'&search_longitude='.floatval($in_location['longitude']).'&search_radius='.floatval($in_location['radius']));
@@ -878,8 +878,8 @@ class RVP_PHP_SDK {
     /**
     \returns an array of user (or login) objects that fall within the search radius. NOTE: If the objects don't have an assigned long/lat, they will not be returned in this search.
      */
-    function people_location_search(    $in_location,               ///< An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
-                                        $in_get_logins_only = false ///< If true (Default is false), then only login objects associated with the user objects that fall within the search will be returned.
+    function people_location_search(    $in_location,               ///< REQUIRED: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
+                                        $in_get_logins_only = false ///< OPTIONAL: If true (Default is false), then only login objects associated with the user objects that fall within the search will be returned.
                                     ) {
         $ret = NULL;
         $url = 'json/people/people/?search_latitude='.floatval($in_location['latitude']).'&search_longitude='.floatval($in_location['longitude']).'&search_radius='.floatval($in_location['radius']);
@@ -924,7 +924,7 @@ class RVP_PHP_SDK {
     /**
     \returns an array of place objects that fall within the search radius. NOTE: If the objects don't have an assigned long/lat, they will not be returned in this search.
      */
-    function place_location_search( $in_location    ///< An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
+    function place_location_search( $in_location    ///< REQUIRED: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
                                     ) {
         $ret = NULL;
         $url = 'json/places/?search_latitude='.floatval($in_location['latitude']).'&search_longitude='.floatval($in_location['longitude']).'&search_radius='.floatval($in_location['radius']);
@@ -956,7 +956,7 @@ class RVP_PHP_SDK {
     /**
     \returns an array of thing objects that fall within the search radius. NOTE: If the objects don't have an assigned long/lat, they will not be returned in this search.
      */
-    function thing_location_search( $in_location    ///< An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
+    function thing_location_search( $in_location    ///< REQUIRED: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
                                     ) {
         $ret = NULL;
         $url = 'json/things/?search_latitude='.floatval($in_location['latitude']).'&search_longitude='.floatval($in_location['longitude']).'&search_radius='.floatval($in_location['radius']);
@@ -988,7 +988,7 @@ class RVP_PHP_SDK {
     /**
     \returns an array of objects (of any kind) that have the requested text in the fields supplied. SQL-style wildcards (%) are applicable.
      */
-    function general_text_search(   $in_text_array  ///< An associative array, laying out which text fields to search, and the search text. The key is the name of the field to search, and the value is the text to search for. You can use SQL-style wildcards (%).
+    function general_text_search(   $in_text_array  ///< REQUIRED: An associative array, laying out which text fields to search, and the search text. The key is the name of the field to search, and the value is the text to search for. You can use SQL-style wildcards (%).
                                     ) {
         $ret = NULL;
         
@@ -1021,6 +1021,57 @@ class RVP_PHP_SDK {
             }
         } else {
             $this->set_error(_ERR_COMM_ERR__);
+            return NULL;
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    This is a test of resource IDs or security tokens. It returns Login IDs (security DB), not User IDs (data DB).
+    You give it the ID of a resource (data DB), and what you get back is a list of the login IDs that can see that resource, and those that can modify it (each is listed in a separate list).
+    If you set the second (optional) parameter to true, then the ID that you send in is interpreted as a security token, and the response contains the IDs of logins that have that token.
+    It should be noted that only login IDs that the current user can see will be returned. Additionally, the current user must have at least read permission for any resource ID, and must have access to the token.
+    
+    \returns either an array of integer ($in_is_token is true), containing the IDs of logins that have the token, or an associative array ('read' => array of int, 'write' => array of int), with the IDs of the logins with access to the resource, and what kind of access they have. Write access also grants read. NULL if no login IDs are available.
+     */
+    function test_visibility(   $in_id,                 ///< REQUIRED: The ID or token to test. This is an integer. This should be 1 or greater (for tokens), or 2 or greater (for IDs).
+                                $in_is_token = false    ///< OPTIONAL: If true (Default is false), then the ID is actually a security token.
+                            ) {
+        $ret = NULL;
+        
+        $in_id = intval($in_id);    // Make sure that we're an integer.
+        
+        // We have our basic standards.
+        if ((1 < $in_id) || ($in_is_token && (0 <= $in_id))) {
+            $uri = 'json/baseline/visibility/'. ($in_is_token ? 'token/' : '');
+            $uri .= $in_id;
+            $response = $this->fetch_data($uri);
+            if (isset($response)) {
+                $response = json_decode($response);
+                if (isset($response) && isset($response->baseline)) {
+                    $response = $response->baseline;
+                    if (isset($response->token) && isset($response->token->login_ids) && is_array($response->token->login_ids) && count($response->token->login_ids)) {
+                        $ret = $response->token->login_ids;
+                    } elseif (isset($response->id) && isset($response->id->id)) {
+                        $response = $response->id;
+                        $ret = ['id' => $response->id];
+                        if (isset($response->writeable)) {
+                            $ret['writeable'] = true;
+                        }
+                        if (isset($response->read_login_ids) && is_array($response->read_login_ids) && count($response->read_login_ids)) {
+                            $ret['read_login_ids'] = $response->read_login_ids;
+                        }
+                        if (isset($response->write_login_ids) && is_array($response->write_login_ids) && count($response->write_login_ids)) {
+                            $ret['write_login_ids'] = $response->write_login_ids;
+                        }
+                    }
+                }
+            } else {
+            }
+        } else {
+            $this->set_error(_ERR_INVALID_PARAMETERS__);
             return NULL;
         }
         
