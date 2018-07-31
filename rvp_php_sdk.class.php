@@ -805,7 +805,6 @@ class RVP_PHP_SDK {
     function general_location_search(   $in_location    ///< An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
                                     ) {
         $ret = NULL;
-        $plugin_list = [];
         $handlers = $this->fetch_data('json/baseline/search/?search_latitude='.floatval($in_location['latitude']).'&search_longitude='.floatval($in_location['longitude']).'&search_radius='.floatval($in_location['radius']));
         if (isset($handlers)) {
             $handlers = json_decode($handlers);
@@ -828,7 +827,6 @@ class RVP_PHP_SDK {
                                         $in_get_logins_only = false ///< If true (Default is false), then only login objects associated with the user objects that fall within the search will be returned.
                                     ) {
         $ret = NULL;
-        $plugin_list = [];
         $url = 'json/people/people/?search_latitude='.floatval($in_location['latitude']).'&search_longitude='.floatval($in_location['longitude']).'&search_radius='.floatval($in_location['radius']);
 
         if ($in_get_logins_only) {
@@ -874,7 +872,6 @@ class RVP_PHP_SDK {
     function place_location_search( $in_location    ///< An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
                                     ) {
         $ret = NULL;
-        $plugin_list = [];
         $url = 'json/places/?search_latitude='.floatval($in_location['latitude']).'&search_longitude='.floatval($in_location['longitude']).'&search_radius='.floatval($in_location['radius']);
         
         $results = json_decode($this->fetch_data($url));
@@ -907,7 +904,6 @@ class RVP_PHP_SDK {
     function thing_location_search( $in_location    ///< An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
                                     ) {
         $ret = NULL;
-        $plugin_list = [];
         $url = 'json/things/?search_latitude='.floatval($in_location['latitude']).'&search_longitude='.floatval($in_location['longitude']).'&search_radius='.floatval($in_location['radius']);
         
         $results = json_decode($this->fetch_data($url));
@@ -924,6 +920,37 @@ class RVP_PHP_SDK {
                         break;
                     }
                 }
+            }
+        } else {
+            $this->set_error(_ERR_COMM_ERR__);
+            return NULL;
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    \returns an array of objects (of any kind) that fall within the search radius. NOTE: If the objects don't have an assigned long/lat, they will not be returned in this search.
+     */
+    function general_text_search(   $in_text_array  ///< An associative array, laying out which text fields to search, and the search text.
+                                    ) {
+        $ret = NULL;
+        
+        $added_parameters = '';
+        
+        $translate_class = 'RVP_Locale_'.$this->_sdk_lang;
+        require_once(dirname(__FILE__).'/lang/'.$this->_sdk_lang.'.php');
+
+        foreach ($in_text_array as $key => $value) {
+            $added_parameters .= urlencode($translate_class::get_tag_match($key)).'='.urlencode($value);
+        }
+        
+        $handlers = $this->fetch_data('json/baseline/search/', $added_parameters);
+        if (isset($handlers)) {
+            $handlers = json_decode($handlers);
+            if (isset($handlers) && isset($handlers->baseline)) {
+                $ret = $this->_decode_handlers($handlers->baseline);
             }
         } else {
             $this->set_error(_ERR_COMM_ERR__);

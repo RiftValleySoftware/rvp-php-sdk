@@ -37,5 +37,15 @@ class RVP_Locale_en extends A_RVP_Locale {
                    'message_'._ERR_NOT_LOGGED_IN__              =>  'Attempted to Log Out When No Login present',
                 ];
     }
+    
+    /***********************/
+    /**
+     */
+    protected static function _get_string_match_table() {
+        return  [
+                    'name'                                      =>  'search_name',
+                    
+                ];
+    }
 }
 ?>

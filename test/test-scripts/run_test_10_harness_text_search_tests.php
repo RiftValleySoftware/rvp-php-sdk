@@ -11,19 +11,20 @@
 
     Little Green Viper Software Development: https://littlegreenviper.com
 */
+define('__SEARCH_SPEC_3__', ['name' => 'Just for Today']);
 function run_test_10_harness_text_search_tests($test_harness_instance) {
     $all_pass = true;
     $test_count = $test_harness_instance->test_count + 1;
     
     if (isset($test_harness_instance->sdk_instance)) {
         if ($test_harness_instance->sdk_instance->valid()) {
-//             echo('<h4></h4>');
-//             $results = $test_harness_instance->sdk_instance->general_text_search(__SEARCH_SPEC_2__);
-//             $dump = [];
-//             foreach ($results as $node) {
-//                 $dump[] = ['id' => $node->id(), 'type' => get_class($node), 'name' => $node->name()];
-//             }
-//             
+            echo('<h4></h4>');
+            $results = $test_harness_instance->sdk_instance->general_text_search(__SEARCH_SPEC_3__);
+            $dump = [];
+            foreach ($results as $node) {
+                $dump[] = ['id' => $node->id(), 'type' => get_class($node), 'name' => $node->name()];
+            }
+echo('<pre>'.htmlspecialchars(print_r($dump, true)).'</pre>');            
 //             $expected_results = [];
 // 
 //             if (RVP_PHP_SDK_Test_Harness::are_arrays_equal($expected_results, $dump)) {

@@ -36,6 +36,11 @@ abstract class A_RVP_Locale {
     /***********************/
     /**
      */
+    abstract protected static function _get_string_match_table();
+    
+    /***********************/
+    /**
+     */
     static function get_error_message(  $in_code    ///< REQUIRED: The error code to translate. An integer.
                                         ) {
         $key = "message_$in_code";
@@ -44,6 +49,21 @@ abstract class A_RVP_Locale {
         
         if (isset($table[$key]) && $table[$key]) {
             $ret = $table[$key];
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+     */
+    static function get_tag_match(  $in_string  ///< REQUIRED: The name of the field that is to be translated to a tag.
+                                ) {
+        $ret = $in_string;
+        $table = static::_get_string_match_table();
+        
+        if (isset($table[$ret]) && $table[$ret]) {
+            $ret = $table[$ret];
         }
         
         return $ret;
