@@ -141,6 +141,16 @@ $rvp_php_sdk_test_manifest = [
                                                     'file'      =>  'test-scripts/run_test_10_harness_text_search_tests.php'
                                                     ]
                                 ],
+                                
+                                [
+                                    'blurb'     =>  'BASELINE VISIBILITY COMMAND TESTS',
+                                    'explain'   =>  'Test the baseline plugin\'s \'visibility\' command.',
+                                    'db'        =>  'sdk_1',
+                                    'closure'   =>  [
+                                                    'function'  =>  'run_test_11_harness_baseline_visibility_tests',
+                                                    'file'      =>  'test-scripts/run_test_11_harness_baseline_visibility_tests.php'
+                                                    ]
+                                ],
 
     ];
 ?>
