@@ -1,7 +1,7 @@
 <?php
 /***************************************************************************************************************************/
 /**
-    BAOBAB PHP SDK
+    BLUE DRAGON PHP SDK
     
     © Copyright 2018, Little Green Viper Software Development LLC.
     

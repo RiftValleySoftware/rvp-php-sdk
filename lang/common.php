@@ -1,7 +1,7 @@
 <?php
 /***************************************************************************************************************************/
 /**
-    BAOBAB PHP SDK
+    BLUE DRAGON PHP SDK
     
     © Copyright 2018, Little Green Viper Software Development LLC.
     
@@ -22,24 +22,28 @@ define('_ERR_COMM_ERR__', 7);                   ///< There was some kind of comm
 define('_ERR_INTERNAL_ERR__', 8);               ///< There was some kind of internal program error.
 define('_ERR_NOT_LOGGED_IN__', 9);              ///< A Logout Attempt Was Made Where No Login Was Present.
 
+/****************************************************************************************************************************/
+/**
+This abstract base class is the template for localizations.
+
+All localizations should derive from this class, presenting their localized strings in the indicated table functions.
+ */
 abstract class A_RVP_Locale {
     /***********************/
     /**
+    \returns the default (unknown) error message.
      */
     abstract protected static function _get_default_error_message();
     
     /***********************/
     /**
+    \returns an associative array of error messages, resolved by numerical code.
      */
     abstract protected static function _get_error_table();
     
     /***********************/
     /**
-     */
-    abstract protected static function _get_string_match_table();
-    
-    /***********************/
-    /**
+    \returns a string, based upon the given error code.
      */
     static function get_error_message(  $in_code    ///< REQUIRED: The error code to translate. An integer.
                                         ) {
@@ -49,21 +53,6 @@ abstract class A_RVP_Locale {
         
         if (isset($table[$key]) && $table[$key]) {
             $ret = $table[$key];
-        }
-        
-        return $ret;
-    }
-    
-    /***********************/
-    /**
-     */
-    static function get_tag_match(  $in_string  ///< REQUIRED: The name of the field that is to be translated to a tag.
-                                ) {
-        $ret = $in_string;
-        $table = static::_get_string_match_table();
-        
-        if (isset($table[$ret]) && $table[$ret]) {
-            $ret = $table[$ret];
         }
         
         return $ret;

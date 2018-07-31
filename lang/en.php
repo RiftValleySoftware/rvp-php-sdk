@@ -1,7 +1,7 @@
 <?php
 /***************************************************************************************************************************/
 /**
-    BAOBAB PHP SDK
+    BLUE DRAGON PHP SDK
     
     © Copyright 2018, Little Green Viper Software Development LLC.
     
@@ -13,9 +13,14 @@
 */
 require_once(dirname(__FILE__).'/common.php');
 
+/****************************************************************************************************************************/
+/**
+This is the English localization class.
+ */
 class RVP_Locale_en extends A_RVP_Locale {
     /***********************/
     /**
+    \returns the default (unknown) error message.
      */
     protected static function _get_default_error_message() {
         return 'Unknown Error';
@@ -23,6 +28,7 @@ class RVP_Locale_en extends A_RVP_Locale {
     
     /***********************/
     /**
+    \returns an associative array of error messages, resolved by numerical code.
      */
     protected static function _get_error_table() {
         return  [
@@ -35,16 +41,6 @@ class RVP_Locale_en extends A_RVP_Locale {
                    'message_'._ERR_COMM_ERR__                   =>  'There Was A Communication Error With the Server',
                    'message_'._ERR_INTERNAL_ERR__               =>  'There Was An Internal Program Error',
                    'message_'._ERR_NOT_LOGGED_IN__              =>  'Attempted to Log Out When No Login present',
-                ];
-    }
-    
-    /***********************/
-    /**
-     */
-    protected static function _get_string_match_table() {
-        return  [
-                    'name'                                      =>  'search_name',
-                    
                 ];
     }
 }

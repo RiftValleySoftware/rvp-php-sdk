@@ -1,7 +1,7 @@
 <?php
 /***************************************************************************************************************************/
 /**
-    BAOBAB PHP SDK
+    BLUE DRAGON PHP SDK
     
     © Copyright 2018, Little Green Viper Software Development LLC.
     
@@ -46,6 +46,37 @@ class RVP_PHP_SDK {
     
     /************************************************************************************************************************/    
     /*################################################ INTERNAL STATIC METHODS #############################################*/
+    /************************************************************************************************************************/
+    
+    /***********************/
+    /**
+    \returns an associative array, with a matching table for short names to their "search_*" equivalents.
+     */
+    protected static function _get_string_match_table() {
+        return  [
+                    'name'          =>  'search_name',
+                    
+                ];
+    }
+    
+    /***********************/
+    /**
+    \returns the "search_*" equivalent of the short name that is presented.
+     */
+    protected static function _get_tag_match(   $in_string  ///< REQUIRED: The name of the field that is to be translated to a tag.
+                                            ) {
+        $ret = $in_string;
+        $table = static::_get_string_match_table();
+        
+        if (isset($table[$ret]) && $table[$ret]) {
+            $ret = $table[$ret];
+        }
+        
+        return $ret;
+    }
+
+    /************************************************************************************************************************/    
+    /*#################################################### INTERNAL METHODS ################################################*/
     /************************************************************************************************************************/
     
     /***********************/
@@ -200,10 +231,6 @@ class RVP_PHP_SDK {
 
         return $result;
     }
-
-    /************************************************************************************************************************/    
-    /*#################################################### INTERNAL METHODS ################################################*/
-    /************************************************************************************************************************/
     
     /***********************/
     /**
@@ -939,11 +966,8 @@ class RVP_PHP_SDK {
         
         $added_parameters = '';
         
-        $translate_class = 'RVP_Locale_'.$this->_sdk_lang;
-        require_once(dirname(__FILE__).'/lang/'.$this->_sdk_lang.'.php');
-
         foreach ($in_text_array as $key => $value) {
-            $added_parameters .= urlencode($translate_class::get_tag_match($key)).'='.urlencode($value);
+            $added_parameters .= urlencode(self::_get_tag_match($key)).'='.urlencode($value);
         }
         
         $handlers = $this->fetch_data('json/baseline/search/', $added_parameters);
