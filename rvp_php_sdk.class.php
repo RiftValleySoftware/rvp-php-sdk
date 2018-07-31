@@ -54,8 +54,36 @@ class RVP_PHP_SDK {
      */
     protected static function _get_string_match_table() {
         return  [
-                    'name'          =>  'search_name',
-                    
+                    'name'              =>  'search_name',
+                    'tag0'              =>  'search_tag0',
+                    'tag1'              =>  'search_tag1',
+                    'tag2'              =>  'search_tag2',
+                    'tag3'              =>  'search_tag3',
+                    'tag4'              =>  'search_tag4',
+                    'tag5'              =>  'search_tag5',
+                    'tag6'              =>  'search_tag6',
+                    'tag7'              =>  'search_tag7',
+                    'tag8'              =>  'search_tag8',
+                    'tag9'              =>  'search_tag9',
+                    'description'       =>  'search_description',
+                    'surname'           =>  'search_surname',
+                    'middle_name'       =>  'search_middle_name',
+                    'given_name'        =>  'search_given_name',
+                    'nickname'          =>  'search_nickname',
+                    'prefix'            =>  'search_prefix',
+                    'suffix'            =>  'search_suffix',
+                    'venue'             =>  'search_venue',
+                    'street'            =>  'search_street_address',
+                    'street_address'    =>  'search_street_address',
+                    'extra_information' =>  'search_extra_information',
+                    'city'              =>  'search_town',
+                    'town'              =>  'search_town',
+                    'county'            =>  'search_county',
+                    'state'             =>  'search_state',
+                    'province'          =>  'search_state',
+                    'postal_code'       =>  'search_postal_code',
+                    'zip_code'          =>  'search_postal_code',
+                    'nation'            =>  'search_nation',
                 ];
     }
     
@@ -958,9 +986,9 @@ class RVP_PHP_SDK {
     
     /***********************/
     /**
-    \returns an array of objects (of any kind) that fall within the search radius. NOTE: If the objects don't have an assigned long/lat, they will not be returned in this search.
+    \returns an array of objects (of any kind) that have the requested text in the fields supplied. SQL-style wildcards (%) are applicable.
      */
-    function general_text_search(   $in_text_array  ///< An associative array, laying out which text fields to search, and the search text.
+    function general_text_search(   $in_text_array  ///< An associative array, laying out which text fields to search, and the search text. The key is the name of the field to search, and the value is the text to search for. You can use SQL-style wildcards (%).
                                     ) {
         $ret = NULL;
         
@@ -975,6 +1003,21 @@ class RVP_PHP_SDK {
             $handlers = json_decode($handlers);
             if (isset($handlers) && isset($handlers->baseline)) {
                 $ret = $this->_decode_handlers($handlers->baseline);
+        
+                if (isset($ret) && is_array($ret) && (1 < count($ret))) {
+                    usort($ret, function($a, $b) {
+                                    if ($a->id() == $b->id()) {
+                                        return 0;
+                                    }
+                        
+                                    if ($a->id() < $b->id()) {
+                                        return -1;
+                                    }
+                        
+                                    return 1;
+                                }
+                    );
+                }
             }
         } else {
             $this->set_error(_ERR_COMM_ERR__);
