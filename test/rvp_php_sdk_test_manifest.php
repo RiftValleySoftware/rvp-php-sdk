@@ -173,6 +173,16 @@ $rvp_php_sdk_test_manifest = [
                                                     'file'      =>  'test-scripts/run_test_13_harness_places_text_search_tests.php'
                                                     ]
                                 ],
+                                
+                                [
+                                    'blurb'     =>  'THINGS TEXT SEARCH TESTS',
+                                    'explain'   =>  'Test the things plugin\'s text search capabilities.',
+                                    'db'        =>  'sdk_1',
+                                    'closure'   =>  [
+                                                    'function'  =>  'run_test_14_harness_things_text_search_tests',
+                                                    'file'      =>  'test-scripts/run_test_14_harness_things_text_search_tests.php'
+                                                    ]
+                                ],
 
     ];
 ?>
