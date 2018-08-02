@@ -986,9 +986,18 @@ class RVP_PHP_SDK {
     
     /***********************/
     /**
+    This is a baseline plugin text search.
+    
+    The searched columns are the "object_name" column, or tags 0-9.
     \returns an array of objects (of any kind) that have the requested text in the fields supplied. SQL-style wildcards (%) are applicable.
      */
-    function general_text_search(   $in_text_array  ///< REQUIRED: An associative array, laying out which text fields to search, and the search text. The key is the name of the field to search, and the value is the text to search for. You can use SQL-style wildcards (%).
+    function general_text_search(   $in_text_array  /**< REQUIRED:  An associative array, laying out which text fields to search, and the search text.
+                                                                    The key is the name of the field to search, and the value is the text to search for.
+                                                                    You can use SQL-style wildcards (%).
+                                                                    Available keys:
+                                                                        - 'name'            Searches the 'object_name' column.
+                                                                        - 'tag0' - 'tag9'   Searches the tag indicated. It should be noted that different plugins use these tags for different fixed purposes.
+                                                    */
                                     ) {
         $ret = NULL;
         
@@ -1029,12 +1038,73 @@ class RVP_PHP_SDK {
     
     /***********************/
     /**
+    This is a people plugin text search.
+    
+    The searched columns are the "object_name" column, or tags 0-9 (since this is a fixed-purpose plugin, these will be accessed by name, not tag name).
+    
+    \returns an array of people objects that have the requested text in the fields supplied. SQL-style wildcards (%) are applicable.
+     */
+    function people_text_search(    $in_text_array  /**< REQUIRED:  An associative array, laying out which text fields to search, and the search text.
+                                                                    The key is the name of the field to search, and the value is the text to search for.
+                                                                    You can use SQL-style wildcards (%).
+                                                                    Available keys:
+                                                                        - 'name'        Searches the 'object_name' column.
+                                                                        - 'surname'     Searches the surname tag.
+                                                                        - 'middle_name' Searches the middle name tag.
+                                                                        - 'given_name'  Searches the first (given) name tag.
+                                                                        - 'nickname'    Searches the first (given) name tag.
+                                                                        - 'prefix'      Searches the prefix tag.
+                                                                        - 'suffix'      Searches the suffix tag.
+                                                                        - 'tag7'        Searches tag 7.
+                                                                        - 'tag8'        Searches tag 8.
+                                                                        - 'tag9'        Searches tag 9.
+                                                    */
+                                    ) {
+        $ret = NULL;
+        
+        $added_parameters = '';
+        
+        foreach ($in_text_array as $key => $value) {
+            $added_parameters .= urlencode(self::_get_tag_match($key)).'='.urlencode($value);
+        }
+        
+        $response = $this->fetch_data('json/people/people/', $added_parameters);
+        if (isset($response)) {
+            $response = json_decode($response);
+            if (isset($response) && isset($response->people) && isset($response->people->people)) {
+                $ret = $this->_decode_handlers((array)$response->people);
+        
+                if (isset($ret) && is_array($ret) && (1 < count($ret))) {
+                    usort($ret, function($a, $b) {
+                                    if ($a->id() == $b->id()) {
+                                        return 0;
+                                    }
+                        
+                                    if ($a->id() < $b->id()) {
+                                        return -1;
+                                    }
+                        
+                                    return 1;
+                                }
+                    );
+                }
+            }
+        } else {
+            $this->set_error(_ERR_COMM_ERR__);
+            return NULL;
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
     This is a test of resource IDs or security tokens. It returns Login IDs (security DB), not User IDs (data DB).
     You give it the ID of a resource (data DB), and what you get back is a list of the login IDs that can see that resource, and those that can modify it (each is listed in a separate list).
     If you set the second (optional) parameter to true, then the ID that you send in is interpreted as a security token, and the response contains the IDs of logins that have that token.
     It should be noted that only login IDs that the current user can see will be returned. Additionally, the current user must have at least read permission for any resource ID, and must have access to the token.
     
-    \returns either an array of integer ($in_is_token is true), containing the IDs of logins that have the token, or an associative array ('read' => array of int, 'write' => array of int), with the IDs of the logins with access to the resource, and what kind of access they have. Write access also grants read. NULL if no login IDs are available.
+    \returns either a straight-up simple array of integer ($in_is_token is true), containing the IDs of logins that have the token, or an associative array ('read_login_ids' => array of int, 'write_login_ids' => array of int), with the IDs of the logins with access to the resource, and what kind of access they have. Write access also grants read. NULL if no login IDs are available.
      */
     function test_visibility(   $in_id,                 ///< REQUIRED: The ID or token to test. This is an integer. This should be 1 or greater (for tokens), or 2 or greater (for IDs).
                                 $in_is_token = false    ///< OPTIONAL: If true (Default is false), then the ID is actually a security token.
