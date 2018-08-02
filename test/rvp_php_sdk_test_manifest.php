@@ -163,6 +163,16 @@ $rvp_php_sdk_test_manifest = [
                                                     'file'      =>  'test-scripts/run_test_12_harness_people_text_search_tests.php'
                                                     ]
                                 ],
+                                
+                                [
+                                    'blurb'     =>  'PLACES TEXT SEARCH TESTS',
+                                    'explain'   =>  'Test the places plugin\'s text search capabilities.',
+                                    'db'        =>  'sdk_1',
+                                    'closure'   =>  [
+                                                    'function'  =>  'run_test_13_harness_places_text_search_tests',
+                                                    'file'      =>  'test-scripts/run_test_13_harness_places_text_search_tests.php'
+                                                    ]
+                                ],
 
     ];
 ?>
