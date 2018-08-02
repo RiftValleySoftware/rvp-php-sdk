@@ -704,7 +704,7 @@ class RVP_PHP_SDK {
                             $in_query_args = NULL       ///< OPTIONAL: Any query arguments to be attached after a question mark. This is a string.
                         ) {
         if (isset($in_query_args) && trim($in_query_args)) {
-            $in_plugin_path .= '?'.$in_query_args;
+            $in_plugin_path .= '?'.ltrim($in_query_args, '&');
         }
         
         $response = $this->_call_REST_API('GET', $in_plugin_path);
@@ -726,7 +726,7 @@ class RVP_PHP_SDK {
         $response = NULL;
         
         if ($this->is_logged_in() && isset($in_plugin_path) && trim($in_plugin_path) && isset($in_query_args) && trim($in_query_args)) {
-            $in_plugin_path .= '?'.$in_query_args;
+            $in_plugin_path .= '?'.ltrim($in_query_args, '&');
         
             $response = $this->_call_REST_API('PUT', $in_plugin_path, $in_data_object);
         } elseif ($this->is_logged_in()) {
@@ -754,7 +754,7 @@ class RVP_PHP_SDK {
         
         if ($this->is_logged_in() && isset($in_plugin_path) && trim($in_plugin_path)) {
             if (isset($in_query_args) && trim($in_query_args)) {
-                $in_plugin_path .= '?'.$in_query_args;
+                $in_plugin_path .= '?'.ltrim($in_query_args, '&');
             }
             
             $response = $this->_call_REST_API('POST', $in_plugin_path, $in_data_object);
@@ -1068,13 +1068,14 @@ class RVP_PHP_SDK {
     The searched columns are the "object_name" column, or tags 0-9.
     \returns an array of objects (of any kind) that have the requested text in the fields supplied. SQL-style wildcards (%) are applicable.
      */
-    function general_text_search(   $in_text_array  /**< REQUIRED:  An associative array, laying out which text fields to search, and the search text.
+    function general_text_search(   $in_text_array, /**< REQUIRED:  An associative array, laying out which text fields to search, and the search text.
                                                                     The key is the name of the field to search, and the value is the text to search for.
                                                                     You can use SQL-style wildcards (%).
                                                                     Available keys:
                                                                         - 'name'            Searches the 'object_name' column.
                                                                         - 'tag0' - 'tag9'   Searches the tag indicated. It should be noted that different plugins use these tags for different fixed purposes.
                                                     */
+                                    $in_location = NULL ///< OPTIONAL: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
                                     ) {
         $ret = NULL;
         
@@ -1082,6 +1083,10 @@ class RVP_PHP_SDK {
         
         foreach ($in_text_array as $key => $value) {
             $added_parameters .= urlencode(self::_get_tag_match($key)).'='.urlencode($value);
+        }
+        
+        if (NULL !== $in_location) {
+            $added_parameters .= '&search_latitude='.floatval($in_location['latitude']).'&search_longitude='.floatval($in_location['longitude']).'&search_radius='.floatval($in_location['radius']);
         }
         
         $handlers = $this->fetch_data('json/baseline/search/', $added_parameters);
@@ -1121,7 +1126,7 @@ class RVP_PHP_SDK {
     
     \returns an array of people objects that have the requested text in the fields supplied. SQL-style wildcards (%) are applicable.
      */
-    function people_text_search(    $in_text_array  /**< REQUIRED:  An associative array, laying out which text fields to search, and the search text.
+    function people_text_search(    $in_text_array, /**< REQUIRED:  An associative array, laying out which text fields to search, and the search text.
                                                                     The key is the name of the field to search, and the value is the text to search for.
                                                                     You can use SQL-style wildcards (%).
                                                                     Available keys:
@@ -1136,6 +1141,8 @@ class RVP_PHP_SDK {
                                                                         - 'tag8'        Searches tag 8.
                                                                         - 'tag9'        Searches tag 9.
                                                     */
+                                        $in_location = NULL,        ///< OPTIONAL: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
+                                        $in_get_logins_only = false ///< OPTIONAL: If true (Default is false), then only login objects associated with the user objects that fall within the search will be returned.
                                     ) {
         $ret = NULL;
         
@@ -1143,6 +1150,14 @@ class RVP_PHP_SDK {
         
         foreach ($in_text_array as $key => $value) {
             $added_parameters .= urlencode(self::_get_tag_match($key)).'='.urlencode($value);
+        }
+
+        if ($in_get_logins_only) {
+            $added_parameters .= '&login_user';
+        }
+        
+        if (NULL !== $in_location) {
+            $added_parameters .= '&search_latitude='.floatval($in_location['latitude']).'&search_longitude='.floatval($in_location['longitude']).'&search_radius='.floatval($in_location['radius']);
         }
         
         $response = $this->fetch_data('json/people/people/', $added_parameters);
@@ -1191,7 +1206,7 @@ class RVP_PHP_SDK {
     
     \returns an array of place objects that have the requested text in the fields supplied. SQL-style wildcards (%) are applicable.
      */
-    function places_text_search(    $in_text_array  /**< REQUIRED:  An associative array, laying out which text fields to search, and the search text.
+    function places_text_search(    $in_text_array, /**< REQUIRED:  An associative array, laying out which text fields to search, and the search text.
                                                                     The key is the name of the field to search, and the value is the text to search for.
                                                                     You can use SQL-style wildcards (%).
                                                                     Available keys:
@@ -1207,6 +1222,7 @@ class RVP_PHP_SDK {
                                                                         - 'tag8'                        Searches tag 8.
                                                                         - 'tag9'                        Searches tag 9.
                                                     */
+                                    $in_location = NULL ///< OPTIONAL: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
                                     ) {
         $ret = NULL;
         
@@ -1214,6 +1230,10 @@ class RVP_PHP_SDK {
         
         foreach ($in_text_array as $key => $value) {
             $added_parameters .= urlencode(self::_get_tag_match($key)).'='.urlencode($value);
+        }
+        
+        if (NULL !== $in_location) {
+            $added_parameters .= '&search_latitude='.floatval($in_location['latitude']).'&search_longitude='.floatval($in_location['longitude']).'&search_radius='.floatval($in_location['radius']);
         }
         
         $response = $this->fetch_data('json/places/', $added_parameters);
@@ -1262,7 +1282,7 @@ class RVP_PHP_SDK {
     
     \returns an array of thing objects that have the requested text in the fields supplied. SQL-style wildcards (%) are applicable.
      */
-    function things_text_search(    $in_text_array  /**< REQUIRED:  An associative array, laying out which text fields to search, and the search text.
+    function things_text_search(    $in_text_array, /**< REQUIRED:  An associative array, laying out which text fields to search, and the search text.
                                                                     The key is the name of the field to search, and the value is the text to search for.
                                                                     You can use SQL-style wildcards (%).
                                                                     Available keys:
@@ -1270,6 +1290,7 @@ class RVP_PHP_SDK {
                                                                         - 'description'     Searches the thing description tag.
                                                                         - 'tag2' - 'tag9'   Searches the tag indicated.
                                                     */
+                                    $in_location = NULL ///< OPTIONAL: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
                                     ) {
         $ret = NULL;
         
@@ -1277,6 +1298,10 @@ class RVP_PHP_SDK {
         
         foreach ($in_text_array as $key => $value) {
             $added_parameters .= urlencode(self::_get_tag_match($key)).'='.urlencode($value);
+        }
+        
+        if (NULL !== $in_location) {
+            $added_parameters .= '&search_latitude='.floatval($in_location['latitude']).'&search_longitude='.floatval($in_location['longitude']).'&search_radius='.floatval($in_location['radius']);
         }
         
         $response = $this->fetch_data('json/things/', $added_parameters);

@@ -135,7 +135,7 @@ $rvp_php_sdk_test_manifest = [
                                 ],
                                 
                                 [
-                                    'blurb'     =>  'VARIOUS TEXT SEARCH TESTS',
+                                    'blurb'     =>  'SIMPLE BASELINE TEXT SEARCH TESTS',
                                     'explain'   =>  'Try various text searches.',
                                     'db'        =>  'sdk_1',
                                     'closure'   =>  [
@@ -155,7 +155,7 @@ $rvp_php_sdk_test_manifest = [
                                 ],
                                 
                                 [
-                                    'blurb'     =>  'PEOPLE TEXT SEARCH TESTS',
+                                    'blurb'     =>  'SIMPLE PEOPLE TEXT SEARCH TESTS',
                                     'explain'   =>  'Test the people plugin\'s text search capabilities.',
                                     'db'        =>  'sdk_1',
                                     'closure'   =>  [
@@ -165,7 +165,7 @@ $rvp_php_sdk_test_manifest = [
                                 ],
                                 
                                 [
-                                    'blurb'     =>  'PLACES TEXT SEARCH TESTS',
+                                    'blurb'     =>  'SIMPLE PLACES TEXT SEARCH TESTS',
                                     'explain'   =>  'Test the places plugin\'s text search capabilities.',
                                     'db'        =>  'sdk_1',
                                     'closure'   =>  [
@@ -175,7 +175,7 @@ $rvp_php_sdk_test_manifest = [
                                 ],
                                 
                                 [
-                                    'blurb'     =>  'THINGS TEXT SEARCH TESTS',
+                                    'blurb'     =>  'SIMPLE THINGS TEXT SEARCH TESTS',
                                     'explain'   =>  'Test the things plugin\'s text search capabilities.',
                                     'db'        =>  'sdk_1',
                                     'closure'   =>  [
