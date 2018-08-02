@@ -161,12 +161,6 @@ $rvp_php_sdk_test_manifest = [
                                     'closure'   =>  [
                                                     'function'  =>  'run_test_12_harness_people_text_search_tests',
                                                     'file'      =>  'test-scripts/run_test_12_harness_people_text_search_tests.php'
-                                                    ],
-                                    'login'     =>  [
-                                                    'login_id'  =>  'MainAdmin',
-                                                    'password'  =>  'CoreysGoryStory',
-                                                    'timeout'   =>  CO_Config::$session_timeout_in_seconds,
-                                                    'logout'    =>  true
                                                     ]
                                 ],
 
