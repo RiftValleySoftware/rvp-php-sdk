@@ -1013,7 +1013,7 @@ class RVP_PHP_SDK {
             if (isset($handlers) && isset($handlers->baseline)) {
                 $ret = $this->_decode_handlers($handlers->baseline);
         
-                if (isset($ret) && is_array($ret) && (1 < count($ret))) {
+                if (isset($ret) && is_array($ret) && (0 < count($ret))) {
                     usort($ret, function($a, $b) {
                                     if ($a->id() == $b->id()) {
                                         return 0;
@@ -1071,10 +1071,19 @@ class RVP_PHP_SDK {
         $response = $this->fetch_data('json/people/people/', $added_parameters);
         if (isset($response)) {
             $response = json_decode($response);
-            if (isset($response) && isset($response->people) && isset($response->people->people)) {
-                $ret = $this->_decode_handlers((array)$response->people);
+            if (isset($response) && isset($response->people) && isset($response->people->people) && is_array($response->people->people) && count($response->people->people)) {
+                $ret = [];
+                foreach ($response->people->people as $person) {
+                    $new_object = new RVP_PHP_SDK_User($this, $person->id, $person);
+                    if (isset($new_object) && ($new_object instanceof RVP_PHP_SDK_User)) {
+                        $ret[] = $new_object;
+                    } else {
+                        $this->set_error(_ERR_INTERNAL_ERR__);
+                        return NULL;
+                    }
+                }
         
-                if (isset($ret) && is_array($ret) && (1 < count($ret))) {
+                if (isset($ret) && is_array($ret) && (0 < count($ret))) {
                     usort($ret, function($a, $b) {
                                     if ($a->id() == $b->id()) {
                                         return 0;
