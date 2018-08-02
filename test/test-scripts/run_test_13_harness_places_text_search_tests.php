@@ -11,8 +11,7 @@
 
     Little Green Viper Software Development: https://littlegreenviper.com
 */
-define('__CREATE_FILE__', false);
-define('__EMPTY_SHA__', '8739602554c7f3241958e3cc9b57fdecb474d508');
+defined('__EMPTY_SHA__') or define('__EMPTY_SHA__', '8739602554c7f3241958e3cc9b57fdecb474d508');
 function run_test_13_harness_places_text_search_tests($test_harness_instance) {
     $all_pass = true;
     $test_count = $test_harness_instance->test_count + 1;
@@ -106,6 +105,8 @@ function run_test_13_harness_places_text_search_tests($test_harness_instance) {
 }
 
 function run_test_13_harness_places_text_search_tests_tag_test($test_harness_instance, &$test_count, $in_name, $in_value, $in_sha) {
+    $all_pass = true;
+    
     echo('<h4>Searching '.htmlspecialchars($in_name).' for "'.htmlspecialchars($in_value).'".</h4>');
     $places = $test_harness_instance->sdk_instance->places_text_search([$in_name => $in_value]);
     $dump = [];
@@ -124,5 +125,7 @@ function run_test_13_harness_places_text_search_tests_tag_test($test_harness_ins
         $test_harness_instance->write_log_entry('Places Text '.$in_name.' Search for "'.$in_value.'".', $test_count++, false);
         echo('<h4 style="color:red">PLACE NOT VALID!</h4>');
     }
+    
+    return $all_pass;     
 }
 ?>
