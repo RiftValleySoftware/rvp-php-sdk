@@ -714,6 +714,83 @@ class RVP_PHP_SDK {
     
     /***********************/
     /**
+    This method will initiate and complete a data PUT connection to the server. It takes care of any authentication.
+    You must be logged in to perform this operation.
+    
+    \returns whatever data was returned. Usually JSON.
+     */
+    function put_data(  $in_plugin_path,        ///< REQUIRED: The plugin path to append to the base URI. This is a string, and should include the resource designation.
+                        $in_query_args,         ///< REQUIRED: Any query arguments to be attached after a question mark. This is a string.
+                        $in_data_object = NULL  ///< OPTIONAL: If supplied, this will be attached payload data. It should not be base64-encoded.
+                    ) {
+        $response = NULL;
+        
+        if ($this->is_logged_in() && isset($in_plugin_path) && trim($in_plugin_path) && isset($in_query_args) && trim($in_query_args)) {
+            $in_plugin_path .= '?'.$in_query_args;
+        
+            $response = $this->_call_REST_API('PUT', $in_plugin_path, $in_data_object);
+        } elseif ($this->is_logged_in()) {
+            $this->set_error(_ERR_NOT_AUTHORIZED__);
+        } else {
+            $this->set_error(_ERR_INVALID_PARAMETERS__);
+        }
+        
+        return $response;
+    }
+    
+    /***********************/
+    /**
+    This method will initiate and complete a data POST connection to the server. It takes care of any authentication.
+    You must be logged in to perform this operation.
+    You cannot select a resource for this. The plugin should be specified.
+    
+    \returns whatever data was returned. Usually JSON.
+     */
+    function post_data( $in_plugin_path,        ///< REQUIRED: The plugin path to append to the base URI. This is a string, and should NOT include any resource designation.
+                        $in_query_args = NULL,  ///< OPTIONAL: Any query arguments to be attached after a question mark. This is a string.
+                        $in_data_object = NULL  ///< OPTIONAL: If supplied, this will be attached payload data. It should not be base64-encoded.
+                        ) {
+        $response = NULL;
+        
+        if ($this->is_logged_in() && isset($in_plugin_path) && trim($in_plugin_path)) {
+            if (isset($in_query_args) && trim($in_query_args)) {
+                $in_plugin_path .= '?'.$in_query_args;
+            }
+            
+            $response = $this->_call_REST_API('POST', $in_plugin_path, $in_data_object);
+        } elseif ($this->is_logged_in()) {
+            $this->set_error(_ERR_NOT_AUTHORIZED__);
+        } else {
+            $this->set_error(_ERR_INVALID_PARAMETERS__);
+        }
+        
+        return $response;
+    }
+    
+    /***********************/
+    /**
+    This method will initiate and complete a data DELETE connection to the server. It takes care of any authentication.
+    You must be logged in to perform this operation.
+    
+    \returns whatever data was returned. Usually JSON.
+     */
+    function delete_data(   $in_plugin_path ///< REQUIRED: The plugin path to append to the base URI. This is a string, and should include the resource designation.
+                        ) {
+        $response = NULL;
+        
+        if ($this->is_logged_in() && isset($in_plugin_path) && trim($in_plugin_path)) {
+            $response = $this->_call_REST_API('DELETE', $in_plugin_path, $in_data_object);
+        } elseif ($this->is_logged_in()) {
+            $this->set_error(_ERR_NOT_AUTHORIZED__);
+        } else {
+            $this->set_error(_ERR_INVALID_PARAMETERS__);
+        }
+        
+        return $response;
+    }
+    
+    /***********************/
+    /**
     \returns new user, place and/or thing objects (or NULL) for the given integer ID[s]. These will be "unresolved" objects, sorted by ID.
      */
     function get_objects() {
