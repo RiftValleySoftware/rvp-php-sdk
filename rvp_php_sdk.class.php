@@ -779,7 +779,7 @@ class RVP_PHP_SDK {
         $response = NULL;
         
         if ($this->is_logged_in() && isset($in_plugin_path) && trim($in_plugin_path)) {
-            $response = $this->_call_REST_API('DELETE', $in_plugin_path, $in_data_object);
+            $response = $this->_call_REST_API('DELETE', $in_plugin_path);
         } elseif ($this->is_logged_in()) {
             $this->set_error(_ERR_NOT_AUTHORIZED__);
         } else {
@@ -932,157 +932,28 @@ class RVP_PHP_SDK {
     
     /***********************/
     /**
-    \returns an array of objects (of any kind) that fall within the search radius. NOTE: If the objects don't have an assigned long/lat, they will not be returned in this search.
-     */
-    function general_location_search(   $in_location    ///< REQUIRED: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
-                                    ) {
-        $ret = NULL;
-        $handlers = $this->fetch_data('json/baseline/search/?search_latitude='.floatval($in_location['latitude']).'&search_longitude='.floatval($in_location['longitude']).'&search_radius='.floatval($in_location['radius']));
-        if (isset($handlers)) {
-            $handlers = json_decode($handlers);
-            if (isset($handlers) && isset($handlers->baseline)) {
-                $ret = $this->_decode_handlers($handlers->baseline);
-            }
-        } else {
-            $this->set_error(_ERR_COMM_ERR__);
-            return NULL;
-        }
-        
-        return $ret;
-    }
-    
-    /***********************/
-    /**
-    \returns an array of user (or login) objects that fall within the search radius. NOTE: If the objects don't have an assigned long/lat, they will not be returned in this search.
-     */
-    function people_location_search(    $in_location,               ///< REQUIRED: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
-                                        $in_get_logins_only = false ///< OPTIONAL: If true (Default is false), then only login objects associated with the user objects that fall within the search will be returned.
-                                    ) {
-        $ret = NULL;
-        $url = 'json/people/people/?search_latitude='.floatval($in_location['latitude']).'&search_longitude='.floatval($in_location['longitude']).'&search_radius='.floatval($in_location['radius']);
-
-        if ($in_get_logins_only) {
-            $url .= '&login_user';
-        }
-        
-        $results = json_decode($this->fetch_data($url));
-            
-        if (isset($results) && isset($results->people) && isset($results->people->people)) {
-            $result_array = (array)$results->people->people;
-            $ret = [];
-            foreach ($result_array as $result) {
-                if ($in_get_logins_only) {
-                    if (isset($result->associated_login) && (1 < $result->associated_login->id)) {
-                        $ret[] = new RVP_PHP_SDK_Login($this, $result->associated_login->id, $result->associated_login, true);
-                        if (!isset($ret[count($ret) - 1]) || !($ret[count($ret) - 1] instanceof RVP_PHP_SDK_Login)) {
-                            $this->set_error(_ERR_INTERNAL_ERR__);
-                            $ret = NULL;
-                            break;
-                        }
-                    }
-                } elseif (isset($result) && isset($result->id) && (1 < $result->id)) {
-                    $ret[] = new RVP_PHP_SDK_User($this, $result->id, $result);
-                    if (!isset($ret[count($ret) - 1]) || !($ret[count($ret) - 1] instanceof RVP_PHP_SDK_User)) {
-                        $this->set_error(_ERR_INTERNAL_ERR__);
-                        $ret = NULL;
-                        break;
-                    }
-                }
-            }
-        } else {
-            $this->set_error(_ERR_COMM_ERR__);
-            return NULL;
-        }
-        
-        return $ret;
-    }
-    
-    /***********************/
-    /**
-    \returns an array of place objects that fall within the search radius. NOTE: If the objects don't have an assigned long/lat, they will not be returned in this search.
-     */
-    function place_location_search( $in_location    ///< REQUIRED: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
-                                    ) {
-        $ret = NULL;
-        $url = 'json/places/?search_latitude='.floatval($in_location['latitude']).'&search_longitude='.floatval($in_location['longitude']).'&search_radius='.floatval($in_location['radius']);
-        
-        $results = json_decode($this->fetch_data($url));
-            
-        if (isset($results) && isset($results->places) && isset($results->places->results)) {
-            $result_array = (array)$results->places->results;
-            $ret = [];
-            foreach ($result_array as $result) {
-                if (isset($result) && isset($result->id) && (1 < $result->id)) {
-                    $ret[] = new RVP_PHP_SDK_Place($this, $result->id, $result);
-                    if (!isset($ret[count($ret) - 1]) || !($ret[count($ret) - 1] instanceof RVP_PHP_SDK_Place)) {
-                        $this->set_error(_ERR_INTERNAL_ERR__);
-                        $ret = NULL;
-                        break;
-                    }
-                }
-            }
-        } else {
-            $this->set_error(_ERR_COMM_ERR__);
-            return NULL;
-        }
-        
-        return $ret;
-    }
-    
-    /***********************/
-    /**
-    \returns an array of thing objects that fall within the search radius. NOTE: If the objects don't have an assigned long/lat, they will not be returned in this search.
-     */
-    function thing_location_search( $in_location    ///< REQUIRED: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
-                                    ) {
-        $ret = NULL;
-        $url = 'json/things/?search_latitude='.floatval($in_location['latitude']).'&search_longitude='.floatval($in_location['longitude']).'&search_radius='.floatval($in_location['radius']);
-        
-        $results = json_decode($this->fetch_data($url));
-            
-        if (isset($results) && isset($results->things)) {
-            $result_array = (array)$results->things;
-            $ret = [];
-            foreach ($result_array as $result) {
-                if (isset($result) && isset($result->id) && (1 < $result->id)) {
-                    $ret[] = new RVP_PHP_SDK_Thing($this, $result->id, $result);
-                    if (!isset($ret[count($ret) - 1]) || !($ret[count($ret) - 1] instanceof RVP_PHP_SDK_Thing)) {
-                        $this->set_error(_ERR_INTERNAL_ERR__);
-                        $ret = NULL;
-                        break;
-                    }
-                }
-            }
-        } else {
-            $this->set_error(_ERR_COMM_ERR__);
-            return NULL;
-        }
-        
-        return $ret;
-    }
-    
-    /***********************/
-    /**
     This is a baseline plugin text search.
     
     The searched columns are the "object_name" column, or tags 0-9.
     \returns an array of objects (of any kind) that have the requested text in the fields supplied. SQL-style wildcards (%) are applicable.
      */
-    function general_text_search(   $in_text_array, /**< REQUIRED:  An associative array, laying out which text fields to search, and the search text.
+    function general_text_search(   $in_text_array = [],    /**< OPTIONAL:  An associative array, laying out which text fields to search, and the search text.
                                                                     The key is the name of the field to search, and the value is the text to search for.
                                                                     You can use SQL-style wildcards (%).
                                                                     Available keys:
                                                                         - 'name'            Searches the 'object_name' column.
                                                                         - 'tag0' - 'tag9'   Searches the tag indicated. It should be noted that different plugins use these tags for different fixed purposes.
-                                                    */
-                                    $in_location = NULL ///< OPTIONAL: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
+                                                            */
+                                    $in_location = NULL     ///< OPTIONAL: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
                                     ) {
         $ret = NULL;
         
         $added_parameters = '';
         
-        foreach ($in_text_array as $key => $value) {
-            $added_parameters .= urlencode(self::_get_tag_match($key)).'='.urlencode($value);
+        if (is_array($in_text_array) && count($in_text_array)) {
+            foreach ($in_text_array as $key => $value) {
+                $added_parameters .= urlencode(self::_get_tag_match($key)).'='.urlencode($value);
+            }
         }
         
         if (NULL !== $in_location) {
@@ -1126,7 +997,7 @@ class RVP_PHP_SDK {
     
     \returns an array of people objects that have the requested text in the fields supplied. SQL-style wildcards (%) are applicable.
      */
-    function people_text_search(    $in_text_array, /**< REQUIRED:  An associative array, laying out which text fields to search, and the search text.
+    function people_text_search(    $in_text_array = [],    /**< OPTIONAL:  An associative array, laying out which text fields to search, and the search text.
                                                                     The key is the name of the field to search, and the value is the text to search for.
                                                                     You can use SQL-style wildcards (%).
                                                                     Available keys:
@@ -1140,16 +1011,18 @@ class RVP_PHP_SDK {
                                                                         - 'tag7'        Searches tag 7.
                                                                         - 'tag8'        Searches tag 8.
                                                                         - 'tag9'        Searches tag 9.
-                                                    */
-                                        $in_location = NULL,        ///< OPTIONAL: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
-                                        $in_get_logins_only = false ///< OPTIONAL: If true (Default is false), then only login objects associated with the user objects that fall within the search will be returned.
+                                                            */
+                                    $in_location = NULL,        ///< OPTIONAL: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
+                                    $in_get_logins_only = false ///< OPTIONAL: If true (Default is false), then only login objects associated with the user objects that fall within the search will be returned.
                                     ) {
         $ret = NULL;
         
         $added_parameters = '';
         
-        foreach ($in_text_array as $key => $value) {
-            $added_parameters .= urlencode(self::_get_tag_match($key)).'='.urlencode($value);
+        if (is_array($in_text_array) && count($in_text_array)) {
+            foreach ($in_text_array as $key => $value) {
+                $added_parameters .= urlencode(self::_get_tag_match($key)).'='.urlencode($value);
+            }
         }
 
         if ($in_get_logins_only) {
@@ -1163,15 +1036,28 @@ class RVP_PHP_SDK {
         $response = $this->fetch_data('json/people/people/', $added_parameters);
         if (isset($response)) {
             $response = json_decode($response);
-            if (isset($response) && isset($response->people) && isset($response->people->people) && is_array($response->people->people) && count($response->people->people)) {
+            if (isset($response) && isset($response->people) && isset($response->people->people)) {
                 $ret = [];
-                foreach ($response->people->people as $person) {
-                    $new_object = new RVP_PHP_SDK_User($this, $person->id, $person);
-                    if (isset($new_object) && ($new_object instanceof RVP_PHP_SDK_User)) {
-                        $ret[] = $new_object;
-                    } else {
-                        $this->set_error(_ERR_INTERNAL_ERR__);
-                        return NULL;
+                $people = (array)$response->people->people;
+                foreach ($people as $person) {
+                    if (isset($person->id)) {
+                        if ($in_get_logins_only && isset($person->associated_login)) {
+                            $new_object = new RVP_PHP_SDK_Login($this, $person->associated_login->id, $person->associated_login, true);
+                            if (isset($new_object) && ($new_object instanceof RVP_PHP_SDK_Login)) {
+                                $ret[] = $new_object;
+                            } else {
+                                $this->set_error(_ERR_INTERNAL_ERR__);
+                                return NULL;
+                            }
+                        } elseif (!$in_get_logins_only) {
+                            $new_object = new RVP_PHP_SDK_User($this, $person->id, $person);
+                            if (isset($new_object) && ($new_object instanceof RVP_PHP_SDK_User)) {
+                                $ret[] = $new_object;
+                            } else {
+                                $this->set_error(_ERR_INTERNAL_ERR__);
+                                return NULL;
+                            }
+                        }
                     }
                 }
         
@@ -1206,7 +1092,7 @@ class RVP_PHP_SDK {
     
     \returns an array of place objects that have the requested text in the fields supplied. SQL-style wildcards (%) are applicable.
      */
-    function places_text_search(    $in_text_array, /**< REQUIRED:  An associative array, laying out which text fields to search, and the search text.
+    function places_text_search(    $in_text_array = [],    /**< OPTIONAL:  An associative array, laying out which text fields to search, and the search text.
                                                                     The key is the name of the field to search, and the value is the text to search for.
                                                                     You can use SQL-style wildcards (%).
                                                                     Available keys:
@@ -1221,15 +1107,17 @@ class RVP_PHP_SDK {
                                                                         - 'nation'                      Searches the nation tag.
                                                                         - 'tag8'                        Searches tag 8.
                                                                         - 'tag9'                        Searches tag 9.
-                                                    */
-                                    $in_location = NULL ///< OPTIONAL: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
+                                                            */
+                                    $in_location = NULL     ///< OPTIONAL: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
                                     ) {
         $ret = NULL;
         
         $added_parameters = '';
         
-        foreach ($in_text_array as $key => $value) {
-            $added_parameters .= urlencode(self::_get_tag_match($key)).'='.urlencode($value);
+        if (is_array($in_text_array) && count($in_text_array)) {
+            foreach ($in_text_array as $key => $value) {
+                $added_parameters .= urlencode(self::_get_tag_match($key)).'='.urlencode($value);
+            }
         }
         
         if (NULL !== $in_location) {
@@ -1282,22 +1170,24 @@ class RVP_PHP_SDK {
     
     \returns an array of thing objects that have the requested text in the fields supplied. SQL-style wildcards (%) are applicable.
      */
-    function things_text_search(    $in_text_array, /**< REQUIRED:  An associative array, laying out which text fields to search, and the search text.
+    function things_text_search(    $in_text_array = [],    /**< OPTIONAL:  An associative array, laying out which text fields to search, and the search text.
                                                                     The key is the name of the field to search, and the value is the text to search for.
                                                                     You can use SQL-style wildcards (%).
                                                                     Available keys:
                                                                         - 'name'            Searches the 'object_name' column.
                                                                         - 'description'     Searches the thing description tag.
                                                                         - 'tag2' - 'tag9'   Searches the tag indicated.
-                                                    */
-                                    $in_location = NULL ///< OPTIONAL: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
+                                                            */
+                                    $in_location = NULL     ///< OPTIONAL: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
                                     ) {
         $ret = NULL;
         
         $added_parameters = '';
         
-        foreach ($in_text_array as $key => $value) {
-            $added_parameters .= urlencode(self::_get_tag_match($key)).'='.urlencode($value);
+        if (is_array($in_text_array) && count($in_text_array)) {
+            foreach ($in_text_array as $key => $value) {
+                $added_parameters .= urlencode(self::_get_tag_match($key)).'='.urlencode($value);
+            }
         }
         
         if (NULL !== $in_location) {
@@ -1340,6 +1230,43 @@ class RVP_PHP_SDK {
         }
         
         return $ret;
+    }
+    
+    /***********************/
+    /**
+    \returns an array of objects (of any kind) that fall within the search radius. NOTE: If the objects don't have an assigned long/lat, they will not be returned in this search.
+     */
+    function general_location_search(   $in_location    ///< REQUIRED: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
+                                    ) {
+        return $this->general_text_search(NULL, $in_location);
+    }
+    
+    /***********************/
+    /**
+    \returns an array of user (or login) objects that fall within the search radius. NOTE: If the objects don't have an assigned long/lat, they will not be returned in this search.
+     */
+    function people_location_search(    $in_location,               ///< REQUIRED: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
+                                        $in_get_logins_only = false ///< OPTIONAL: If true (Default is false), then only login objects associated with the user objects that fall within the search will be returned.
+                                    ) {
+        return $this->people_text_search(NULL, $in_location, $in_get_logins_only);
+    }
+    
+    /***********************/
+    /**
+    \returns an array of place objects that fall within the search radius. NOTE: If the objects don't have an assigned long/lat, they will not be returned in this search.
+     */
+    function place_location_search( $in_location    ///< REQUIRED: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
+                                    ) {
+        return $this->places_text_search(NULL, $in_location);
+    }
+    
+    /***********************/
+    /**
+    \returns an array of thing objects that fall within the search radius. NOTE: If the objects don't have an assigned long/lat, they will not be returned in this search.
+     */
+    function thing_location_search( $in_location    ///< REQUIRED: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
+                                    ) {
+        return $this->things_text_search(NULL, $in_location);
     }
     
     /***********************/

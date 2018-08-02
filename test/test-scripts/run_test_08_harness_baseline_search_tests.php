@@ -56,8 +56,10 @@ function run_test_08_harness_baseline_search_tests($test_harness_instance) {
             echo('<h4>Do A Simple Location Radius Search Within 10Km of the Jefferson Memorial, in the Potomac River. This people plugin search will return only logins. We should get nothing, as we are not logged in.</h4>');
             $results = $test_harness_instance->sdk_instance->people_location_search(__SEARCH_SPEC__, true);
             $dump = [];
-            foreach ($results as $node) {
-                $dump[] = ['id' => $node->id(), 'type' => get_class($node), 'name' => $node->name()];
+            if (is_array($results) && count($results)) {
+                foreach ($results as $node) {
+                    $dump[] = ['id' => $node->id(), 'type' => get_class($node), 'name' => $node->name()];
+                }
             }
             if (RVP_PHP_SDK_Test_Harness::are_arrays_equal(__LOGIN_SEARCH_RESPONSE__, $dump)) {
                 $test_harness_instance->write_log_entry('Simple Location Login Radius Search', $test_count++, true);
