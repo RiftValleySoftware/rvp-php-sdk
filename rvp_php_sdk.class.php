@@ -1179,6 +1179,69 @@ class RVP_PHP_SDK {
     
     /***********************/
     /**
+    This is a things plugin text search.
+    
+    The searched columns are the "object_name" column, or tags 0-9 (since this is a fixed-purpose plugin, a couple of these will be accessed by name, not tag name).
+    
+    \returns an array of thing objects that have the requested text in the fields supplied. SQL-style wildcards (%) are applicable.
+     */
+    function things_text_search(    $in_text_array  /**< REQUIRED:  An associative array, laying out which text fields to search, and the search text.
+                                                                    The key is the name of the field to search, and the value is the text to search for.
+                                                                    You can use SQL-style wildcards (%).
+                                                                    Available keys:
+                                                                        - 'name'            Searches the 'object_name' column.
+                                                                        - 'description'     Searches the thing description tag.
+                                                                        - 'tag2' - 'tag9'   Searches the tag indicated.
+                                                    */
+                                    ) {
+        $ret = NULL;
+        
+        $added_parameters = '';
+        
+        foreach ($in_text_array as $key => $value) {
+            $added_parameters .= urlencode(self::_get_tag_match($key)).'='.urlencode($value);
+        }
+        
+        $response = $this->fetch_data('json/things/', $added_parameters);
+        if (isset($response)) {
+            $response = json_decode($response);
+            if (isset($response) && isset($response->things) && is_array($response->things) && count($response->things)) {
+                $ret = [];
+                foreach ($response->things as $thing) {
+                    $new_object = new RVP_PHP_SDK_Thing($this, $thing->id, $thing);
+                    if (isset($new_object) && ($new_object instanceof RVP_PHP_SDK_Thing)) {
+                        $ret[] = $new_object;
+                    } else {
+                        $this->set_error(_ERR_INTERNAL_ERR__);
+                        return NULL;
+                    }
+                }
+        
+                if (isset($ret) && is_array($ret) && (0 < count($ret))) {
+                    usort($ret, function($a, $b) {
+                                    if ($a->id() == $b->id()) {
+                                        return 0;
+                                    }
+                        
+                                    if ($a->id() < $b->id()) {
+                                        return -1;
+                                    }
+                        
+                                    return 1;
+                                }
+                    );
+                }
+            }
+        } else {
+            $this->set_error(_ERR_COMM_ERR__);
+            return NULL;
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
     This is a test of resource IDs or security tokens. It returns Login IDs (security DB), not User IDs (data DB).
     You give it the ID of a resource (data DB), and what you get back is a list of the login IDs that can see that resource, and those that can modify it (each is listed in a separate list).
     If you set the second (optional) parameter to true, then the ID that you send in is interpreted as a security token, and the response contains the IDs of logins that have that token.
