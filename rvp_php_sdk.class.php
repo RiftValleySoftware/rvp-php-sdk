@@ -1284,15 +1284,76 @@ class RVP_PHP_SDK {
                                     $in_target_number = 10,             ///< OPTIONAL: An integer. The minimum number of resources to find. Default is 10.
                                     $in_search_type = 'all',            /**< OPTIONAL: The type of search. It can be:
                                                                                 - 'all' (or NULL/blank).    This is all types of resources. This is the default.
-                                                                                - 'users'                   This is user objects.
+                                                                                - 'users' or 'people'       This is user objects.
                                                                                 - 'logins'                  This is logins, associated with users (you cannot search for standalone logins this way).
                                                                                 - 'places'                  This is places.
                                                                                 - 'things'                  This is thing objects.
                                                                         */
                                     $in_search_string_criteria = NULL,  ///< OPTIONAL: This is an associative array (keys are field names, and values are what you are looking for. You can use SQL-style wildcards "%").
                                     $in_step_size_in_km = 0.5,          ///< OPTIONAL: This is the size of steps that we will take in the search. Default is 0.5 km (500m).
-                                    $in_max_width_in_km = 500           ///< OPTIONAL: The maximum radius in kilometers. Default is 500km.
+                                    $in_max_width_in_km = 100,          ///< OPTIONAL: The maximum radius in kilometers. Default is 100km.
+                                    $step_callback = NULL               /**< OPTIONAL: This is a lmbda/closure/callback function that you provide, and will be called after each step, with the current results.
+                                                                                       This can either be a global-scope function, or an array, with the first element being an object instance, and the second element being the name of the method.
+                                                                                       The signature for the function/method is:
+                                                                                            function callback(  $in_sdk_instance,   // The SDK instance (this)
+                                                                                                                $in_results,        // The current results array (of instances).
+                                                                                                                $in_type,           // The search type ('all', 'users', 'logins, 'places', 'things').
+                                                                                                                $in_location,       // The current location (associative array ['latitude' => float, 'longitude' => float, 'radius' => float]).
+                                                                                                                $in_search_criteria // An associative array with teh current text filter search criteria.
+                                                                                                            );
+                                                                                            The function should return either true, or false. If it returns true, then the search should be stopped at that point, and the current results returned.
+                                                                        */
                                 ) {
+        $radius = 0.0;
+        $results = [];
+        $location = ['latitude' => floatval($in_center_point['latitude']), 'longitude' => floatval($in_center_point['longitude']), 'radius' => $radius];
+    
+        while (($in_target_number > count($results)) && ($in_max_width_in_km >= ($radius + $in_step_size_in_km))) {
+            $radius += floatval($in_step_size_in_km);
+            $location['radius'] = $radius;
+            switch (strtolower(trim($in_search_type))) {
+                case    'people':
+                case    'users':
+                    $in_search_type = 'users';
+                case    'logins':
+                    $results = $this->people_text_search($in_search_string_criteria, $location, ('logins' == $in_search_type));
+                    break;
+            
+                case    'places':
+                    $results = $this->places_text_search($in_search_string_criteria, $location);
+                    break;
+            
+                case    'things':
+                    $results = $this->things_text_search($in_search_string_criteria, $location);
+                    break;
+            
+                default:
+                    $in_search_type = 'all';
+                    $results = $this->general_text_search($in_search_string_criteria, $location);
+                    break;
+            }
+            
+            // The user can provide a callback that gets a report, and can abort the search.
+            if (isset($step_callback)) {
+                $abort = false;
+                
+                if (is_array($step_callback) && (2 == count($step_callback))) {
+                    $object = $step_callback[0];
+                    $method = $step_callback[1];
+                    if (method_exists($object, $method)) {
+                        $abort = $object->$method($this, $results, strtolower(trim($in_search_type)), $location, $in_search_string_criteria);
+                    }
+                } elseif (function_exists($step_callback)) {
+                    $abort = $step_callback($this, $results, strtolower(trim($in_search_type)), $location, $in_search_string_criteria);
+                }
+                
+                if ($abort) {
+                    break;
+                }
+            }
+        }
+        
+        return $results;
     }
                                     
     /***********************/
