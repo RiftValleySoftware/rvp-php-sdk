@@ -19,7 +19,7 @@ function run_test_16_harness_auto_radius_search_tests($test_harness_instance) {
     if (isset($test_harness_instance->sdk_instance)) {
         if ($test_harness_instance->sdk_instance->valid()) {
 
-            $sha = 'c70668bd193b08cce2a277eee98260cb2e20cb04';
+            $sha = '6a34dc5e97f3a133e5430d221db78db37718e831';
             $text_search = [];
             $center_point = ['longitude' => -75.55162, 'latitude' => 39.74635];
             $search_type = '';
@@ -29,7 +29,7 @@ function run_test_16_harness_auto_radius_search_tests($test_harness_instance) {
             $callback = 'global_scope_auto_radius_callback';
             $debug_display = false;
 
-            $all_pass = run_test_16_harness_auto_radius_search_tests_auto_radius_search_test($test_harness_instance, $test_count, $center_point, $search_type, $sha, $text_search, $step_size, $max_radius, $target_number, $callback, $debug_display);
+            $all_pass &= run_test_16_harness_auto_radius_search_tests_auto_radius_search_test($test_harness_instance, $test_count, $center_point, $search_type, $sha, $text_search, $step_size, $max_radius, $target_number, $callback, $debug_display);
 
             $sha = 'c5301063130660bc756ffb54b8ab1429654a8b9f';
             $text_search = ['name' => 'D%'];
@@ -39,7 +39,7 @@ function run_test_16_harness_auto_radius_search_tests($test_harness_instance) {
             $debug_display = false;
             $callback = [new Auto_Radius_Test($debug_display, 20), 'auto_radius_callback'];
 
-            $all_pass = run_test_16_harness_auto_radius_search_tests_auto_radius_search_test($test_harness_instance, $test_count, $center_point, $search_type, $sha, $text_search, $step_size, $max_radius, $target_number, $callback, $debug_display);
+            $all_pass &= run_test_16_harness_auto_radius_search_tests_auto_radius_search_test($test_harness_instance, $test_count, $center_point, $search_type, $sha, $text_search, $step_size, $max_radius, $target_number, $callback, $debug_display);
 
             $sha = 'a4b45d1197e01a79e2a8dc852b218ecec9f3b28c';
             $text_search = ['venue' => '%Church'];
@@ -48,7 +48,7 @@ function run_test_16_harness_auto_radius_search_tests($test_harness_instance) {
             $debug_display = false;
             $callback = [new Auto_Radius_Test($debug_display, 30), 'auto_radius_callback'];
 
-            $all_pass = run_test_16_harness_auto_radius_search_tests_auto_radius_search_test($test_harness_instance, $test_count, $center_point, $search_type, $sha, $text_search, $step_size, $max_radius, $target_number, $callback, $debug_display);
+            $all_pass &= run_test_16_harness_auto_radius_search_tests_auto_radius_search_test($test_harness_instance, $test_count, $center_point, $search_type, $sha, $text_search, $step_size, $max_radius, $target_number, $callback, $debug_display);
 
             $sha = '4e10b6bca22b0df1c4750976948435c00ffdfdc7';
             $text_search = ['description' => 'IMAGE'];
@@ -57,7 +57,7 @@ function run_test_16_harness_auto_radius_search_tests($test_harness_instance) {
             $debug_display = false;
             $callback = [new Auto_Radius_Test($debug_display, 60), 'auto_radius_callback'];
 
-            $all_pass = run_test_16_harness_auto_radius_search_tests_auto_radius_search_test($test_harness_instance, $test_count, $center_point, $search_type, $sha, $text_search, $step_size, $max_radius, $target_number, $callback, $debug_display);
+            $all_pass &= run_test_16_harness_auto_radius_search_tests_auto_radius_search_test($test_harness_instance, $test_count, $center_point, $search_type, $sha, $text_search, $step_size, $max_radius, $target_number, $callback, $debug_display);
 
             $sha = __EMPTY_SHA__;
             $text_search = ['name' => '%V%'];
@@ -66,7 +66,7 @@ function run_test_16_harness_auto_radius_search_tests($test_harness_instance) {
             $debug_display = false;
             $callback = [new Auto_Radius_Test($debug_display, 10), 'auto_radius_callback'];
 
-            $all_pass = run_test_16_harness_auto_radius_search_tests_auto_radius_search_test($test_harness_instance, $test_count, $center_point, $search_type, $sha, $text_search, $step_size, $max_radius, $target_number, $callback, $debug_display);
+            $all_pass &= run_test_16_harness_auto_radius_search_tests_auto_radius_search_test($test_harness_instance, $test_count, $center_point, $search_type, $sha, $text_search, $step_size, $max_radius, $target_number, $callback, $debug_display);
 
             echo('<h4>Logging In MainAdmin.</h4>');
             if ($test_harness_instance->sdk_instance->login('MainAdmin', 'CoreysGoryStory', CO_Config::$session_timeout_in_seconds)) {
@@ -74,7 +74,7 @@ function run_test_16_harness_auto_radius_search_tests($test_harness_instance) {
                 $sha = '58cb9d9d986205565a60811df9779b978c07905d';
                 $callback[0]->initial_time = time();
                 $callback[0]->timeout = 20;
-                $all_pass = run_test_16_harness_auto_radius_search_tests_auto_radius_search_test($test_harness_instance, $test_count, $center_point, $search_type, $sha, $text_search, $step_size, $max_radius, $target_number, $callback, $debug_display);
+                $all_pass &= run_test_16_harness_auto_radius_search_tests_auto_radius_search_test($test_harness_instance, $test_count, $center_point, $search_type, $sha, $text_search, $step_size, $max_radius, $target_number, $callback, $debug_display);
             }
         } else {
             $all_pass = false;
@@ -113,9 +113,9 @@ function run_test_16_harness_auto_radius_search_tests_auto_radius_search_test($i
         $in_location = NULL;
     }
 
-    $in_test_harness_instance->write_log_entry('Hybrid Text/Location Search START', $test_count, true);
+    $in_test_harness_instance->write_log_entry('Auto-Radius Text/Location Search START', $test_count, true);
     $results = $in_test_harness_instance->sdk_instance->auto_radius_search($in_center_point, $in_target_number, $in_search_type, $in_text_search, $in_step_size, $in_max_radius, $in_callback);
-    $in_test_harness_instance->write_log_entry('Hybrid Text/Location Search END', $test_count, true);
+    $in_test_harness_instance->write_log_entry('Auto-Radius Text/Location Search END', $test_count, true);
 
     $dump = [];
     if (isset($results) && is_array($results) && count($results)) {
@@ -132,10 +132,10 @@ function run_test_16_harness_auto_radius_search_tests_auto_radius_search_test($i
 
     if ($in_sha == sha1(serialize($dump))) {
         echo('<h4 style="color:green">Success!</h4>');
-        $in_test_harness_instance->write_log_entry('Hybrid Text/Location Search.', $test_count++, true);
+        $in_test_harness_instance->write_log_entry('Auto-Radius Text/Location Search.', $test_count++, true);
     } else {
         $all_pass = false;
-        $in_test_harness_instance->write_log_entry('Hybrid Text/Location Search.', $test_count++, false);
+        $in_test_harness_instance->write_log_entry('Auto-Radius Text/Location Search.', $test_count++, false);
         echo('<h4 style="color:red">SEARCH RESULTS NOT VALID!</h4>');
     }
 
