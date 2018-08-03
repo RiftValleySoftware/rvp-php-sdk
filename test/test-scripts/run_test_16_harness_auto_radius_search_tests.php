@@ -19,13 +19,13 @@ function run_test_16_harness_auto_radius_search_tests($test_harness_instance) {
     if (isset($test_harness_instance->sdk_instance)) {
         if ($test_harness_instance->sdk_instance->valid()) {
 
-            $sha = 'de402c22585c13d27c559522b9dd1656556ac759';
+            $sha = 'c70668bd193b08cce2a277eee98260cb2e20cb04';
             $text_search = [];
             $center_point = ['longitude' => -75.55162, 'latitude' => 39.74635];
             $search_type = '';
-            $step_size = 1;
+            $step_size = 0.1;
             $max_radius = 5;
-            $target_number = 20;
+            $target_number = 32;
             $callback = 'global_scope_auto_radius_callback';
             $debug_display = false;
 
@@ -34,24 +34,46 @@ function run_test_16_harness_auto_radius_search_tests($test_harness_instance) {
             $sha = 'c5301063130660bc756ffb54b8ab1429654a8b9f';
             $text_search = ['name' => 'D%'];
             $search_type = 'people';
+            $step_size = 2;
             $max_radius = 500;
             $debug_display = false;
+            $callback = [new Auto_Radius_Test($debug_display, 20), 'auto_radius_callback'];
+
+            $all_pass = run_test_16_harness_auto_radius_search_tests_auto_radius_search_test($test_harness_instance, $test_count, $center_point, $search_type, $sha, $text_search, $step_size, $max_radius, $target_number, $callback, $debug_display);
+
+            $sha = 'a4b45d1197e01a79e2a8dc852b218ecec9f3b28c';
+            $text_search = ['venue' => '%Church'];
+            $search_type = 'places';
+            $target_number = 20;
+            $debug_display = false;
             $callback = [new Auto_Radius_Test($debug_display, 30), 'auto_radius_callback'];
+
+            $all_pass = run_test_16_harness_auto_radius_search_tests_auto_radius_search_test($test_harness_instance, $test_count, $center_point, $search_type, $sha, $text_search, $step_size, $max_radius, $target_number, $callback, $debug_display);
+
+            $sha = '4e10b6bca22b0df1c4750976948435c00ffdfdc7';
+            $text_search = ['description' => 'IMAGE'];
+            $search_type = 'things';
+            $target_number = 3;
+            $debug_display = false;
+            $callback = [new Auto_Radius_Test($debug_display, 60), 'auto_radius_callback'];
 
             $all_pass = run_test_16_harness_auto_radius_search_tests_auto_radius_search_test($test_harness_instance, $test_count, $center_point, $search_type, $sha, $text_search, $step_size, $max_radius, $target_number, $callback, $debug_display);
 
             $sha = __EMPTY_SHA__;
             $text_search = ['name' => '%V%'];
+            $step_size = 11.5;
             $search_type = 'logins';
             $debug_display = false;
-            $callback = [new Auto_Radius_Test($debug_display, 30), 'auto_radius_callback'];
+            $callback = [new Auto_Radius_Test($debug_display, 10), 'auto_radius_callback'];
 
             $all_pass = run_test_16_harness_auto_radius_search_tests_auto_radius_search_test($test_harness_instance, $test_count, $center_point, $search_type, $sha, $text_search, $step_size, $max_radius, $target_number, $callback, $debug_display);
 
             echo('<h4>Logging In MainAdmin.</h4>');
             if ($test_harness_instance->sdk_instance->login('MainAdmin', 'CoreysGoryStory', CO_Config::$session_timeout_in_seconds)) {
+                $step_size = 1;
                 $sha = '58cb9d9d986205565a60811df9779b978c07905d';
                 $callback[0]->initial_time = time();
+                $callback[0]->timeout = 20;
                 $all_pass = run_test_16_harness_auto_radius_search_tests_auto_radius_search_test($test_harness_instance, $test_count, $center_point, $search_type, $sha, $text_search, $step_size, $max_radius, $target_number, $callback, $debug_display);
             }
         } else {
