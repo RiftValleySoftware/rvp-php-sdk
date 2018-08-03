@@ -18,10 +18,56 @@ function run_test_15_harness_hybrid_search_tests($test_harness_instance) {
     
     if (isset($test_harness_instance->sdk_instance)) {
         if ($test_harness_instance->sdk_instance->valid()) {
-            $all_pass = run_test_15_harness_hybrid_search_tests_tag_test($test_harness_instance, $test_count, "name", "Worth Enough", '8eb06181b85e8b15dfd256e3195832349cd353d4');
-            $all_pass = run_test_15_harness_hybrid_search_tests_tag_test($test_harness_instance, $test_count, "name", "%o%", '3088defab6a1fa46641918eb559d12f06933c908');
-            $all_pass = run_test_15_harness_hybrid_search_tests_tag_test($test_harness_instance, $test_count, "name", "%", '18caf3087d7b0c556a06e71aa7a1cb463e08b426');
-            $all_pass = run_test_15_harness_hybrid_search_tests_tag_test($test_harness_instance, $test_count, "name", "", __EMPTY_SHA__);
+            $sha = '8eb06181b85e8b15dfd256e3195832349cd353d4';
+            $text_search = ['name' => 'Worth Enough'];
+            $location = ['longitude' => -75.55162, 'latitude' => 39.74635, 'radius' => 10];
+            $logins_only = false;
+            
+            $search_type = '';
+            $all_pass = $test_harness_instance->hybrid_search_test($test_count, $search_type, $sha, $text_search, $location, $logins_only);
+            
+            $search_type = 'things';
+            $all_pass = $test_harness_instance->hybrid_search_test($test_count, $search_type, $sha, $text_search, $location, $logins_only);
+            
+            $text_search = NULL;
+            $search_type = 'places';
+            $sha = '93ebf32cafc9f54fd5dc55e4a0d00138ca2fd504';
+            $all_pass = $test_harness_instance->hybrid_search_test($test_count, $search_type, $sha, $text_search, $location, $logins_only);
+            
+            $search_type = '';
+            $sha = 'ca524670ba540e59d33de8943b49a4bf60791649';
+            $all_pass = $test_harness_instance->hybrid_search_test($test_count, $search_type, $sha, $text_search, $location, $logins_only);
+            
+            $search_type = 'things';
+            $sha = '8eb06181b85e8b15dfd256e3195832349cd353d4';
+            $all_pass = $test_harness_instance->hybrid_search_test($test_count, $search_type, $sha, $text_search, $location, $logins_only);
+            
+            $search_type = 'people';
+            $sha = 'd571cdb4e29c42180a3b18064e782dc70c3ac293';
+            $all_pass = $test_harness_instance->hybrid_search_test($test_count, $search_type, $sha, $text_search, $location, $logins_only);
+            
+            $logins_only = true;
+            $sha = __EMPTY_SHA__;
+            $all_pass = $test_harness_instance->hybrid_search_test($test_count, $search_type, $sha, $text_search, $location, $logins_only);
+            
+            echo('<h4>Logging In MainAdmin.</h4>');
+            if ($test_harness_instance->sdk_instance->login('MainAdmin', 'CoreysGoryStory', CO_Config::$session_timeout_in_seconds)) {
+                $sha = '21da2716b0cf1e82a8e6997c86ff428c390a3e11';
+                $all_pass = $test_harness_instance->hybrid_search_test($test_count, $search_type, $sha, $text_search, $location, $logins_only);
+                
+                $text_search = ['name' => 'DCAdmin'];
+                $logins_only = false;
+                $sha = __EMPTY_SHA__;
+                $all_pass = $test_harness_instance->hybrid_search_test($test_count, $search_type, $sha, $text_search, $location, $logins_only);
+                
+                $text_search = ['name' => 'D%Admin'];
+                $sha = 'd571cdb4e29c42180a3b18064e782dc70c3ac293';
+                $all_pass = $test_harness_instance->hybrid_search_test($test_count, $search_type, $sha, $text_search, $location, $logins_only);
+                
+                $logins_only = true;
+                $sha = '21da2716b0cf1e82a8e6997c86ff428c390a3e11';
+                $all_pass = $test_harness_instance->hybrid_search_test($test_count, $search_type, $sha, $text_search, $location, $logins_only);
+            }
         } else {
             $all_pass = false;
             $test_harness_instance->write_log_entry('VALIDITY CHECK', $test_count++, false);
@@ -38,31 +84,6 @@ function run_test_15_harness_hybrid_search_tests($test_harness_instance) {
     }
     
     $test_harness_instance->test_count = $test_count;
-    
-    return $all_pass;     
-}
-
-function run_test_15_harness_hybrid_search_tests_tag_test($test_harness_instance, &$test_count, $in_name, $in_value, $in_sha) {
-    $all_pass = true;
-    
-    echo('<h4>Searching '.htmlspecialchars($in_name).' for "'.htmlspecialchars($in_value).'".</h4>');
-    $things = $test_harness_instance->sdk_instance->things_text_search([$in_name => $in_value]);
-    $dump = [];
-    if (isset($things) && is_array($things) && count($things)) {
-        foreach ($things as $thing) {
-            $dump[] = ['id' => $thing->id(), 'type' => get_class($thing), 'name' => $thing->name()];
-        }
-    }
-    echo('<p><strong>SHA:</strong> <big><code>'.htmlspecialchars(print_r(sha1(serialize($dump)), true)).'</code></big></p>');
-// echo('<p><strong>RESPONSE:</strong> <pre>'.htmlspecialchars(print_r($dump, true)).'</pre></p>');
-    if ($in_sha == sha1(serialize($dump))) {
-        echo('<h4 style="color:green">Success!</h4>');
-        $test_harness_instance->write_log_entry('Things Text '.$in_name.' Search for "'.$in_value.'".', $test_count++, true);
-    } else {
-        $all_pass = false;
-        $test_harness_instance->write_log_entry('Things Text '.$in_name.' Search for "'.$in_value.'".', $test_count++, false);
-        echo('<h4 style="color:red">THING NOT VALID!</h4>');
-    }
     
     return $all_pass;     
 }

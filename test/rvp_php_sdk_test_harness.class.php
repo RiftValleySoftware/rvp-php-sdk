@@ -400,5 +400,71 @@ class RVP_PHP_SDK_Test_Harness {
         
         $this->close_log_file();
     }
+
+function hybrid_search_test(&$test_count, $in_search_type, $in_sha, $in_text_search, $in_location = NULL, $in_logins_only = false, $in_debug_display = false) {
+    $all_pass = true;
+    
+    if (isset($in_text_search) && is_array($in_text_search) && count($in_text_search)) {
+        foreach ($in_text_search as $key => $value) {
+            echo('<h4>Searching '.htmlspecialchars($key).' for "'.htmlspecialchars($value).'".</h4>');
+        }
+    } else {
+        $in_text_search = NULL;
+    }
+    
+    if (isset($in_location) && is_array($in_location) && (3 == count($in_location))) {
+        echo('<h4>Searching within '.htmlspecialchars($in_location['radius']).' kilometers of ('.$in_location['latitude'].', '.$in_location['longitude'].').</h4>');
+    } else {
+        $in_location = NULL;
+    }
+    
+    $results = NULL;
+    
+    switch (strtolower(trim($in_search_type))) {
+        case    'people':
+            echo('<h4>Searching for '.($in_logins_only ? 'logins' : 'users').'.</h4>');
+            $results = $this->sdk_instance->people_text_search($in_text_search, $in_location, $in_logins_only);
+            break;
+            
+        case    'places':
+            echo('<h4>Searching for places.</h4>');
+            $results = $this->sdk_instance->places_text_search($in_text_search, $in_location);
+            break;
+            
+        case    'things':
+            echo('<h4>Searching for things.</h4>');
+            $results = $this->sdk_instance->things_text_search($in_text_search, $in_location);
+            break;
+            
+        default:
+            echo('<h4>Searching for anything.</h4>');
+            $results = $this->sdk_instance->general_text_search($in_text_search, $in_location);
+            break;
+    }
+    
+    $dump = [];
+    if (isset($results) && is_array($results) && count($results)) {
+        foreach ($results as $result) {
+            $dump[] = ['id' => $result->id(), 'type' => get_class($result), 'name' => $result->name()];
+        }
+    }
+    
+    echo('<p><strong>SHA:</strong> <big><code>'.htmlspecialchars(print_r(sha1(serialize($dump)), true)).'</code></big></p>');
+    
+    if ($in_debug_display) {
+        echo('<p><strong>RESPONSE DATA:</strong> <pre>'.htmlspecialchars(print_r($dump, true)).'</pre></p>');
+    }
+
+    if ($in_sha == sha1(serialize($dump))) {
+        echo('<h4 style="color:green">Success!</h4>');
+        $this->write_log_entry('Hybrid Text/Location Search.', $test_count++, true);
+    } else {
+        $all_pass = false;
+        $this->write_log_entry('Hybrid Text/Location Search.', $test_count++, false);
+        echo('<h4 style="color:red">SEARCH RESULTS NOT VALID!</h4>');
+    }
+    
+    return $all_pass;     
+}
 };
 ?>
