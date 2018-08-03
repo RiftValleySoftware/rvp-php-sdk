@@ -193,6 +193,17 @@ $rvp_php_sdk_test_manifest = [
                                                     'file'      =>  'test-scripts/run_test_15_harness_hybrid_search_tests.php'
                                                     ]
                                 ],
+                                
+                                [
+                                    'blurb'     =>  'AUTO-RADIUS SEARCH TESTS',
+                                    'explain'   =>  'Test Auto-Radius Searches.',
+                                    'db'        =>  'sdk_1',
+                                    'closure'   =>  [
+                                                    'function'  =>  'run_test_16_harness_auto_radius_search_tests',
+                                                    'file'      =>  'test-scripts/run_test_16_harness_auto_radius_search_tests.php'
+                                                    ]
+                                ],
+                                
 
     ];
 ?>

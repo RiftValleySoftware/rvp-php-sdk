@@ -1271,6 +1271,32 @@ class RVP_PHP_SDK {
     
     /***********************/
     /**
+    This is an "auto-radius" search. The way that it works, is that you specify a center point, and any search criteria.
+    You specify the minimum number of resources that you want to find, what types of resources you want, any string filters, as well as the search step size and maximum (give up) radius.
+    This can be a lengthy process.
+    The way it works, is that successive radius search queries are made, using the filters and types, until AT LEAST the number of requested results are returned.
+    Each successive search widens the radius by the step size.
+    The first radius is one step size, and the last radius is the width of the "give up" threshold, or less, if the last step was beyond the threshold.
+    
+    \returns an array of thing objects that fall within the search radius. NOTE: If the objects don't have an assigned long/lat, they will not be returned in this search.
+     */
+    function auto_radius_search(    $in_center_point,                   ///< REQUIRED: This is the starting (center) point of the auto-radius search. It is an associative array ('longitude' => float, 'latitude' => float).
+                                    $in_target_number = 10,             ///< OPTIONAL: An integer. The minimum number of resources to find. Default is 10.
+                                    $in_search_type = 'all',            /**< OPTIONAL: The type of search. It can be:
+                                                                                - 'all' (or NULL/blank).    This is all types of resources. This is the default.
+                                                                                - 'users'                   This is user objects.
+                                                                                - 'logins'                  This is logins, associated with users (you cannot search for standalone logins this way).
+                                                                                - 'places'                  This is places.
+                                                                                - 'things'                  This is thing objects.
+                                                                        */
+                                    $in_search_string_criteria = NULL,  ///< OPTIONAL: This is an associative array (keys are field names, and values are what you are looking for. You can use SQL-style wildcards "%").
+                                    $in_step_size_in_km = 0.5,          ///< OPTIONAL: This is the size of steps that we will take in the search. Default is 0.5 km (500m).
+                                    $in_max_width_in_km = 500           ///< OPTIONAL: The maximum radius in kilometers. Default is 500km.
+                                ) {
+    }
+                                    
+    /***********************/
+    /**
     This is a test of resource IDs or security tokens. It returns Login IDs (security DB), not User IDs (data DB).
     You give it the ID of a resource (data DB), and what you get back is a list of the login IDs that can see that resource, and those that can modify it (each is listed in a separate list).
     If you set the second (optional) parameter to true, then the ID that you send in is interpreted as a security token, and the response contains the IDs of logins that have that token.
