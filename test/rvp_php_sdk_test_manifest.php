@@ -183,6 +183,16 @@ $rvp_php_sdk_test_manifest = [
                                                     'file'      =>  'test-scripts/run_test_14_harness_things_text_search_tests.php'
                                                     ]
                                 ],
+                                
+                                [
+                                    'blurb'     =>  'HYBRID TEXT AND LOCATION SEARCH TESTS',
+                                    'explain'   =>  'Test Mixed Searches.',
+                                    'db'        =>  'sdk_1',
+                                    'closure'   =>  [
+                                                    'function'  =>  'run_test_15_harness_hybrid_search_tests',
+                                                    'file'      =>  'test-scripts/run_test_15_harness_hybrid_search_tests.php'
+                                                    ]
+                                ],
 
     ];
 ?>
