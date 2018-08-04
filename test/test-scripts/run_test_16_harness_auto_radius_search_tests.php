@@ -19,7 +19,7 @@ function run_test_16_harness_auto_radius_search_tests($test_harness_instance) {
     if (isset($test_harness_instance->sdk_instance)) {
         if ($test_harness_instance->sdk_instance->valid()) {
 
-            $sha = '6a34dc5e97f3a133e5430d221db78db37718e831';
+            $sha = 'c70668bd193b08cce2a277eee98260cb2e20cb04';
             $text_search = [];
             $center_point = ['longitude' => -75.55162, 'latitude' => 39.74635];
             $search_type = '';
