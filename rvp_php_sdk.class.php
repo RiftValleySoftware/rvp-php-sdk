@@ -1298,6 +1298,9 @@ class RVP_PHP_SDK {
                                                                                             function callback(  $in_sdk_instance,   // The SDK instance (this)
                                                                                                                 $in_results,        // The current results array (of instances).
                                                                                                                 $in_type,           // The search type ('all', 'users', 'logins, 'places', 'things').
+                                                                                                                $in_target_number,  // This is the number of results (minimum) that will satisfy the search.
+                                                                                                                $in_step_size,      // The step size, in kilometers.
+                                                                                                                $in_max_radius,     // The maximum radius for the search, in kilometers.
                                                                                                                 $in_location,       // The current location (associative array ['latitude' => float, 'longitude' => float, 'radius' => float]).
                                                                                                                 $in_search_criteria // An associative array with teh current text filter search criteria.
                                                                                                             );
@@ -1341,10 +1344,10 @@ class RVP_PHP_SDK {
                     $object = $step_callback[0];
                     $method = $step_callback[1];
                     if (method_exists($object, $method)) {
-                        $abort = $object->$method($this, $results, strtolower(trim($in_search_type)), $location, $in_search_string_criteria);
+                        $abort = $object->$method($this, $results, strtolower(trim($in_search_type)), $in_target_number, $in_step_size_in_km, $in_max_width_in_km, $location, $in_search_string_criteria);
                     }
                 } elseif (function_exists($step_callback)) {
-                    $abort = $step_callback($this, $results, strtolower(trim($in_search_type)), $location, $in_search_string_criteria);
+                    $abort = $step_callback($this, $results, strtolower(trim($in_search_type)), $in_target_number, $in_step_size_in_km, $in_max_width_in_km, $location, $in_search_string_criteria);
                 }
                 
                 if ($abort) {

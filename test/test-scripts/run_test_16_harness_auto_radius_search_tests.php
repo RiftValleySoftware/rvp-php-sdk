@@ -19,13 +19,13 @@ function run_test_16_harness_auto_radius_search_tests($test_harness_instance) {
     if (isset($test_harness_instance->sdk_instance)) {
         if ($test_harness_instance->sdk_instance->valid()) {
 
-            $sha = 'c70668bd193b08cce2a277eee98260cb2e20cb04';
+            $sha = 'ca524670ba540e59d33de8943b49a4bf60791649';
             $text_search = [];
             $center_point = ['longitude' => -75.55162, 'latitude' => 39.74635];
             $search_type = '';
             $step_size = 0.1;
-            $max_radius = 5;
-            $target_number = 32;
+            $max_radius = 10;
+            $target_number = 60;
             $callback = 'global_scope_auto_radius_callback';
             $debug_display = false;
 
@@ -142,10 +142,16 @@ function run_test_16_harness_auto_radius_search_tests_auto_radius_search_test($i
     return $all_pass;     
 }
 
-function global_scope_auto_radius_callback($in_sdk_instance, $in_results, $in_type, $in_location, $in_search_criteria) {
+function global_scope_auto_radius_callback($in_sdk_instance, $in_results, $in_type, $in_target_number, $in_step_size_in_km, $in_max_width_in_km, $in_location, $in_search_criteria) {
     $ret = false;
     
-    echo('<h5>GLOBAL CALLBACK: Current Radius: '.$in_location['radius'].', Number of Results: '.count($in_results).'.</h5>');
+    echo('<div><h5>GLOBAL CALLBACK: Current Radius: '.$in_location['radius'].', Number of Results: '.count($in_results));
+    
+    if ($in_max_width_in_km < ($in_location['radius'] + $in_step_size_in_km)) {
+        echo ('. -LAST CALL FOR ALCOHOL');
+    }
+    echo('.</h5></div>');
+    
     return $ret;
 }
 
@@ -160,26 +166,33 @@ class Auto_Radius_Test {
         $this->timeout = $in_timeout;
     }
     
-    function auto_radius_callback($in_sdk_instance, $in_results, $in_type, $in_location, $in_search_criteria) {
+    function auto_radius_callback($in_sdk_instance, $in_results, $in_type, $in_target_number, $in_step_size_in_km, $in_max_width_in_km, $in_location, $in_search_criteria) {
         $ret = $this->timeout < (time() - $this->initial_time);
     
-        echo('<h5>OBJECT CALLBACK: Current Radius: '.$in_location['radius'].', Number of Results: '.count($in_results));
+        echo('<div><h5>OBJECT CALLBACK: Current Radius: '.$in_location['radius'].', Number of Results: '.count($in_results));
+        
+        if ($in_max_width_in_km < ($in_location['radius'] + $in_step_size_in_km)) {
+            echo ('. -LAST CALL FOR ALCOHOL.');
+        }
+        
+        if ($ret) {
+            echo ('. ABORTING (Too Long).');
+        }
+        
+        echo('.</h5>');
         
         if ($this->show_debug) {
             $dump = [];
-            if (isset($results) && is_array($results) && count($results)) {
-                foreach ($results as $result) {
+            if (isset($in_results) && is_array($in_results) && count($in_results)) {
+                foreach ($in_results as $result) {
                     $dump[] = ['id' => $result->id(), 'type' => get_class($result), 'name' => $result->name()];
                 }
             }
             echo('<p><strong>RESPONSE DATA:</strong> <pre>'.htmlspecialchars(print_r($dump, true)).'</pre></p>');
         }
         
-        if ($ret) {
-            echo ('. ABORTING (Too Long)');
-        }
+        echo('</div>');
         
-        echo('.</h5>');
         return $ret;
     }
 }
