@@ -909,11 +909,11 @@ class RVP_PHP_SDK {
     /**
     \returns a new thing object (or NULL) for the given integer ID.
      */
-    function get_thing_info(    $in_thing_id    ///< REQUIRED: The integer ID of the thing we want to examine. If we don't have rights to the thing, or the thing does not exist, we get nothing.
+    function get_thing_info(    $in_thing_id    ///< REQUIRED: The integer ID, or string key, of the thing we want to examine. If we don't have rights to the thing, or the thing does not exist, we get nothing.
                             ) {
         $ret = NULL;
         
-        $info = $this->fetch_data('json/things/'.intval($in_thing_id), 'show_details');
+        $info = $this->fetch_data('json/things/'.urlencode($in_thing_id), 'show_details');
         if ($info) {
             $temp = json_decode($info);
             if (isset($temp) && isset($temp->things) && isset($temp->things[0])) {
