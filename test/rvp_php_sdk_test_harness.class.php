@@ -18,7 +18,7 @@ define('LGV_CONFIG_CATCHER', true);
 require_once (dirname(__FILE__).'/config/s_config.class.php');
 define('__SERVER_URI__', 'http://localhost'.dirname($_SERVER['PHP_SELF']).'/baobab.php');
 define('__SERVER_SECRET__', 'Supercalifragilisticexpialidocious');
-define('__LOG_FILE__', dirname(__FILE__).'/test_log_file.csv');
+define('__LOG_FILE__', dirname(__FILE__).'/tmp/test_log_file.csv');
 
 class RVP_PHP_SDK_Test_Harness {
     var $sdk_instance = NULL;
