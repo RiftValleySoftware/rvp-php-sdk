@@ -345,5 +345,6 @@ function write_csv_line(    $in_file_handle,
             <img src="../images/BAOBAB.png" style="display:block;margin:auto;width:80px" alt="BAOBAB Logo" />
             <div style="display:table;margin:auto;text-align:left"><?php process_bmlt_files(); ?></div>
         </div>
+        <h3 style="text-align:center"><a href="./">RETURN TO MAIN ENVIRONMENT SETUP</a></h3>
     </body>
 </html>

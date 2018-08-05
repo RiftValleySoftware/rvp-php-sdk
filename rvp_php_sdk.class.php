@@ -1361,14 +1361,21 @@ class RVP_PHP_SDK {
                                     
     /***********************/
     /**
+    This is the "bulk-import" for the BAOBAB server. It requires that the API key be for a "God" admin, and that the CO_Config::$enable_bulk_upload flag be set to true on the server.
+    
+    You supply a CSV file, in the following format:
+    
+    id,api_key,login_id,access_class,last_access,read_security_id,write_security_id,object_name,access_class_context,owner,longitude,latitude,tag0,tag1,tag2,tag3,tag4,tag5,tag6,tag7,tag8,tag9,ids,payload
+    
+    Depending on the class in the 'access_class' column, either the security or data databes will be affected by a given row. Note that columns correspond to BOTH databases, so some columns will be ignored.
+    
+    If you put 'NULL' in as a column value, that will be translated to NULL in the database.
+    
+    \returns a list of translations; from the integer 'id' column in the data file, to the id used in the server. remember that we are dealing with two databases here, so it is up to you to understand which database is being affected.
      */
     function bulk_upload(   $in_csv_data    ///< REQUIRED: This is the CSV content (in our required schema) to be uploaded to the server.
                         ) {
-        $ret = NULL;
-        
-        $response = $this->post_data('json/baseline/bulk-loader', NULL, ['data' => $in_csv_data, 'type' => 'text/csv']);
-
-        return $ret;
+        return json_decode($this->post_data('json/baseline/bulk-loader', NULL, ['data' => $in_csv_data, 'type' => 'text/csv']));
     }
     
     /***********************/

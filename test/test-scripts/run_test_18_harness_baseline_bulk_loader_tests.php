@@ -23,7 +23,15 @@ function run_test_18_harness_baseline_bulk_loader_tests($test_harness_instance) 
             if (file_exists($test_file_loc)) {
                 $get_file = file_get_contents($test_file_loc);
                 if (isset($get_file) && $get_file) {
-                    $test_harness_instance->sdk_instance->bulk_upload($get_file);
+                    $control_sha = '3359dbf07222f203c2452d95d9dcd42911d4e3e7';
+                    $response = $test_harness_instance->sdk_instance->bulk_upload($get_file);
+                    $variable_sha = sha1(serialize($response));
+                    echo('<p><strong>SHA:</strong> <big><code>'.$variable_sha.'</code></big>');
+                    if ($variable_sha != $control_sha) {
+                        $all_pass = false;
+                        $test_harness_instance->write_log_entry('RESPONSE SHA CHECK', $test_count++, false);
+                        echo('<h4 style="color:red">SHAS DO NOT MATCH!</h4>');
+                    }
                 } else {
                     $all_pass = false;
                     $test_harness_instance->write_log_entry('TEST FILE CONTENTS CHECK', $test_count++, false);
