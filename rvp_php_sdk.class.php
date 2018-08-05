@@ -757,7 +757,7 @@ class RVP_PHP_SDK {
                 $in_plugin_path .= '?'.ltrim($in_query_args, '&');
             }
             
-            $response = $this->_call_REST_API('POST', $in_plugin_path, $in_data_object);
+            $response = $this->_call_REST_API('POST', $in_plugin_path, $in_data_object, true);
         } elseif ($this->is_logged_in()) {
             $this->set_error(_ERR_NOT_AUTHORIZED__);
         } else {
@@ -1361,8 +1361,20 @@ class RVP_PHP_SDK {
                                     
     /***********************/
     /**
+     */
+    function bulk_upload(   $in_csv_data    ///< REQUIRED: This is the CSV content (in our required schema) to be uploaded to the server.
+                        ) {
+        $ret = NULL;
+        
+        $response = $this->post_data('json/baseline/bulk-loader', NULL, ['data' => $in_csv_data, 'type' => 'text/csv']);
+
+        return $ret;
+    }
+    
+    /***********************/
+    /**
     This is a test of resource IDs or security tokens. It returns Login IDs (security DB), not User IDs (data DB).
-    You give it the ID of a resource (data DB), and what you get back is a list of the login IDs that can see that resource, and those that can modify it (each is listed in a separate list).
+    You give it the ID of a resource (data DB), and what you get back is a list of the login IDs that can see that resource, and those that can modify it (each is listed in a separate array).
     If you set the second (optional) parameter to true, then the ID that you send in is interpreted as a security token, and the response contains the IDs of logins that have that token.
     It should be noted that only login IDs that the current user can see will be returned. Additionally, the current user must have at least read permission for any resource ID, and must have access to the token.
     

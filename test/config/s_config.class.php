@@ -80,6 +80,7 @@ class CO_Config {
                                                     
     static private $_server_secret = 'Supercalifragilisticexpialidocious';  ///< This is a random string of characters that must be presented in the authentication header, along with the temporary API key.
     
+    static $enable_bulk_upload = true;              ///< If true (default is false), then the "God" admin is allowed to use the baseline 'bulk-upload' POST command.
     static $lang = 'en';                            ///< The default language for the server.
     static $min_pw_len = 8;                         ///< The minimum password length.
     static $session_timeout_in_seconds = 3600;      ///< One-hour API key timeout.

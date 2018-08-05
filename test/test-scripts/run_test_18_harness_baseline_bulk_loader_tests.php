@@ -11,12 +11,29 @@
 
     Little Green Viper Software Development: https://littlegreenviper.com
 */
+defined('__CSV_TEST_FILE__') or define('__CSV_TEST_FILE__','BMLT/bmlt.csv');
+
 function run_test_18_harness_baseline_bulk_loader_tests($test_harness_instance) {
     $all_pass = true;
     $test_count = $test_harness_instance->test_count + 1;
     
     if (isset($test_harness_instance->sdk_instance)) {
         if ($test_harness_instance->sdk_instance->valid()) {
+            $test_file_loc = dirname(dirname(__FILE__)).'/'.__CSV_TEST_FILE__;
+            if (file_exists($test_file_loc)) {
+                $get_file = file_get_contents($test_file_loc);
+                if (isset($get_file) && $get_file) {
+                    $test_harness_instance->sdk_instance->bulk_upload($get_file);
+                } else {
+                    $all_pass = false;
+                    $test_harness_instance->write_log_entry('TEST FILE CONTENTS CHECK', $test_count++, false);
+                    echo('<h4 style="color:red">TEST FILE "'.$test_file_loc.'" DOES NOT CONTAIN VALID DATA!</h4>');
+                }
+            } else {
+                $all_pass = false;
+                $test_harness_instance->write_log_entry('TEST FILE CHECK', $test_count++, false);
+                echo('<h4 style="color:red">TEST FILE "'.$test_file_loc.'" DOES NOT EXIST!</h4>');
+            }
         } else {
             $all_pass = false;
             $test_harness_instance->write_log_entry('VALIDITY CHECK', $test_count++, false);

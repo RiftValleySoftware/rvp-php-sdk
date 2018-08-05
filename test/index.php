@@ -18,7 +18,7 @@ require_once (dirname(__FILE__).'/config/s_config.class.php');
 <html lang="en">
     <head>
         <meta charset="utf-8" />
-        <title>BAOBAB</title>
+        <title>BLUE DRAGON PHP SDK</title>
         <link rel="shortcut icon" href="../images/PHP-SDK.png" type="image/png" />
         <style>
             *{margin:0;padding:0}
@@ -46,23 +46,30 @@ require_once (dirname(__FILE__).'/config/s_config.class.php');
         </style>
     </head>
     <body>
-        <h1 style="text-align:center">RIFT VALLEY PLATFORM PHP SDK TEST</h1>
+        <h1 style="text-align:center">BLUE DRAGON PHP SDK TEST</h1>
         <div style="text-align:center;padding:1em;">
             <?php
                 if ( !defined('LGV_BASALT_CATCHER') ) {
                     define('LGV_BASALT_CATCHER', 1);
                 }
+                
+                if ( !defined('RVP_PHP_SDK') ) {
+                    define('RVP_PHP_SDK', 1);
+                }
     
                 require_once(CO_Config::main_class_dir()."/co_basalt.class.php");
+                require_once(dirname(dirname(__FILE__))."/rvp_php_sdk.class.php");
             ?>
             <img src="../icon.png" style="display:block;margin:auto;width:80px" alt="SDK Logo" />
             <h1 class="header">MAIN ENVIRONMENT SETUP</h1>
+            <h3><a href="process-bmlt.php">BMLT Processor</a></h3>
             <div style="text-align:left;margin:auto;display:table">
                 <div class="main_div container">
                     <?php
                         echo("<div style=\"margin:auto;text-align:center;display:table\">");
                         echo("<h2>File/Folder Locations</h2>");
                         echo("<pre style=\"margin:auto;text-align:left;display:table\">");
+                        echo("<strong>BLUE DRAGON Version</strong>.....".__SDK_VERSION__."\n");
                         echo("<strong>BASALT Version</strong>..........".__BASALT_VERSION__."\n");
                         echo("<strong>ANDISOL Version</strong>.........".__ANDISOL_VERSION__."\n");
                         echo("<strong>COBRA Version</strong>...........".__COBRA_VERSION__."\n");
@@ -88,7 +95,7 @@ require_once (dirname(__FILE__).'/config/s_config.class.php');
                     </div>
                 </div>
             </div>
-            <h3 style="margin-top:1em"><a href="run-test.php">SDK TESTS</a></h3>
+            <h3 style="margin-top:1em"><a href="run-test.php">BLUE DRAGON TESTS</a></h3>
             <h3 style="margin-top:1em"><a href="basalt/test/runTests.php">BASALT TESTS</a></h3>
             <h3 style="margin-top:1em"><a href="basalt/andisol/test/">ANDISOL TESTS</a></h3>
             <h3 style="margin-top:1em"><a href="basalt/andisol/cobra/test/">COBRA TESTS</a></h3>

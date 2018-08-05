@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS co_data_nodes (
   KEY tag7 (tag7),
   KEY tag8 (tag8),
   KEY tag9 (tag9)
-) ENGINE=InnoDB AUTO_INCREMENT=1752 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
-INSERT INTO co_data_nodes (id, access_class, last_access, read_security_id, write_security_id, object_name, access_class_context, `owner`, longitude, latitude, tag0, tag1, tag2, tag3, tag4, tag5, tag6, tag7, tag8, tag9, payload) VALUES
+INSERT INTO co_data_nodes (id, access_class, last_access, read_security_id, write_security_id, object_name, access_class_context, owner, longitude, latitude, tag0, tag1, tag2, tag3, tag4, tag5, tag6, tag7, tag8, tag9, payload) VALUES
 (1, 'CO_Main_DB_Record', '1970-01-02 00:00:00', -1, -1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
