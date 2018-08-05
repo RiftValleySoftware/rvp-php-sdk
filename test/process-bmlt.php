@@ -27,7 +27,7 @@ function process_bmlt_data( $in_output_file_handle,
                             $in_formats_object,
                             $in_service_bodies_object,
                             $in_security_db_offset = 3,
-                            $in_data_db_offset = 3
+                            $in_data_db_offset = 2
                             ) {
     sort_bmlt_data($in_meetings_object, $in_formats_object, $in_service_bodies_object);
     $service_body_hierarchy = find_my_children($in_service_bodies_object);
