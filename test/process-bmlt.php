@@ -31,12 +31,18 @@ function process_bmlt_data( $in_output_file_handle,
                             $in_security_db_offset = __SECURITY_START__,
                             $in_data_db_offset = __DATA_START__
                             ) {
+    $admin_list = [];
+    
     sort_bmlt_data($in_meetings_object, $in_formats_object, $in_service_bodies_object);
     $service_body_hierarchy = find_my_children($in_service_bodies_object);
     echo('<h3>Creating Logins.</h3>');
-    generate_user_logins($service_body_hierarchy, $in_security_db_offset, $in_output_file_handle, $in_account_file_handle);
+    generate_user_logins($service_body_hierarchy, $in_security_db_offset, $in_output_file_handle, $in_account_file_handle, $admin_list);
     echo('<h3>Creating Service Body Objects.</h3>');
-    generate_service_body_objects($in_meetings_object, $service_body_hierarchy, $in_data_db_offset, $in_output_file_handle);
+    generate_service_body_objects($service_body_hierarchy, $in_data_db_offset, $in_output_file_handle, $admin_list);
+    echo('<h3>Creating Format Objects.</h3>');
+    generate_format_objects($in_formats_object, $in_data_db_offset, $in_output_file_handle);
+    echo('<h3>Creating Meetings.</h3>');
+    generate_meetings($in_meetings_object, $in_data_db_offset, $in_output_file_handle, $admin_list);
 }
 
 /***********************/
@@ -60,19 +66,94 @@ function find_my_children(  $in_service_bodies_object,
 /***********************/
 /**
  */
+function generate_meetings( &$in_meetings_object,
+                            &$current_id,
+                            $in_output_file_handle,
+                            $in_admin_list
+                            ) {
+    $ret = [];
+    
+    foreach ($in_meetings_object as $meeting) {
+        $ret[] = generate_meeting_object($meeting, $current_id, $in_output_file_handle, $in_admin_list);
+    }
+    
+    return $ret;
+}
+
+/***********************/
+/**
+ */
+function generate_meeting_object(   $in_object,
+                                    &$in_id,
+                                    $in_output_file_handle,
+                                    $in_admin_list
+                                ) {
+    $write_id = intval($in_admin_list['admins'][$in_object->service_body_bigint]);
+    $owner_id = intval($in_admin_list['ids'][$in_object->service_body_bigint]);
+    
+    if (0 == $owner_id) {
+        $owner_id = 'NULL';
+    }
+    
+    if (0 == $write_id) {
+        $write_id = CO_Config::god_mode_id();
+    }
+    
+    $context = ['lang' => $in_object->lang_enum];
+    
+    $line['id'] = strval($in_id++);
+    $line['api_key'] = 'NULL';
+    $line['login_id'] = 'NULL';
+    $line['access_class'] = 'CO_Place_Collection';
+    $line['last_access'] = date('Y-m-d H:i:s');
+    $line['read_security_id'] = 0;
+    $line['write_security_id'] = $write_id;
+    $line['object_name'] = isset($in_object->meeting_name) ? $in_object->meeting_name : 'NA Meeting';
+    $line['access_class_context'] = serialize($context);
+    $line['owner'] = $owner_id;
+    $line['longitude'] = floatval($in_object->longitude);
+    $line['latitude'] = floatval($in_object->latitude);
+    $line['tag0'] = substr(trim(preg_replace('|\s+|', ' ', $in_object->location_text)), 0, 255);
+    $line['tag1'] = substr(trim(preg_replace('|\s+|', ' ', $in_object->location_street)), 0, 255);
+    $line['tag2'] = substr(trim(preg_replace('|\s+|', ' ', $in_object->location_info)), 0, 255);
+    $line['tag3'] = substr(trim(preg_replace('|\s+|', ' ', $in_object->location_municipality)), 0, 255);
+    $line['tag4'] = substr(trim(preg_replace('|\s+|', ' ', $in_object->location_sub_province)), 0, 255);
+    $line['tag5'] = substr(trim(preg_replace('|\s+|', ' ', $in_object->location_province)), 0, 255);
+    $line['tag6'] = substr(trim(preg_replace('|\s+|', ' ', $in_object->location_postal_code_1)), 0, 255);
+    $line['tag7'] = substr(trim(preg_replace('|\s+|', ' ', $in_object->location_nation)), 0, 255);
+    $line['tag8'] = $in_object->weekday_tinyint.'-'.$in_object->start_time;
+    $line['tag9'] = 'NULL';
+    $line['ids'] = 'NULL';
+    $line['payload'] = 'NULL';
+    
+    for ($num = 0; $num < 10; $num++) {
+        if (!trim($line["tag$num"])) {
+            $line["tag$num"] = 'NULL';
+        }
+    }
+
+    write_csv_line($in_output_file_handle, $line);
+    
+    return $in_id;
+}
+
+/***********************/
+/**
+ */
 function generate_user_logins(  &$in_service_body_hierarchy,
                                 &$current_id,
                                 $in_output_file_handle,
-                                $in_account_file_handle
+                                $in_account_file_handle,
+                                &$in_admin_list
                             ) {
     $ret = [];
     
     if (isset($in_service_body_hierarchy['children']) && is_array($in_service_body_hierarchy['children']) && count($in_service_body_hierarchy['children'])) {
         foreach ($in_service_body_hierarchy['children'] as $child) {
             if (isset($child)) {
-                $tokens = generate_user_logins($child, $current_id, $in_output_file_handle, $in_account_file_handle);
+                $tokens = generate_user_logins($child, $current_id, $in_output_file_handle, $in_account_file_handle, $in_admin_list);
                 $manager = (isset($tokens) && is_array($tokens) && count($tokens));
-                $tokens = generate_user_login($child['object'], $current_id++, $tokens, $in_output_file_handle, $in_account_file_handle, $manager);
+                $tokens = generate_user_login($child['object'], $current_id++, $tokens, $in_output_file_handle, $in_account_file_handle, $manager, $in_admin_list);
                 $ret = array_merge($ret, $tokens);
             }
         }
@@ -89,7 +170,8 @@ function generate_user_login(   &$in_sb_object,
                                 $in_tokens,
                                 $in_output_file_handle,
                                 $in_account_file_handle,
-                                $is_manager
+                                $is_manager,
+                                &$in_admin_list
                             ) {
     $line = [];
     $in_tokens = array_map('intval', $in_tokens);
@@ -97,6 +179,7 @@ function generate_user_login(   &$in_sb_object,
     $ret = $in_tokens;
     
     if (NULL != $in_sb_object) {
+        $in_admin_list['admins'][$in_sb_object->id] = intval($in_id);
         $ret[] = intval($in_id);
         $context = ['lang' => 'en'];
         $password = generate_random_password();
@@ -146,15 +229,15 @@ function generate_random_password() {
 /***********************/
 /**
  */
-function generate_service_body_objects( $in_meetings_object,
-                                        $in_service_body_hierarchy,
+function generate_service_body_objects( $in_service_body_hierarchy,
                                         &$current_id,
-                                        $in_output_file_handle
+                                        $in_output_file_handle,
+                                        &$in_admin_list
                                     ) {
     if (isset($in_service_body_hierarchy['children']) && is_array($in_service_body_hierarchy['children']) && count($in_service_body_hierarchy['children'])) {
         foreach ($in_service_body_hierarchy['children'] as $child) {
             if (isset($child)) {
-                generate_service_body_object($in_meetings_object, $child, $current_id, $in_output_file_handle);
+                generate_service_body_object($child, $current_id, $in_output_file_handle, $in_admin_list);
             }
         }
     }
@@ -163,10 +246,10 @@ function generate_service_body_objects( $in_meetings_object,
 /***********************/
 /**
  */
-function generate_service_body_object(  $in_meetings_object,
-                                        $in_object,
+function generate_service_body_object(  $in_object,
                                         &$in_id,
-                                        $in_output_file_handle
+                                        $in_output_file_handle,
+                                        &$in_admin_list
                                     ) {
     $object = $in_object['object'];
     $owner_id = intval($object->admin_login_id);
@@ -181,7 +264,7 @@ function generate_service_body_object(  $in_meetings_object,
     
     if (isset($in_object['children']) && is_array($in_object['children']) && count($in_object['children'])) {
         foreach ($in_object['children'] as $child) {
-            $in_id = generate_service_body_object($in_meetings_object, $child, $in_id, $in_output_file_handle);
+            $in_id = generate_service_body_object($child, $in_id, $in_output_file_handle, $in_admin_list);
             $children[] = $in_id;
         }
     }
@@ -189,6 +272,8 @@ function generate_service_body_object(  $in_meetings_object,
     if (isset($children) && is_array($children) && count($children)) {
         $context['children'] = implode(',', $children);
     }
+  
+    $in_admin_list['ids'][$object->id] = intval($in_id);
     
     $line['id'] = strval($in_id++);
     $line['api_key'] = 'NULL';
@@ -209,6 +294,67 @@ function generate_service_body_object(  $in_meetings_object,
     $line['tag4'] = substr(trim(preg_replace('|\s+|', ' ', $object->helpline)), 0, 255);
     $line['tag5'] = substr(trim(preg_replace('|\s+|', ' ', $object->world_id)), 0, 255);
     $line['tag6'] = 'NULL';
+    $line['tag7'] = 'NULL';
+    $line['tag8'] = 'NULL';
+    $line['tag9'] = 'NULL';
+    $line['ids'] = 'NULL';
+    $line['payload'] = 'NULL';
+    
+    for ($num = 0; $num < 10; $num++) {
+        if (!trim($line["tag$num"])) {
+            $line["tag$num"] = 'NULL';
+        }
+    }
+
+    write_csv_line($in_output_file_handle, $line);
+    
+    return $in_id;
+}
+
+/***********************/
+/**
+ */
+function generate_format_objects(   $in_format_objects,
+                                    &$current_id,
+                                    $in_output_file_handle
+                                ) {
+    foreach ($in_format_objects as $format) {
+        if (isset($format)) {
+            generate_format_object($format, $current_id, $in_output_file_handle);
+        }
+    }
+}
+
+/***********************/
+/**
+ */
+function generate_format_object(    $in_object,
+                                    &$in_id,
+                                    $in_output_file_handle
+                                ) {
+    $object = $in_object;
+    
+    $context = ['lang' => $object->lang];
+    
+    $line['id'] = strval($in_id++);
+    $line['api_key'] = 'NULL';
+    $line['login_id'] = 'NULL';
+    $line['access_class'] = 'CO_KeyValue_CO_Collection';
+    $line['last_access'] = date('Y-m-d H:i:s');
+    $line['read_security_id'] = 0;
+    $line['write_security_id'] = -1;
+    $line['object_name'] = isset($object->key_string) ? $object->key_string : '?';
+    $line['access_class_context'] = serialize($context);
+    $line['owner'] = 'NULL';
+    $line['longitude'] = 'NULL';
+    $line['latitude'] = 'NULL';
+    $line['tag0'] = 'format-'.$object->root_server_id.'-'.$object->key_string.'-'.$object->id.'-'.$line['id'];
+    $line['tag1'] = substr(trim(preg_replace('|\s+|', ' ', $object->name_string)), 0, 255);
+    $line['tag2'] = substr(trim(preg_replace('|\s+|', ' ', $object->id)), 0, 255);
+    $line['tag3'] = substr(trim(preg_replace('|\s+|', ' ', $object->description_string)), 0, 255);
+    $line['tag4'] = substr(trim(preg_replace('|\s+|', ' ', $object->world_id)), 0, 255);
+    $line['tag5'] = substr(trim(preg_replace('|\s+|', ' ', $object->root_server_id)), 0, 255);
+    $line['tag6'] = substr(trim(preg_replace('|\s+|', ' ', $object->key_string)), 0, 255);
     $line['tag7'] = 'NULL';
     $line['tag8'] = 'NULL';
     $line['tag9'] = 'NULL';
