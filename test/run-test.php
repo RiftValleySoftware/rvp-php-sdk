@@ -11,7 +11,7 @@
 
     Little Green Viper Software Development: https://littlegreenviper.com
 */
-    set_time_limit(3600);
+set_time_limit(3600);
 ?><!DOCTYPE html>
 <html lang="en">
     <head>

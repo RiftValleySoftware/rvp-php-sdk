@@ -31,18 +31,18 @@ function process_bmlt_data( $in_output_file_handle,
                             $in_security_db_offset = __SECURITY_START__,
                             $in_data_db_offset = __DATA_START__
                             ) {
-    $admin_list = [];
+    $translation_list = [];
     
     sort_bmlt_data($in_meetings_object, $in_formats_object, $in_service_bodies_object);
     $service_body_hierarchy = find_my_children($in_service_bodies_object);
     echo('<h3>Creating Logins.</h3>');
-    generate_user_logins($service_body_hierarchy, $in_security_db_offset, $in_output_file_handle, $in_account_file_handle, $admin_list);
+    generate_user_logins($service_body_hierarchy, $in_security_db_offset, $in_data_db_offset, $in_output_file_handle, $in_account_file_handle, $translation_list);
     echo('<h3>Creating Service Body Objects.</h3>');
-    generate_service_body_objects($service_body_hierarchy, $in_data_db_offset, $in_output_file_handle, $admin_list);
+    generate_service_body_objects($service_body_hierarchy, $in_data_db_offset, $in_output_file_handle, $translation_list);
     echo('<h3>Creating Format Objects.</h3>');
-    generate_format_objects($in_formats_object, $in_data_db_offset, $in_output_file_handle);
+    generate_format_objects($in_formats_object, $in_data_db_offset, $in_output_file_handle, $translation_list);
     echo('<h3>Creating Meetings.</h3>');
-    generate_meetings($in_meetings_object, $in_data_db_offset, $in_output_file_handle, $admin_list);
+    generate_meetings($in_meetings_object, $in_data_db_offset, $in_output_file_handle, $translation_list);
 }
 
 /***********************/
@@ -69,12 +69,12 @@ function find_my_children(  $in_service_bodies_object,
 function generate_meetings( &$in_meetings_object,
                             &$current_id,
                             $in_output_file_handle,
-                            $in_admin_list
+                            $in_translation_list
                             ) {
     $ret = [];
     
     foreach ($in_meetings_object as $meeting) {
-        $ret[] = generate_meeting_object($meeting, $current_id, $in_output_file_handle, $in_admin_list);
+        $ret[] = generate_meeting_object($meeting, $current_id, $in_output_file_handle, $in_translation_list);
     }
     
     return $ret;
@@ -86,10 +86,10 @@ function generate_meetings( &$in_meetings_object,
 function generate_meeting_object(   $in_object,
                                     &$in_id,
                                     $in_output_file_handle,
-                                    $in_admin_list
+                                    $in_translation_list
                                 ) {
-    $write_id = intval($in_admin_list['admins'][$in_object->service_body_bigint]);
-    $owner_id = intval($in_admin_list['ids'][$in_object->service_body_bigint]);
+    $write_id = intval($in_translation_list['admins'][$in_object->service_body_bigint]);
+    $owner_id = intval($in_translation_list['ids'][$in_object->service_body_bigint]);
     
     if (0 == $owner_id) {
         $owner_id = 'NULL';
@@ -99,7 +99,23 @@ function generate_meeting_object(   $in_object,
         $write_id = CO_Config::god_mode_id();
     }
     
-    $context = ['lang' => $in_object->lang_enum];
+    $context = ['lang' => $in_object->lang_enum];    
+    $formats = array_map('intval', array_filter(explode(',', $in_object->format_shared_id_list), function($a) { return 0 < intval($a); }));
+    
+    if (isset($formats) && is_array($formats) && count($formats)) {
+        $chilluns = [];
+        foreach ($formats as $format) {
+            $id = isset($in_translation_list['formats'][$format]) ? $in_translation_list['formats'][$format] : 0;
+            
+            if (0 < intval($id)) {
+                $chilluns[] = intval($id);
+            }
+        }
+        
+        if (isset($chilluns) && is_array($chilluns) && count($chilluns)) {
+            $context['children'] = implode(',', $chilluns);
+        }
+    }
     
     $line['id'] = strval($in_id++);
     $line['api_key'] = 'NULL';
@@ -141,19 +157,20 @@ function generate_meeting_object(   $in_object,
 /**
  */
 function generate_user_logins(  &$in_service_body_hierarchy,
-                                &$current_id,
+                                &$current_security_id,
+                                &$current_data_id,
                                 $in_output_file_handle,
                                 $in_account_file_handle,
-                                &$in_admin_list
+                                &$in_translation_list
                             ) {
     $ret = [];
     
     if (isset($in_service_body_hierarchy['children']) && is_array($in_service_body_hierarchy['children']) && count($in_service_body_hierarchy['children'])) {
         foreach ($in_service_body_hierarchy['children'] as $child) {
             if (isset($child)) {
-                $tokens = generate_user_logins($child, $current_id, $in_output_file_handle, $in_account_file_handle, $in_admin_list);
+                $tokens = generate_user_logins($child, $current_security_id, $current_data_id, $in_output_file_handle, $in_account_file_handle, $in_translation_list);
                 $manager = (isset($tokens) && is_array($tokens) && count($tokens));
-                $tokens = generate_user_login($child['object'], $current_id++, $tokens, $in_output_file_handle, $in_account_file_handle, $manager, $in_admin_list);
+                $tokens = generate_user_login($child['object'], $current_security_id, $current_data_id, $tokens, $in_output_file_handle, $in_account_file_handle, $manager, $in_translation_list);
                 $ret = array_merge($ret, $tokens);
             }
         }
@@ -166,12 +183,13 @@ function generate_user_logins(  &$in_service_body_hierarchy,
 /**
  */
 function generate_user_login(   &$in_sb_object,
-                                $in_id,
+                                &$in_security_id,
+                                &$in_data_id,
                                 $in_tokens,
                                 $in_output_file_handle,
                                 $in_account_file_handle,
                                 $is_manager,
-                                &$in_admin_list
+                                &$in_translation_list
                             ) {
     $line = [];
     $in_tokens = array_map('intval', $in_tokens);
@@ -179,14 +197,15 @@ function generate_user_login(   &$in_sb_object,
     $ret = $in_tokens;
     
     if (NULL != $in_sb_object) {
-        $in_admin_list['admins'][$in_sb_object->id] = intval($in_id);
-        $ret[] = intval($in_id);
+        // Create the security DB login.
+        $in_translation_list['admins'][$in_sb_object->id] = intval($in_security_id);
+        $ret[] = intval($in_security_id);
         $context = ['lang' => 'en'];
         $password = generate_random_password();
         $context['hashed_password'] = password_hash($password, PASSWORD_DEFAULT);
-        $in_sb_object->admin_login_id = $in_id;
+        $in_sb_object->admin_login_id = $in_security_id;
 
-        $line['id'] = strval($in_id++);
+        $line['id'] = strval($in_security_id);
         $line['api_key'] = 'NULL';
         $line['login_id'] = 'login-'.$line['id'];
         $line['access_class'] = $is_manager ? 'CO_Login_Manager' : 'CO_Cobra_Login';
@@ -213,6 +232,36 @@ function generate_user_login(   &$in_sb_object,
         
         write_csv_line($in_output_file_handle, $line);
         write_csv_line($in_account_file_handle, [$line['object_name'], $line['login_id'], $password]);
+        
+        // Create an associated user object in the data database.
+        $line = [];
+        $context = ['lang' => 'en'];
+        $line['id'] = strval($in_data_id++);
+        $line['api_key'] = 'NULL';
+        $line['login_id'] = 'NULL';
+        $line['access_class'] = 'CO_User_Collection';
+        $line['last_access'] = date('Y-m-d H:i:s');
+        $line['read_security_id'] = strval(1);
+        $line['write_security_id'] = strval($in_security_id);
+        $line['object_name'] = $in_sb_object->name.' Administrator';
+        $line['access_class_context'] = serialize($context);
+        $line['owner'] = 'NULL';
+        $line['longitude'] = 'NULL';
+        $line['latitude'] = 'NULL';
+        $line['tag0'] = strval($in_security_id++);
+        $line['tag1'] = 'NULL';
+        $line['tag2'] = 'NULL';
+        $line['tag3'] = 'NULL';
+        $line['tag4'] = 'NULL';
+        $line['tag5'] = 'NULL';
+        $line['tag6'] = 'NULL';
+        $line['tag7'] = 'NULL';
+        $line['tag8'] = 'NULL';
+        $line['tag9'] = 'NULL';
+        $line['ids'] = 'NULL';
+        $line['payload'] = 'NULL';
+        
+        write_csv_line($in_output_file_handle, $line);
     }
     
     return $ret;
@@ -232,12 +281,12 @@ function generate_random_password() {
 function generate_service_body_objects( $in_service_body_hierarchy,
                                         &$current_id,
                                         $in_output_file_handle,
-                                        &$in_admin_list
+                                        &$in_translation_list
                                     ) {
     if (isset($in_service_body_hierarchy['children']) && is_array($in_service_body_hierarchy['children']) && count($in_service_body_hierarchy['children'])) {
         foreach ($in_service_body_hierarchy['children'] as $child) {
             if (isset($child)) {
-                generate_service_body_object($child, $current_id, $in_output_file_handle, $in_admin_list);
+                generate_service_body_object($child, $current_id, $in_output_file_handle, $in_translation_list);
             }
         }
     }
@@ -249,7 +298,7 @@ function generate_service_body_objects( $in_service_body_hierarchy,
 function generate_service_body_object(  $in_object,
                                         &$in_id,
                                         $in_output_file_handle,
-                                        &$in_admin_list
+                                        &$in_translation_list
                                     ) {
     $object = $in_object['object'];
     $owner_id = intval($object->admin_login_id);
@@ -264,7 +313,7 @@ function generate_service_body_object(  $in_object,
     
     if (isset($in_object['children']) && is_array($in_object['children']) && count($in_object['children'])) {
         foreach ($in_object['children'] as $child) {
-            $in_id = generate_service_body_object($child, $in_id, $in_output_file_handle, $in_admin_list);
+            $in_id = generate_service_body_object($child, $in_id, $in_output_file_handle, $in_translation_list);
             $children[] = $in_id;
         }
     }
@@ -273,7 +322,7 @@ function generate_service_body_object(  $in_object,
         $context['children'] = implode(',', $children);
     }
   
-    $in_admin_list['ids'][$object->id] = intval($in_id);
+    $in_translation_list['ids'][$object->id] = intval($in_id);
     
     $line['id'] = strval($in_id++);
     $line['api_key'] = 'NULL';
@@ -316,11 +365,12 @@ function generate_service_body_object(  $in_object,
  */
 function generate_format_objects(   $in_format_objects,
                                     &$current_id,
-                                    $in_output_file_handle
+                                    $in_output_file_handle,
+                                    &$in_translation_list
                                 ) {
     foreach ($in_format_objects as $format) {
         if (isset($format)) {
-            generate_format_object($format, $current_id, $in_output_file_handle);
+            generate_format_object($format, $current_id, $in_output_file_handle, $in_translation_list);
         }
     }
 }
@@ -330,11 +380,11 @@ function generate_format_objects(   $in_format_objects,
  */
 function generate_format_object(    $in_object,
                                     &$in_id,
-                                    $in_output_file_handle
+                                    $in_output_file_handle,
+                                    &$in_translation_list
                                 ) {
-    $object = $in_object;
-    
-    $context = ['lang' => $object->lang];
+    $in_translation_list['formats'][$in_object->id] = $in_id;
+    $context = ['lang' => $in_object->lang];
     
     $line['id'] = strval($in_id++);
     $line['api_key'] = 'NULL';
@@ -343,18 +393,18 @@ function generate_format_object(    $in_object,
     $line['last_access'] = date('Y-m-d H:i:s');
     $line['read_security_id'] = 0;
     $line['write_security_id'] = -1;
-    $line['object_name'] = isset($object->key_string) ? $object->key_string : '?';
+    $line['object_name'] = isset($in_object->key_string) ? $in_object->key_string : '?';
     $line['access_class_context'] = serialize($context);
     $line['owner'] = 'NULL';
     $line['longitude'] = 'NULL';
     $line['latitude'] = 'NULL';
-    $line['tag0'] = 'format-'.$object->root_server_id.'-'.$object->key_string.'-'.$object->id.'-'.$line['id'];
-    $line['tag1'] = substr(trim(preg_replace('|\s+|', ' ', $object->name_string)), 0, 255);
-    $line['tag2'] = substr(trim(preg_replace('|\s+|', ' ', $object->id)), 0, 255);
-    $line['tag3'] = substr(trim(preg_replace('|\s+|', ' ', $object->description_string)), 0, 255);
-    $line['tag4'] = substr(trim(preg_replace('|\s+|', ' ', $object->world_id)), 0, 255);
-    $line['tag5'] = substr(trim(preg_replace('|\s+|', ' ', $object->root_server_id)), 0, 255);
-    $line['tag6'] = substr(trim(preg_replace('|\s+|', ' ', $object->key_string)), 0, 255);
+    $line['tag0'] = 'format-'.$in_object->root_server_id.'-'.$in_object->key_string.'-'.$in_object->id.'-'.$line['id'];
+    $line['tag1'] = substr(trim(preg_replace('|\s+|', ' ', $in_object->name_string)), 0, 255);
+    $line['tag2'] = substr(trim(preg_replace('|\s+|', ' ', $in_object->id)), 0, 255);
+    $line['tag3'] = substr(trim(preg_replace('|\s+|', ' ', $in_object->description_string)), 0, 255);
+    $line['tag4'] = substr(trim(preg_replace('|\s+|', ' ', $in_object->world_id)), 0, 255);
+    $line['tag5'] = substr(trim(preg_replace('|\s+|', ' ', $in_object->root_server_id)), 0, 255);
+    $line['tag6'] = substr(trim(preg_replace('|\s+|', ' ', $in_object->key_string)), 0, 255);
     $line['tag7'] = 'NULL';
     $line['tag8'] = 'NULL';
     $line['tag9'] = 'NULL';

@@ -15,7 +15,7 @@ defined('__CSV_TEST_FILE__') or define('__CSV_TEST_FILE__','BMLT/bmlt.csv');
 
 function run_test_18_harness_baseline_bulk_loader_tests($test_harness_instance) {
     $all_pass = true;
-    $test_count = $test_harness_instance->test_count + 1;
+    $test_count = $test_harness_instance->test_count;
     
     if (isset($test_harness_instance->sdk_instance)) {
         if ($test_harness_instance->sdk_instance->valid()) {
@@ -23,14 +23,16 @@ function run_test_18_harness_baseline_bulk_loader_tests($test_harness_instance) 
             if (file_exists($test_file_loc)) {
                 $get_file = file_get_contents($test_file_loc);
                 if (isset($get_file) && $get_file) {
-                    $control_sha = 'a03e9ce134099d2bd410bdc53e8abb7d3f95c397';
+                    $control_sha = '5810ed562bebac11ceda46e848611cf87338057d';
                     $response = $test_harness_instance->sdk_instance->bulk_upload($get_file);
                     $variable_sha = sha1(serialize($response));
                     echo('<p><strong>SHA:</strong> <big><code>'.$variable_sha.'</code></big>');
                     if ($variable_sha != $control_sha) {
                         $all_pass = false;
-                        $test_harness_instance->write_log_entry('RESPONSE SHA CHECK', $test_count++, false);
+                        $test_harness_instance->write_log_entry('BULK UPLOADER ID REPORT SHA CHECK', $test_count++, false);
                         echo('<h4 style="color:red">SHAS DO NOT MATCH!</h4>');
+                    } else {
+                        $test_harness_instance->write_log_entry('BULK UPLOADER ID REPORT SHA CHECK', $test_count++, true);
                     }
                 } else {
                     $all_pass = false;

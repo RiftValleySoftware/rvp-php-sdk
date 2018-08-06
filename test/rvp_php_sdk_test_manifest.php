@@ -222,8 +222,8 @@ $rvp_php_sdk_test_manifest = [
                                 ],
                                 
                                 [
-                                    'blurb'     =>  'BULK LOADER',
-                                    'explain'   =>  'Upload CSV Data to an empty database.',
+                                    'blurb'     =>  'BULK LOADER TEST',
+                                    'explain'   =>  'Upload a large, complex CSV file to an empty database.',
                                     'db'        =>  'sdk_2',
                                     'closure'   =>  [
                                                     'function'  =>  'run_test_18_harness_baseline_bulk_loader_tests',
