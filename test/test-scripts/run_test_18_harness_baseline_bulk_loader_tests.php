@@ -11,7 +11,7 @@
 
     Little Green Viper Software Development: https://littlegreenviper.com
 */
-defined('__CSV_TEST_FILE__') or define('__CSV_TEST_FILE__','BMLT/bmlt.csv');
+defined('__CSV_TEST_FILE__') or define('__CSV_TEST_FILE__','BMLT/bmlt-1.csv');
 
 function run_test_18_harness_baseline_bulk_loader_tests($test_harness_instance) {
     $all_pass = true;

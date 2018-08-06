@@ -14,8 +14,8 @@
 define('LGV_CONFIG_CATCHER', true);
 require_once (dirname(__FILE__).'/config/s_config.class.php');
 set_time_limit(3600);
-define('__SECURITY_START__', 300);
-define('__DATA_START__', 251);
+define('__SECURITY_START__', 3);
+define('__DATA_START__', 2);
 
 /****************************************************************************************************************************/
 /*####################################################### PHP HANDLERS #####################################################*/

@@ -236,6 +236,22 @@ $rvp_php_sdk_test_manifest = [
                                                     'logout'    =>  true
                                                     ]
                                 ],
+                                
+                                [
+                                    'blurb'     =>  'BULK LOADER TEST 2',
+                                    'explain'   =>  'Upload a large, complex CSV file to a database that already has a massive dataset.',
+                                    'db'        =>  'sdk_3',
+                                    'closure'   =>  [
+                                                    'function'  =>  'run_test_19_harness_baseline_bulk_loader_tests',
+                                                    'file'      =>  'test-scripts/run_test_19_harness_baseline_bulk_loader_tests.php'
+                                                    ],
+                                    'login'     =>  [
+                                                    'login_id'  =>  'admin',
+                                                    'password'  =>  'CoreysGoryStory',
+                                                    'timeout'   =>  CO_Config::$god_session_timeout_in_seconds,
+                                                    'logout'    =>  true
+                                                    ]
+                                ],
 
     ];
 ?>
