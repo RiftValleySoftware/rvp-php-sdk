@@ -197,24 +197,30 @@ function generate_service_body_object(  $in_meetings_object,
     $line['last_access'] = date('Y-m-d H:i:s');
     $line['read_security_id'] = 0;
     $line['write_security_id'] = $owner_id;
-    $line['object_name'] = isset($object-> name) ? $object->name : 'No Name';
+    $line['object_name'] = isset($object->name) ? $object->name : 'No Name';
     $line['access_class_context'] = serialize($context);
     $line['owner'] = 'NULL';
     $line['longitude'] = 'NULL';
     $line['latitude'] = 'NULL';
     $line['tag0'] = 'bmlt-service-body-'.$line['id'];
-    $line['tag1'] = 'NULL';
-    $line['tag2'] = 'NULL';
-    $line['tag3'] = 'NULL';
-    $line['tag4'] = 'NULL';
-    $line['tag5'] = 'NULL';
+    $line['tag1'] = substr(trim(preg_replace('|\s+|', ' ', $object->description)), 0, 255);
+    $line['tag2'] = substr(trim(preg_replace('|\s+|', ' ', $object->type)), 0, 255);
+    $line['tag3'] = substr(trim(preg_replace('|\s+|', ' ', $object->url)), 0, 255);
+    $line['tag4'] = substr(trim(preg_replace('|\s+|', ' ', $object->helpline)), 0, 255);
+    $line['tag5'] = substr(trim(preg_replace('|\s+|', ' ', $object->world_id)), 0, 255);
     $line['tag6'] = 'NULL';
     $line['tag7'] = 'NULL';
     $line['tag8'] = 'NULL';
     $line['tag9'] = 'NULL';
     $line['ids'] = 'NULL';
     $line['payload'] = 'NULL';
-        
+    
+    for ($num = 0; $num < 10; $num++) {
+        if (!trim($line["tag$num"])) {
+            $line["tag$num"] = 'NULL';
+        }
+    }
+
     write_csv_line($in_output_file_handle, $line);
     
     return $in_id;

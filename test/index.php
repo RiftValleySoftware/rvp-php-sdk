@@ -62,7 +62,7 @@ require_once (dirname(__FILE__).'/config/s_config.class.php');
             ?>
             <img src="../icon.png" style="display:block;margin:auto;width:80px" alt="SDK Logo" />
             <h1 class="header">MAIN ENVIRONMENT SETUP</h1>
-            <h3><a href="process-bmlt.php">BMLT Processor</a></h3>
+            <h3><a href="process-bmlt.php">BMLT Processor</a> <em>(Go Get A Cup of Coffee -From Istanbul- This Will Take A While).</em></h3>
             <div style="text-align:left;margin:auto;display:table">
                 <div class="main_div container">
                     <?php
