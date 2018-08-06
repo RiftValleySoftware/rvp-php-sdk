@@ -14,6 +14,8 @@
 define('LGV_CONFIG_CATCHER', true);
 require_once (dirname(__FILE__).'/config/s_config.class.php');
 set_time_limit(3600);
+define('__SECURITY_START__', 3);
+define('__DATA_START__', 2);
 
 /****************************************************************************************************************************/
 /*####################################################### PHP HANDLERS #####################################################*/
@@ -26,8 +28,8 @@ function process_bmlt_data( $in_output_file_handle,
                             $in_meetings_object,
                             $in_formats_object,
                             $in_service_bodies_object,
-                            $in_security_db_offset = 3,
-                            $in_data_db_offset = 2
+                            $in_security_db_offset = __SECURITY_START__,
+                            $in_data_db_offset = __DATA_START__
                             ) {
     sort_bmlt_data($in_meetings_object, $in_formats_object, $in_service_bodies_object);
     $service_body_hierarchy = find_my_children($in_service_bodies_object);
