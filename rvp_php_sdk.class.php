@@ -707,7 +707,7 @@ class RVP_PHP_SDK {
             $in_plugin_path .= '?'.ltrim($in_query_args, '&');
         }
         
-        $response = $this->_call_REST_API('GET', $in_plugin_path);
+        $response = $this->_call_REST_API('GET', $in_plugin_path, NULL);
         
         return $response;
     }
@@ -1395,7 +1395,27 @@ class RVP_PHP_SDK {
      */
     function bulk_upload(   $in_csv_data    ///< REQUIRED: This is the CSV content (in our required schema) to be uploaded to the server.
                         ) {
-        return json_decode($this->post_data('json/baseline/bulk-loader', NULL, ['data' => $in_csv_data, 'type' => 'text/csv']));
+        if ($this->is_main_admin()) {
+            return json_decode($this->post_data('json/baseline/bulk-loader', NULL, ['data' => $in_csv_data, 'type' => 'text/csv']));
+        } else {
+            $this->set_error(_ERR_NOT_AUTHORIZED__);
+            return NULL;
+        }
+    }
+    
+    /***********************/
+    /**
+    This method is only available to "God" logins. It fetches the entire database as a CSV string.
+    
+    \returns the entire database, in a bulk-upload-format CSV string. NULL, if not authorized.
+     */
+    function backup() {
+        if ($this->is_main_admin()) {
+            return $this->fetch_data('csv/baseline/backup');
+        } else {
+            $this->set_error(_ERR_NOT_AUTHORIZED__);
+            return NULL;
+        }
     }
     
     /***********************/
