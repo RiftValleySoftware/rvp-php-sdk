@@ -14,10 +14,11 @@
 defined('__CSV_TEST_FILE__') or define('__CSV_TEST_FILE__','BMLT/bmlt-2.csv');
 
 function run_test_19_harness_baseline_bulk_loader_tests($test_harness_instance) {
-    $all_pass = true;
+    $all_pass = false;
     $test_count = $test_harness_instance->test_count;
     
     if (isset($test_harness_instance->sdk_instance)) {
+        $all_pass = true;
         if ($test_harness_instance->sdk_instance->valid()) {
             $test_file_loc = dirname(dirname(__FILE__)).'/'.__CSV_TEST_FILE__;
             if (file_exists($test_file_loc)) {
