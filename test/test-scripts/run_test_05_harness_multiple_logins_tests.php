@@ -52,7 +52,7 @@ function run_test_05_harness_multiple_logins_tests($test_harness_instance) {
                                 if ('God User' == $category) {
                                     if ($info['login']->is_main_admin()) {
                                         echo('<h6 style="color:green">MAIN ADMIN CHECK FOR "'.$login_id.'" SUCCESS!</h6>');
-                                        $test_harness_instance->write_log_entry('(NOT) MAIN ADMIN CHECK FOR "'.$login_id.'"', $test_count++, true);
+                                        $test_harness_instance->write_log_entry('MAIN ADMIN CHECK FOR "'.$login_id.'"', $test_count++, true);
                                     } else {
                                         $all_pass = false;
                                         echo('<h6 style="color:red">MAIN ADMIN CHECK FOR "'.$login_id.'" FAILED!</h6>');

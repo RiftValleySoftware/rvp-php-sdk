@@ -27,7 +27,7 @@ function run_test_18_harness_baseline_bulk_loader_tests($test_harness_instance) 
                     $control_sha = '5810ed562bebac11ceda46e848611cf87338057d';
                     $response = $test_harness_instance->sdk_instance->bulk_upload($get_file);
                     $variable_sha = sha1(serialize($response));
-                    echo('<p><strong>SHA:</strong> <big><code>'.$variable_sha.'</code></big>');
+                    echo('<p><strong>SHA:</strong> <big><code>'.$variable_sha.'</code></big></p>');
                     if ($variable_sha != $control_sha) {
                         $all_pass = false;
                         $test_harness_instance->write_log_entry('BULK UPLOADER ID REPORT SHA CHECK', $test_count++, false);

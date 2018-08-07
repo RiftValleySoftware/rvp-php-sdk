@@ -23,8 +23,6 @@ define('_MAIN_DB_TYPE_', 'mysql');
 
 define('_SECURITY_DB_TYPE_', 'mysql');
 
-define('_INCLUDE_TIMING_IN_REPORT_', false); // Set to true to include timing info in the test report (breaks CSV).
-
 class CO_Config {
     use tCO_Basalt_Config; // These are the built-in config methods.
     static private $_god_mode_id = 2;               ///< God Login Security DB ID. This is private, so it can't be programmatically changed.
@@ -156,7 +154,7 @@ function global_scope_basalt_logging_function($in_andisol_instance, $in_server_v
     $date_entry = date('\[d\/M\/Y:H:m:s O\]');
     $request_entry = $_SERVER['REQUEST_METHOD'].' '.$_SERVER['REQUEST_URI'];
     $log_entry = $_SERVER['REMOTE_ADDR']. ' - '.$id_entry.' '.$date_entry.' "'.$request_entry.'"';
-    $log_file = fopen(dirname(dirname(__FILE__)).'/log/test.log', 'a');
+    $log_file = fopen(dirname(dirname(__FILE__)).'/tmp/test.log', 'a');
     fwrite($log_file, $log_entry."\n");
     fclose($log_file);
 }
@@ -180,7 +178,7 @@ function global_scope_badger_low_level_logging_function($id, $in_sql, $in_params
     }
     
     $log_entry = $id_entry.' "SQL:'.$in_sql.'" "PARAMS:\''.implode('\',\'', $in_params).'\'" "BACKTRACE:'."\n$bt_trace".'"'."\n";
-    $log_file = fopen(dirname(dirname(__FILE__)).'/log/test.log', 'a');
+    $log_file = fopen(dirname(dirname(__FILE__)).'/tmp/test.log', 'a');
     fwrite($log_file, $log_entry."\n");
     fclose($log_file);
 }

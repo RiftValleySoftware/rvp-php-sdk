@@ -250,7 +250,7 @@ class RVP_PHP_SDK_Test_Harness {
         $this->log_file = fopen(__LOG_FILE__, ($in_clear_file ? 'w' : 'a'));
         
         if ($this->log_file && $in_clear_file) {
-            $line = "test_suite_number,test_number,test_name,log_message,test_passed,actual_time,current_test_time,total_prep_time,total_test_time\n";
+            $line = "test_suite_number,test_number,test_name,data_db_type,security_db_type,log_message,test_passed,actual_time,current_test_time,total_prep_time,total_test_time\n";
             
             fwrite($this->log_file, $line);
         }
@@ -280,7 +280,7 @@ class RVP_PHP_SDK_Test_Harness {
             $pass_fail = $in_pass_fail ? 'PASS' : 'FAIL';
             $index = strval($this->test_index);
             $num = (0 == $in_num) ? '*' : intval($in_num);
-            $line = "$index,$num,'$name','$message','$pass_fail',$timestamp,$main_timestamp,$prep_timestamp,$test_timestamp\n";
+            $line = "$index,$num,'$name','".CO_Config::$data_db_type."','".CO_Config::$sec_db_type."','$message','$pass_fail',$timestamp,$main_timestamp,$prep_timestamp,$test_timestamp\n";
             
             fwrite($this->log_file, $line);
         }

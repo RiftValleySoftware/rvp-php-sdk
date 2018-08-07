@@ -231,7 +231,7 @@ function generate_user_login(   &$in_sb_object,
         $line['payload'] = 'NULL';
         
         write_csv_line($in_output_file_handle, $line);
-        write_csv_line($in_account_file_handle, [$line['object_name'], $line['login_id'], $password]);
+        write_csv_line($in_account_file_handle, [$line['access_class'], $line['object_name'], $line['login_id'], $password]);
         
         // Create an associated user object in the data database.
         $line = [];
@@ -271,8 +271,7 @@ function generate_user_login(   &$in_sb_object,
 /**
  */
 function generate_random_password() {
-//     return substr(str_shuffle("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"), 0, CO_Config::$min_pw_len + 5);
-    return 'CoreysGoryStory';
+    return substr(str_shuffle("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"), 0, CO_Config::$min_pw_len + 5);
 }
 
 /***********************/
@@ -456,7 +455,7 @@ function process_bmlt_files() {
                 $account_file_handle = fopen($account_file, 'w');
             
                 if ($account_file_handle) {
-                    $line = ['object_name','login_id','password'];
+                    $line = ['class','name','login_id','password'];
                     write_csv_line($account_file_handle, $line);
                     
                     echo('<h3>Output Files Created. Starting Processing</h3>');

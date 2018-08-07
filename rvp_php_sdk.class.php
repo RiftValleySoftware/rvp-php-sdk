@@ -944,7 +944,8 @@ class RVP_PHP_SDK {
                                                                         - 'name'            Searches the 'object_name' column.
                                                                         - 'tag0' - 'tag9'   Searches the tag indicated. It should be noted that different plugins use these tags for different fixed purposes.
                                                             */
-                                    $in_location = NULL     ///< OPTIONAL: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
+                                    $in_location = NULL,    ///< OPTIONAL: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
+                                    $in_writeable = false   ///< OPTIONAL: If true, then only places the current login can edit are returned. Ignored if not logged in.
                                     ) {
         $ret = NULL;
         
@@ -954,6 +955,10 @@ class RVP_PHP_SDK {
             foreach ($in_text_array as $key => $value) {
                 $added_parameters .= urlencode(self::_get_tag_match($key)).'='.urlencode($value);
             }
+        }
+        
+        if ($in_writeable && $this->is_logged_in()) {   // We ignore writeable if we are not logged in.
+            $added_parameters .= '&writeable';
         }
         
         if (NULL !== $in_location) {
@@ -1012,8 +1017,9 @@ class RVP_PHP_SDK {
                                                                         - 'tag8'        Searches tag 8.
                                                                         - 'tag9'        Searches tag 9.
                                                             */
-                                    $in_location = NULL,        ///< OPTIONAL: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
-                                    $in_get_logins_only = false ///< OPTIONAL: If true (Default is false), then only login objects associated with the user objects that fall within the search will be returned.
+                                    $in_location = NULL,            ///< OPTIONAL: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
+                                    $in_get_logins_only = false,    ///< OPTIONAL: If true (Default is false), then only login objects associated with the user objects that fall within the search will be returned.
+                                    $in_writeable = false           ///< OPTIONAL: If true, then only places the current login can edit are returned. Ignored if not logged in.
                                     ) {
         $ret = NULL;
         
@@ -1027,6 +1033,10 @@ class RVP_PHP_SDK {
 
         if ($in_get_logins_only) {
             $added_parameters .= '&login_user';
+        }
+        
+        if ($in_writeable && $this->is_logged_in()) {   // We ignore writeable if we are not logged in.
+            $added_parameters .= '&writeable';
         }
         
         if (NULL !== $in_location) {
@@ -1108,7 +1118,8 @@ class RVP_PHP_SDK {
                                                                         - 'tag8'                        Searches tag 8.
                                                                         - 'tag9'                        Searches tag 9.
                                                             */
-                                    $in_location = NULL     ///< OPTIONAL: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
+                                    $in_location = NULL,    ///< OPTIONAL: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
+                                    $in_writeable = false   ///< OPTIONAL: If true, then only places the current login can edit are returned. Ignored if not logged in.
                                     ) {
         $ret = NULL;
         
@@ -1118,6 +1129,10 @@ class RVP_PHP_SDK {
             foreach ($in_text_array as $key => $value) {
                 $added_parameters .= urlencode(self::_get_tag_match($key)).'='.urlencode($value);
             }
+        }
+        
+        if ($in_writeable && $this->is_logged_in()) {   // We ignore writeable if we are not logged in.
+            $added_parameters .= '&writeable';
         }
         
         if (NULL !== $in_location) {
@@ -1178,7 +1193,8 @@ class RVP_PHP_SDK {
                                                                         - 'description'     Searches the thing description tag.
                                                                         - 'tag2' - 'tag9'   Searches the tag indicated.
                                                             */
-                                    $in_location = NULL     ///< OPTIONAL: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
+                                    $in_location = NULL,    ///< OPTIONAL: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
+                                    $in_writeable = false   ///< OPTIONAL: If true, then only places the current login can edit are returned. Ignored if not logged in.
                                     ) {
         $ret = NULL;
         
@@ -1188,6 +1204,10 @@ class RVP_PHP_SDK {
             foreach ($in_text_array as $key => $value) {
                 $added_parameters .= urlencode(self::_get_tag_match($key)).'='.urlencode($value);
             }
+        }
+        
+        if ($in_writeable && $this->is_logged_in()) {   // We ignore writeable if we are not logged in.
+            $added_parameters .= '&writeable';
         }
         
         if (NULL !== $in_location) {

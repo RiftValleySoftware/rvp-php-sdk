@@ -252,6 +252,16 @@ $rvp_php_sdk_test_manifest = [
                                                     'logout'    =>  true
                                                     ]
                                 ],
+                                
+                                [
+                                    'blurb'     =>  'TEST MULTI-LOGINS',
+                                    'explain'   =>  'Log In New Logins, and Check Info.',
+                                    'db'        =>  'sdk_3',
+                                    'closure'   =>  [
+                                                    'function'  =>  'run_test_20_harness_login_tests',
+                                                    'file'      =>  'test-scripts/run_test_20_harness_login_tests.php'
+                                                    ]
+                                ],
 
     ];
 ?>
