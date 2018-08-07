@@ -11,7 +11,7 @@
 
     Little Green Viper Software Development: https://littlegreenviper.com
 */
-defined('__CSV_TEST_FILE__') or define('__CSV_TEST_FILE__','BMLT/bmlt-accounts-1');
+defined('__CSV_TEST_ACCOUNTS_FILE__') or define('__CSV_TEST_ACCOUNTS_FILE__','BMLT/bmlt-accounts-1');
 
 function run_test_20_harness_login_tests($test_harness_instance) {
     $all_pass = false;
@@ -20,7 +20,7 @@ function run_test_20_harness_login_tests($test_harness_instance) {
     if (isset($test_harness_instance->sdk_instance)) {
         $all_pass = true;
         if ($test_harness_instance->sdk_instance->valid()) {
-            $test_file_loc = dirname(dirname(__FILE__)).'/'.__CSV_TEST_FILE__.'.csv';
+            $test_file_loc = dirname(dirname(__FILE__)).'/'.__CSV_TEST_ACCOUNTS_FILE__.'.csv';
             if (file_exists($test_file_loc)) {
                 $csv_array = [];
                 $get_file = file_get_contents($test_file_loc);
