@@ -24,7 +24,7 @@ function run_test_19_harness_baseline_bulk_loader_tests($test_harness_instance) 
             if (file_exists($test_file_loc)) {
                 $get_file = file_get_contents($test_file_loc);
                 if (isset($get_file) && $get_file) {
-                    $control_sha = 'a03e9ce134099d2bd410bdc53e8abb7d3f95c397';
+                    $control_sha = 'b45ca016df4ead1d0c4ccecbb088462c29cb6b4b';
                     $response = $test_harness_instance->sdk_instance->bulk_upload($get_file);
                     $variable_sha = sha1(serialize($response));
                     echo('<p><strong>SHA:</strong> <big><code>'.$variable_sha.'</code></big></p>');

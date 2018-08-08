@@ -160,8 +160,8 @@ $rvp_php_sdk_test_manifest = [
                                     'db'        =>  'sdk_1',
                                     'db'        =>  'sdk_1',
                                     'closure'   =>  [
-                                                    'function'  =>  'run_test_12_harness_people_text_search_tests',
-                                                    'file'      =>  'test-scripts/run_test_12_harness_people_text_search_tests.php'
+                                                    'function'  =>  'run_test_12_harness_people_search_tests',
+                                                    'file'      =>  'test-scripts/run_test_12_harness_people_search_tests.php'
                                                     ]
                                 ],
                                 
@@ -170,8 +170,8 @@ $rvp_php_sdk_test_manifest = [
                                     'explain'   =>  'Test the places plugin\'s text search capabilities.',
                                     'db'        =>  'sdk_1',
                                     'closure'   =>  [
-                                                    'function'  =>  'run_test_13_harness_places_text_search_tests',
-                                                    'file'      =>  'test-scripts/run_test_13_harness_places_text_search_tests.php'
+                                                    'function'  =>  'run_test_13_harness_places_search_tests',
+                                                    'file'      =>  'test-scripts/run_test_13_harness_places_search_tests.php'
                                                     ]
                                 ],
                                 
@@ -180,8 +180,8 @@ $rvp_php_sdk_test_manifest = [
                                     'explain'   =>  'Test the things plugin\'s text search capabilities.',
                                     'db'        =>  'sdk_1',
                                     'closure'   =>  [
-                                                    'function'  =>  'run_test_14_harness_things_text_search_tests',
-                                                    'file'      =>  'test-scripts/run_test_14_harness_things_text_search_tests.php'
+                                                    'function'  =>  'run_test_14_harness_things_search_tests',
+                                                    'file'      =>  'test-scripts/run_test_14_harness_things_search_tests.php'
                                                     ]
                                 ],
                                 

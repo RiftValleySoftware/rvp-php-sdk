@@ -64,7 +64,7 @@ function run_test_10_harness_text_search_tests($test_harness_instance) {
     if (isset($test_harness_instance->sdk_instance)) {
         if ($test_harness_instance->sdk_instance->valid()) {
             echo('<h4>Do A Search for Records with the EXACT Name "Just For Today".</h4>');
-            $results = $test_harness_instance->sdk_instance->general_text_search(__SEARCH_SPEC_3__);
+            $results = $test_harness_instance->sdk_instance->general_search(__SEARCH_SPEC_3__);
             $dump = [];
             foreach ($results as $node) {
                 $dump[] = ['id' => $node->id(), 'type' => get_class($node), 'name' => $node->name()];
@@ -79,7 +79,7 @@ function run_test_10_harness_text_search_tests($test_harness_instance) {
             }
             
             echo('<h4>Do A Search for Records with the Wildcard Name "Just % Today%".</h4>');
-            $results = $test_harness_instance->sdk_instance->general_text_search(__SEARCH_SPEC_4__);
+            $results = $test_harness_instance->sdk_instance->general_search(__SEARCH_SPEC_4__);
             $dump = [];
             foreach ($results as $node) {
                 $dump[] = ['id' => $node->id(), 'type' => get_class($node), 'name' => $node->name()];
@@ -94,7 +94,7 @@ function run_test_10_harness_text_search_tests($test_harness_instance) {
             }
             
             echo('<h4>Do A Search for Records with Tag 0 of "Grace United Methodist Church".</h4>');
-            $results = $test_harness_instance->sdk_instance->general_text_search(__SEARCH_SPEC_5__);
+            $results = $test_harness_instance->sdk_instance->general_search(__SEARCH_SPEC_5__);
             $dump = [];
             foreach ($results as $node) {
                 $dump[] = ['id' => $node->id(), 'type' => get_class($node), 'name' => $node->name()];
@@ -109,7 +109,7 @@ function run_test_10_harness_text_search_tests($test_harness_instance) {
             }
             
             echo('<h4>Do A Search for Records with Tag 0 Using a Wildcard of "Grace % Church".</h4>');
-            $results = $test_harness_instance->sdk_instance->general_text_search(__SEARCH_SPEC_6__);
+            $results = $test_harness_instance->sdk_instance->general_search(__SEARCH_SPEC_6__);
             $dump = [];
             foreach ($results as $node) {
                 $dump[] = ['id' => $node->id(), 'type' => get_class($node), 'name' => $node->name()];
@@ -124,7 +124,7 @@ function run_test_10_harness_text_search_tests($test_harness_instance) {
             }
             
             echo('<h4>Do A Search for Records with Tag 1 of "265 East Main St."</h4>');
-            $results = $test_harness_instance->sdk_instance->general_text_search(__SEARCH_SPEC_7__);
+            $results = $test_harness_instance->sdk_instance->general_search(__SEARCH_SPEC_7__);
             $dump = [];
             foreach ($results as $node) {
                 $dump[] = ['id' => $node->id(), 'type' => get_class($node), 'name' => $node->name()];
@@ -139,7 +139,7 @@ function run_test_10_harness_text_search_tests($test_harness_instance) {
             }
             
             echo('<h4>Do A Search for Records with Tag 1 set to a Wildcard of "265 East Main St%"</h4>');
-            $results = $test_harness_instance->sdk_instance->general_text_search(__SEARCH_SPEC_8__);
+            $results = $test_harness_instance->sdk_instance->general_search(__SEARCH_SPEC_8__);
             $dump = [];
             foreach ($results as $node) {
                 $dump[] = ['id' => $node->id(), 'type' => get_class($node), 'name' => $node->name()];
@@ -154,7 +154,7 @@ function run_test_10_harness_text_search_tests($test_harness_instance) {
             }
             
             echo('<h4>Do A Search for Records with Tag 2 of "TAG-2-TEST-PEOPLE"</h4>');
-            $results = $test_harness_instance->sdk_instance->general_text_search(__SEARCH_SPEC_9__);
+            $results = $test_harness_instance->sdk_instance->general_search(__SEARCH_SPEC_9__);
             $dump = [];
             foreach ($results as $node) {
                 $dump[] = ['id' => $node->id(), 'type' => get_class($node), 'name' => $node->name()];
@@ -169,7 +169,7 @@ function run_test_10_harness_text_search_tests($test_harness_instance) {
             }
             
             echo('<h4>Do A Search for Records with Tag 2 of "TAG-2-TEST-%"</h4>');
-            $results = $test_harness_instance->sdk_instance->general_text_search(__SEARCH_SPEC_10__);
+            $results = $test_harness_instance->sdk_instance->general_search(__SEARCH_SPEC_10__);
             $dump = [];
             foreach ($results as $node) {
                 $dump[] = ['id' => $node->id(), 'type' => get_class($node), 'name' => $node->name()];
@@ -184,7 +184,7 @@ function run_test_10_harness_text_search_tests($test_harness_instance) {
             }
             
             echo('<h4>Do A Search for Records with Tag 3 of "Reisterstown"</h4>');
-            $results = $test_harness_instance->sdk_instance->general_text_search(__SEARCH_SPEC_11__);
+            $results = $test_harness_instance->sdk_instance->general_search(__SEARCH_SPEC_11__);
             $dump = [];
             foreach ($results as $node) {
                 $dump[] = ['id' => $node->id(), 'type' => get_class($node), 'name' => $node->name()];
@@ -199,7 +199,7 @@ function run_test_10_harness_text_search_tests($test_harness_instance) {
             }
             
             echo('<h4>Do A Search for Records with Tag 3 of "Re%"</h4>');
-            $results = $test_harness_instance->sdk_instance->general_text_search(__SEARCH_SPEC_12__);
+            $results = $test_harness_instance->sdk_instance->general_search(__SEARCH_SPEC_12__);
             $dump = [];
             foreach ($results as $node) {
                 $dump[] = ['id' => $node->id(), 'type' => get_class($node), 'name' => $node->name()];
@@ -214,7 +214,7 @@ function run_test_10_harness_text_search_tests($test_harness_instance) {
             }
             
             echo('<h4>Do A Search for Records with Tag 4 of "Montgomery"</h4>');
-            $results = $test_harness_instance->sdk_instance->general_text_search(__SEARCH_SPEC_13__);
+            $results = $test_harness_instance->sdk_instance->general_search(__SEARCH_SPEC_13__);
             $dump = [];
             foreach ($results as $node) {
                 $dump[] = ['id' => $node->id(), 'type' => get_class($node), 'name' => $node->name()];
@@ -229,7 +229,7 @@ function run_test_10_harness_text_search_tests($test_harness_instance) {
             }
             
             echo('<h4>Do A Search for Records with Tag 4 of "Montgomery%"</h4>');
-            $results = $test_harness_instance->sdk_instance->general_text_search(__SEARCH_SPEC_14__);
+            $results = $test_harness_instance->sdk_instance->general_search(__SEARCH_SPEC_14__);
             $dump = [];
             foreach ($results as $node) {
                 $dump[] = ['id' => $node->id(), 'type' => get_class($node), 'name' => $node->name()];
@@ -244,7 +244,7 @@ function run_test_10_harness_text_search_tests($test_harness_instance) {
             }
             
             echo('<h4>Do A Search for Records with Tag 5 of "DE"</h4>');
-            $results = $test_harness_instance->sdk_instance->general_text_search(__SEARCH_SPEC_15__);
+            $results = $test_harness_instance->sdk_instance->general_search(__SEARCH_SPEC_15__);
             $dump = [];
             foreach ($results as $node) {
                 $dump[] = ['id' => $node->id(), 'type' => get_class($node), 'name' => $node->name()];
@@ -259,7 +259,7 @@ function run_test_10_harness_text_search_tests($test_harness_instance) {
             }
             
             echo('<h4>Do A Search for Records with Tag 5 of "D%"</h4>');
-            $results = $test_harness_instance->sdk_instance->general_text_search(__SEARCH_SPEC_16__);
+            $results = $test_harness_instance->sdk_instance->general_search(__SEARCH_SPEC_16__);
             $dump = [];
             foreach ($results as $node) {
                 $dump[] = ['id' => $node->id(), 'type' => get_class($node), 'name' => $node->name()];
@@ -274,7 +274,7 @@ function run_test_10_harness_text_search_tests($test_harness_instance) {
             }
             
             echo('<h4>Do A Search for Records with Tag 6 of "20001"</h4>');
-            $results = $test_harness_instance->sdk_instance->general_text_search(__SEARCH_SPEC_17__);
+            $results = $test_harness_instance->sdk_instance->general_search(__SEARCH_SPEC_17__);
             $dump = [];
             foreach ($results as $node) {
                 $dump[] = ['id' => $node->id(), 'type' => get_class($node), 'name' => $node->name()];
@@ -289,7 +289,7 @@ function run_test_10_harness_text_search_tests($test_harness_instance) {
             }
             
             echo('<h4>Do A Search for Records with Tag 6 of "2000%"</h4>');
-            $results = $test_harness_instance->sdk_instance->general_text_search(__SEARCH_SPEC_18__);
+            $results = $test_harness_instance->sdk_instance->general_search(__SEARCH_SPEC_18__);
             $dump = [];
             foreach ($results as $node) {
                 $dump[] = ['id' => $node->id(), 'type' => get_class($node), 'name' => $node->name()];
@@ -304,7 +304,7 @@ function run_test_10_harness_text_search_tests($test_harness_instance) {
             }
             
             echo('<h4>Do A Search for Records with A Blank Tag 7</h4>');
-            $results = $test_harness_instance->sdk_instance->general_text_search(__SEARCH_SPEC_19__);
+            $results = $test_harness_instance->sdk_instance->general_search(__SEARCH_SPEC_19__);
             $dump = [];
             foreach ($results as $node) {
                 $dump[] = ['id' => $node->id(), 'type' => get_class($node), 'name' => $node->name()];
@@ -319,7 +319,7 @@ function run_test_10_harness_text_search_tests($test_harness_instance) {
             }
             
             echo('<h4>Do A Search for Records with A Non-Blank Tag 7</h4>');
-            $results = $test_harness_instance->sdk_instance->general_text_search(__SEARCH_SPEC_20__);
+            $results = $test_harness_instance->sdk_instance->general_search(__SEARCH_SPEC_20__);
 
             if ((__RESULTS_20_A_ == count($results)) && (__RESULTS_20_B_ == sha1(serialize($results)))) {
                 $test_harness_instance->write_log_entry('Simple Baseline General Wildcard Text Search', $test_count++, true);
@@ -330,7 +330,7 @@ function run_test_10_harness_text_search_tests($test_harness_instance) {
             }
             
             echo('<h4>Do A Search for Records with Tag 8 of "dILBERT cO." (To Prove case-Insensitivity). We will only see one result (We are not allowed to view any others).</h4>');
-            $results = $test_harness_instance->sdk_instance->general_text_search(__SEARCH_SPEC_21__);
+            $results = $test_harness_instance->sdk_instance->general_search(__SEARCH_SPEC_21__);
             $dump = [];
             foreach ($results as $node) {
                 $dump[] = ['id' => $node->id(), 'type' => get_class($node), 'name' => $node->name()];
@@ -345,7 +345,7 @@ function run_test_10_harness_text_search_tests($test_harness_instance) {
             }
             
             echo('<h4>Do A Search for Records with Tag 8 of "7:%".</h4>');
-            $results = $test_harness_instance->sdk_instance->general_text_search(__SEARCH_SPEC_22__);
+            $results = $test_harness_instance->sdk_instance->general_search(__SEARCH_SPEC_22__);
             $dump = [];
             foreach ($results as $node) {
                 $dump[] = ['id' => $node->id(), 'type' => get_class($node), 'name' => $node->name()];
@@ -360,7 +360,7 @@ function run_test_10_harness_text_search_tests($test_harness_instance) {
             }
             
             echo('<h4>Do A Search for Records with Tag 9 of "TAG-9-TEST-THINGS".</h4>');
-            $results = $test_harness_instance->sdk_instance->general_text_search(__SEARCH_SPEC_23__);
+            $results = $test_harness_instance->sdk_instance->general_search(__SEARCH_SPEC_23__);
             $dump = [];
             foreach ($results as $node) {
                 $dump[] = ['id' => $node->id(), 'type' => get_class($node), 'name' => $node->name()];
@@ -375,7 +375,7 @@ function run_test_10_harness_text_search_tests($test_harness_instance) {
             }
             
             echo('<h4>Do A Search for Records with Tag 9 of "TAG-9-TEST-%".</h4>');
-            $results = $test_harness_instance->sdk_instance->general_text_search(__SEARCH_SPEC_24__);
+            $results = $test_harness_instance->sdk_instance->general_search(__SEARCH_SPEC_24__);
             $dump = [];
             foreach ($results as $node) {
                 $dump[] = ['id' => $node->id(), 'type' => get_class($node), 'name' => $node->name()];

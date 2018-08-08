@@ -423,22 +423,22 @@ class RVP_PHP_SDK_Test_Harness {
         switch (strtolower(trim($in_search_type))) {
             case    'people':
                 echo('<h4>Searching for '.($in_logins_only ? 'logins' : 'users').'.</h4>');
-                $results = $this->sdk_instance->people_text_search($in_text_search, $in_location, $in_logins_only);
+                $results = $this->sdk_instance->people_search($in_text_search, $in_location, $in_logins_only);
                 break;
             
             case    'places':
                 echo('<h4>Searching for places.</h4>');
-                $results = $this->sdk_instance->places_text_search($in_text_search, $in_location);
+                $results = $this->sdk_instance->places_search($in_text_search, $in_location);
                 break;
             
             case    'things':
                 echo('<h4>Searching for things.</h4>');
-                $results = $this->sdk_instance->things_text_search($in_text_search, $in_location);
+                $results = $this->sdk_instance->things_search($in_text_search, $in_location);
                 break;
             
             default:
                 echo('<h4>Searching for anything.</h4>');
-                $results = $this->sdk_instance->general_text_search($in_text_search, $in_location);
+                $results = $this->sdk_instance->general_search($in_text_search, $in_location);
                 break;
         }
     

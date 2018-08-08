@@ -937,7 +937,7 @@ class RVP_PHP_SDK {
     The searched columns are the "object_name" column, or tags 0-9.
     \returns an array of objects (of any kind) that have the requested text in the fields supplied. SQL-style wildcards (%) are applicable.
      */
-    function general_text_search(   $in_text_array = [],    /**< OPTIONAL:  An associative array, laying out which text fields to search, and the search text.
+    function general_search(   $in_text_array = [],    /**< OPTIONAL:  An associative array, laying out which text fields to search, and the search text.
                                                                     The key is the name of the field to search, and the value is the text to search for.
                                                                     You can use SQL-style wildcards (%).
                                                                     Available keys:
@@ -1002,7 +1002,7 @@ class RVP_PHP_SDK {
     
     \returns an array of people objects that have the requested text in the fields supplied. SQL-style wildcards (%) are applicable.
      */
-    function people_text_search(    $in_text_array = [],    /**< OPTIONAL:  An associative array, laying out which text fields to search, and the search text.
+    function people_search(    $in_text_array = [],    /**< OPTIONAL:  An associative array, laying out which text fields to search, and the search text.
                                                                     The key is the name of the field to search, and the value is the text to search for.
                                                                     You can use SQL-style wildcards (%).
                                                                     Available keys:
@@ -1102,7 +1102,7 @@ class RVP_PHP_SDK {
     
     \returns an array of place objects that have the requested text in the fields supplied. SQL-style wildcards (%) are applicable.
      */
-    function places_text_search(    $in_text_array = [],    /**< OPTIONAL:  An associative array, laying out which text fields to search, and the search text.
+    function places_search(    $in_text_array = [],    /**< OPTIONAL:  An associative array, laying out which text fields to search, and the search text.
                                                                     The key is the name of the field to search, and the value is the text to search for.
                                                                     You can use SQL-style wildcards (%).
                                                                     Available keys:
@@ -1185,7 +1185,7 @@ class RVP_PHP_SDK {
     
     \returns an array of thing objects that have the requested text in the fields supplied. SQL-style wildcards (%) are applicable.
      */
-    function things_text_search(    $in_text_array = [],    /**< OPTIONAL:  An associative array, laying out which text fields to search, and the search text.
+    function things_search(    $in_text_array = [],    /**< OPTIONAL:  An associative array, laying out which text fields to search, and the search text.
                                                                     The key is the name of the field to search, and the value is the text to search for.
                                                                     You can use SQL-style wildcards (%).
                                                                     Available keys:
@@ -1258,7 +1258,7 @@ class RVP_PHP_SDK {
      */
     function general_location_search(   $in_location    ///< REQUIRED: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
                                     ) {
-        return $this->general_text_search(NULL, $in_location);
+        return $this->general_search(NULL, $in_location);
     }
     
     /***********************/
@@ -1268,7 +1268,7 @@ class RVP_PHP_SDK {
     function people_location_search(    $in_location,               ///< REQUIRED: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
                                         $in_get_logins_only = false ///< OPTIONAL: If true (Default is false), then only login objects associated with the user objects that fall within the search will be returned.
                                     ) {
-        return $this->people_text_search(NULL, $in_location, $in_get_logins_only);
+        return $this->people_search(NULL, $in_location, $in_get_logins_only);
     }
     
     /***********************/
@@ -1277,7 +1277,7 @@ class RVP_PHP_SDK {
      */
     function place_location_search( $in_location    ///< REQUIRED: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
                                     ) {
-        return $this->places_text_search(NULL, $in_location);
+        return $this->places_search(NULL, $in_location);
     }
     
     /***********************/
@@ -1286,7 +1286,7 @@ class RVP_PHP_SDK {
      */
     function thing_location_search( $in_location    ///< REQUIRED: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
                                     ) {
-        return $this->things_text_search(NULL, $in_location);
+        return $this->things_search(NULL, $in_location);
     }
     
     /***********************/
@@ -1339,20 +1339,20 @@ class RVP_PHP_SDK {
                 case    'users':
                     $in_search_type = 'users';
                 case    'logins':
-                    $results = $this->people_text_search($in_search_string_criteria, $location, ('logins' == $in_search_type));
+                    $results = $this->people_search($in_search_string_criteria, $location, ('logins' == $in_search_type));
                     break;
             
                 case    'places':
-                    $results = $this->places_text_search($in_search_string_criteria, $location);
+                    $results = $this->places_search($in_search_string_criteria, $location);
                     break;
             
                 case    'things':
-                    $results = $this->things_text_search($in_search_string_criteria, $location);
+                    $results = $this->things_search($in_search_string_criteria, $location);
                     break;
             
                 default:
                     $in_search_type = 'all';
-                    $results = $this->general_text_search($in_search_string_criteria, $location);
+                    $results = $this->general_search($in_search_string_criteria, $location);
                     break;
             }
             
