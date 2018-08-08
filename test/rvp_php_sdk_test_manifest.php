@@ -278,6 +278,22 @@ $rvp_php_sdk_test_manifest = [
                                                     'logout'    =>  true
                                                     ]
                                 ],
+                                
+                                [
+                                    'blurb'     =>  'TEST CSV BACKUP RESTORE',
+                                    'explain'   =>  'Log In As God, and fetch a backup of EVERYTHING.',
+                                    'db'        =>  'sdk_2',
+                                    'closure'   =>  [
+                                                    'function'  =>  'run_test_22_harness_test_restore',
+                                                    'file'      =>  'test-scripts/run_test_22_harness_test_restore.php'
+                                                    ],
+                                    'login'     =>  [
+                                                    'login_id'  =>  'admin',
+                                                    'password'  =>  'CoreysGoryStory',
+                                                    'timeout'   =>  CO_Config::$god_session_timeout_in_seconds,
+                                                    'logout'    =>  true
+                                                    ]
+                                ],
 
     ];
 ?>
