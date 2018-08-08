@@ -13,12 +13,12 @@
 */
 defined( 'RVP_PHP_SDK' ) or die ( 'Cannot Execute Directly' );	// Makes sure that this file is in the correct context.
 
-require_once(dirname(__FILE__).'/a_rvp_php_sdk_object.class.php');   // Make sure that we have the base class in place.
+require_once(dirname(__FILE__).'/a_rvp_php_sdk_security_object.class.php');   // Make sure that we have the base class in place.
 
 /****************************************************************************************************************************/
 /**
  */
-class RVP_PHP_SDK_Login extends A_RVP_PHP_SDK_Object {
+class RVP_PHP_SDK_Login extends A_RVP_PHP_SDK_Security_Object {
     /************************************************************************************************************************/    
     /*################################################ INTERNAL STATIC METHODS #############################################*/
     /************************************************************************************************************************/
