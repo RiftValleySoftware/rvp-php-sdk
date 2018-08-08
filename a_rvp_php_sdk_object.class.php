@@ -20,12 +20,13 @@ require_once(dirname(__FILE__).'/rvp_php_sdk.class.php');   // Make sure that we
  This is an abstract base class for various data objects provided by the SDK.
  */
 abstract class A_RVP_PHP_SDK_Object {
-    protected   $_sdk_object;   ///< This is the RVP_PHP_SDK object that "owns" this object.
-    protected   $_object_id;    ///< This is the server unique ID of this object.
-    protected   $_object_data;  ///< This is any data that was associated with this object (parsed JSON).
-    protected   $_details;      ///< If true, then the last load was a "show details" load..
-    protected   $_plugin_path;  ///< This is a string that is applied to fetches to get the object.
-
+    protected   $_sdk_object;       ///< This is the RVP_PHP_SDK object that "owns" this object.
+    protected   $_object_id;        ///< This is the server unique ID of this object.
+    protected   $_object_data;      ///< This is any data that was associated with this object (parsed JSON).
+    protected   $_details;          ///< If true, then the last load was a "show details" load..
+    protected   $_plugin_path;      ///< This is a string that is applied to fetches to get the object.
+    protected   $_changed_states;   ///< This will contain an array of objects (of whatever class this is), that represent previous object states.
+    
     /************************************************************************************************************************/    
     /*#################################################### INTERNAL METHODS ################################################*/
     /************************************************************************************************************************/
@@ -54,7 +55,50 @@ abstract class A_RVP_PHP_SDK_Object {
         
         return $ret;
     }
+    
+    /***********************/
+    /**
+    \returns true, if the save was successful.
+     */
+    protected function _save_data(  $in_args = ''   ///< OPTIONAL: Default is an empty string. This is any previous arguments. This will be appeneded to the end of the list, so it should begin with an ampersand (&), and be url-encoded.
+                                ) {
+        $ret = false;
+        
+        $name = isset($this->_object_data->name) ? $this->_object_data->name : '';
+        $lang = isset($this->_object_data->lang) ? $this->_object_data->lang : '';
+        $read_token = isset($this->_object_data->read_token) ? intval($this->_object_data->read_token) : 0;
+        $write_token = (isset($this->_object_data->write_token) && (0 < intval($this->_object_data->write_token))) ? intval($this->_object_data->write_token) : $this->_sdk_object->my_info()['login']->id();
+        $owner_id = isset($this->_object_data->owner_id) ? intval($this->_object_data->owner_id) : 0;
 
+        $latitude = isset($this->_object_data->raw_latitude) ? floatval($this->_object_data->raw_latitude) : floatval($this->_object_data->latitude);
+        $longitude = isset($this->_object_data->raw_longitude) ? floatval($this->_object_data->raw_longitude) : floatval($this->_object_data->longitude);
+        
+        $put_args = '&name='.urlencode($name).'&lang='.urlencode($lang).'&read_token='.$read_token.'&write_token='.$write_token.'&owner_id='.$owner_id.'&latitude='.$latitude.'&longitude='.$longitude;
+        
+        $ret = json_decode($this->_sdk_object->put_data('/json/'.$this->_plugin_path.'/'.$this->id(), $put_args.$in_args));
+        
+        if (isset($ret)) {
+            $places = $ret->places;
+            if (isset($ret) && isset($ret->places) && isset($ret->places->changed_places)) {
+                if (is_array($ret->places->changed_places) && (1 == count($ret->places->changed_places))) {
+                    if (isset($ret->places->changed_places[0]) && isset($ret->places->changed_places[0]->before)) {
+                        if (!isset($this->_changed_states) || !is_array($this->_changed_states)) {
+                            $this->_changed_states = [];
+                        }
+            
+                        $before_object_data = $ret->places->changed_places[0]->before;
+                        
+                        $classname = get_class($this);
+                        
+                        $this->_changed_states[] = new $classname($this->_sdk_object, $before_object_data->id, $before_object_data, true, $this->_plugin_path);
+                    }
+                }
+            }
+        }
+        
+        return $ret;
+    }
+    
     /************************************************************************************************************************/    
     /*#################################################### PUBLIC METHODS ##################################################*/
     /************************************************************************************************************************/
@@ -74,6 +118,18 @@ abstract class A_RVP_PHP_SDK_Object {
         $this->_object_data = $in_data;
         $this->_details = (NULL != $in_data) ? $in_detailed_data : false;
         $this->_plugin_path = $in_plugin_path;
+    }
+    
+    /***********************/
+    /**
+    \returns true, if the save was successful.
+     */
+    function save_data() {
+        $ret = false;
+        
+        $ret = $this->_save_data();
+        
+        return $ret;
     }
     
     /***********************/
@@ -104,6 +160,27 @@ abstract class A_RVP_PHP_SDK_Object {
     
     /***********************/
     /**
+    This sets the name of the object.
+    
+    \returns true, if the save worked.
+     */
+    function set_name(  $in_new_value   ///< REQUIRED: A new value for the name.
+                        ) {
+        $ret = NULL;
+        
+        $this->_load_data(false, true);
+
+        if (isset($this->_object_data)) {
+            $this->_object_data->name = $in_new_value;
+            
+            $ret = $this->save_data();
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
     This requires a load, but not a "detailed" load.
     
     \returns the string for the object's "lang" (language code) field.
@@ -115,6 +192,27 @@ abstract class A_RVP_PHP_SDK_Object {
         
         if (isset($this->_object_data) && isset($this->_object_data->lang)) {
             $ret = $this->_object_data->lang;
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    This sets the language ID of the object.
+    
+    \returns true, if the save worked.
+     */
+    function set_lang(  $in_new_value   ///< REQUIRED: A new value for the language ID.
+                        ) {
+        $ret = NULL;
+        
+        $this->_load_data(false, true);
+
+        if (isset($this->_object_data)) {
+            $this->_object_data->lang = $in_new_value;
+            
+            $ret = $this->save_data();
         }
         
         return $ret;
