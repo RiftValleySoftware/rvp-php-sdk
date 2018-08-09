@@ -45,6 +45,7 @@ class RVP_PHP_SDK_Place extends A_RVP_PHP_SDK_Data_Object {
             foreach ($in_change_record_object->places->changed_places as $changed_place) {
                 if ($before = $changed_place->before) {
                     $this->_changed_states[] = new RVP_PHP_SDK_Place($this->_sdk_object, $before->id, $before, true);
+                    $ret = true;
                 }
             }
         }
