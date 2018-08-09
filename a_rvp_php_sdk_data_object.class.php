@@ -82,6 +82,34 @@ abstract class A_RVP_PHP_SDK_Data_Object extends A_RVP_PHP_SDK_Object {
     
     /***********************/
     /**
+    This sets the new long/lat value. This sets the "real" value (or "raw" value), if the record is "fuzzed," so subsequent checks of the regular long/lat may show different results.
+    
+    \returns true, if it worked.
+     */
+    function set_coords(    $in_latitude,   ///< REQUIRED: The new latitude value, in degrees.
+                            $in_longitude   ///< REQUIRED: The new longitude value, in degrees.
+                        ) {
+        $ret = false;
+        
+        $this->_load_data(false, true);
+
+        if (isset($this->_object_data)) {
+            if ((isset($this->_object_data->raw_latitude) && isset($this->_object_data->raw_longitude)) || (isset($this->_object_data->fuzzy) && $this->_object_data->fuzzy)) {
+                $this->_object_data->raw_latitude = $in_latitude;
+                $this->_object_data->raw_longitude = $in_longitude;
+            } else {
+                $this->_object_data->latitude = $in_latitude;
+                $this->_object_data->longitude = $in_longitude;
+            }
+            
+            $ret = $this->save_data();
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
     This requires a a "detailed" load.
     
     \returns the distance, if provided. Otherwise, it returns 0.
@@ -109,11 +137,46 @@ abstract class A_RVP_PHP_SDK_Data_Object extends A_RVP_PHP_SDK_Object {
         
         $this->_load_data(false, true);
         
-        if (isset($this->_object_data) && isset($this->_object_data->fuzzy)) {
+        if (isset($this->_object_data) && isset($this->_object_data->fuzzy) && $this->_object_data->fuzzy) {
             $ret = true;
         }
                 
         return $ret;
+    }
+    
+    /***********************/
+    /**
+    This requires a "detailed" load.
+    
+    \returns a floating-point value, with the "fuzz factor" (in kilometers). You need to be logged in as an ID that has either write or "can see through the fuzz" capability on this record, or you get 0.
+     */
+    function fuzz_factor() {
+        $ret = 0;
+        
+        $this->_load_data(false, true);
+        
+        if (isset($this->_object_data) && isset($this->_object_data->fuzz_factor) && $this->_object_data->fuzz_factor) {
+            $ret = floatval($this->_object_data->fuzz_factor);
+        }
+                
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    Sets a new "fuzz factor." Setting to 0 or NULL turns off location obfuscation. Any positive floating-point number is the "fuzz radius," in kilometers, of the obfuscation.
+    Long/lat returned in the normal coords() call will be obfuscated.
+    If the user has the rights to "see through the fuzz," calls to raw_coords() will return accurate results (otherwise, they will return NULL).
+    
+    \returns true, if it worked.
+     */
+    function set_fuzz_factor(   $in_new_factor  ///< REQUIRED: The new "fuzz factor" value. 0 or NULL will turn off location obfuscation.
+                            ) {
+        $this->_load_data(false, true);
+        
+        $this->_object_data->fuzz_factor = $in_new_factor;
+        
+        return $this->save_data();
     }
     
     /***********************/

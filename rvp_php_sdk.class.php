@@ -126,8 +126,6 @@ class RVP_PHP_SDK {
     
         $method = strtoupper(trim($method));            // Make sure the method is always uppercase.
     
-        global $g_server_secret;
-
         // Initialize function local variables.
         $file = NULL;               // This will be a file handle, for uploads.
         $content_type = NULL;       // This is used to signal the content-type for uploaded files.
@@ -189,8 +187,6 @@ class RVP_PHP_SDK {
             case "DELETE":
                 curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "DELETE");
         }
-
-        $server_secret = CO_Config::server_secret();    // Get the server secret.
     
         // Authentication. We provide the Server Secret and the API key here.
         if (isset($this->_server_secret) && isset($this->_api_key)) {

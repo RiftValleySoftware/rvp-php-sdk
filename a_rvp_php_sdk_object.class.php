@@ -58,11 +58,11 @@ abstract class A_RVP_PHP_SDK_Object {
     
     /***********************/
     /**
-    \returns true, if the save was successful.
+    \returns the JSON change object. NULL if not successful.
      */
     protected function _save_data(  $in_args = ''   ///< OPTIONAL: Default is an empty string. This is any previous arguments. This will be appeneded to the end of the list, so it should begin with an ampersand (&), and be url-encoded.
                                 ) {
-        $ret = false;
+        $ret = NULL;
         
         $name = isset($this->_object_data->name) ? $this->_object_data->name : '';
         $lang = isset($this->_object_data->lang) ? $this->_object_data->lang : '';
@@ -75,29 +75,19 @@ abstract class A_RVP_PHP_SDK_Object {
         
         $put_args = '&name='.urlencode($name).'&lang='.urlencode($lang).'&read_token='.$read_token.'&write_token='.$write_token.'&owner_id='.$owner_id.'&latitude='.$latitude.'&longitude='.$longitude;
         
-        $ret = json_decode($this->_sdk_object->put_data('/json/'.$this->_plugin_path.'/'.$this->id(), $put_args.$in_args));
+        $result = json_decode($this->_sdk_object->put_data('/json/'.$this->_plugin_path.'/'.$this->id(), $put_args.$in_args));
         
-        if (isset($ret)) {
-            $places = $ret->places;
-            if (isset($ret) && isset($ret->places) && isset($ret->places->changed_places)) {
-                if (is_array($ret->places->changed_places) && (1 == count($ret->places->changed_places))) {
-                    if (isset($ret->places->changed_places[0]) && isset($ret->places->changed_places[0]->before)) {
-                        if (!isset($this->_changed_states) || !is_array($this->_changed_states)) {
-                            $this->_changed_states = [];
-                        }
-            
-                        $before_object_data = $ret->places->changed_places[0]->before;
-                        
-                        $classname = get_class($this);
-                        
-                        $this->_changed_states[] = new $classname($this->_sdk_object, $before_object_data->id, $before_object_data, true, $this->_plugin_path);
-                    }
-                }
-            }
-        }
-        
-        return $ret;
+        return $result;
     }
+    
+    /***********************/
+    /**
+    This is called after a successful save. It has the change record[s], and the subclass should take care of parsing that record to save in the object's change record.
+    
+    \returns true, if the save was successful.
+     */
+    protected abstract function _save_change_record(    $in_change_record_object    ///< REQUIRED: The change response, as a parsed object.
+                                                    );
     
     /************************************************************************************************************************/    
     /*#################################################### PUBLIC METHODS ##################################################*/
@@ -118,6 +108,15 @@ abstract class A_RVP_PHP_SDK_Object {
         $this->_object_data = $in_data;
         $this->_details = (NULL != $in_data) ? $in_detailed_data : false;
         $this->_plugin_path = $in_plugin_path;
+        $this->_changed_states = [];
+    }
+    
+    /***********************/
+    /**
+    \returns an array of instances, representing the "before" state of this object, prior to any changes made. It should be noted that the lifetime of these changes are dependent on the lifetime of this instance.
+     */
+    function changes() {
+        return $this->_changed_states;
     }
     
     /***********************/
@@ -127,7 +126,7 @@ abstract class A_RVP_PHP_SDK_Object {
     function save_data() {
         $ret = false;
         
-        $ret = $this->_save_data();
+        $ret = $this->_save_change_record($this->_save_data());
         
         return $ret;
     }
@@ -166,7 +165,7 @@ abstract class A_RVP_PHP_SDK_Object {
      */
     function set_name(  $in_new_value   ///< REQUIRED: A new value for the name.
                         ) {
-        $ret = NULL;
+        $ret = false;
         
         $this->_load_data(false, true);
 
@@ -205,7 +204,7 @@ abstract class A_RVP_PHP_SDK_Object {
      */
     function set_lang(  $in_new_value   ///< REQUIRED: A new value for the language ID.
                         ) {
-        $ret = NULL;
+        $ret = false;
         
         $this->_load_data(false, true);
 
@@ -249,191 +248,6 @@ abstract class A_RVP_PHP_SDK_Object {
         
         if (isset($this->_object_data) && isset($this->_object_data->last_access)) {
             $ret = strtotime($this->_object_data->last_access);
-        }
-        
-        return $ret;
-    }
-    
-    /***********************/
-    /**
-    This requires a load, but not a "detailed" load.
-    
-    \returns an associative array ('read' => integer, 'write' => integer), with the tokens for the object. The tokens will only be available if they are visible to the current user, or NULL, if there are no tokens (should never happen).
-     */
-    function tokens() {
-        $ret = NULL;
-        $read_token = NULL;
-        $write_token = NULL;
-        
-        $this->_load_data();
-        
-        if (isset($this->_object_data) && isset($this->_object_data->read_token)) {
-            $read_token = intval($this->_object_data->read_token);
-        }
-        
-        if (isset($this->_object_data) && isset($this->_object_data->write_token)) {
-            $write_token = intval($this->_object_data->write_token);
-        }
-        
-        if ($read_token || $write_token) {
-            $ret = [];
-            
-            if ($read_token) {
-                $ret['read'] = $read_token;
-            }
-            
-            if ($write_token) {
-                $ret['write'] = $write_token;
-            }
-        }
-        
-        return $ret;
-    }
-    
-    /***********************/
-    /**
-    This requires a load, but not a "detailed" load.
-    
-    \returns an associative array ('latitude' => float, 'longitude' => float), with the long/lat coordinates of the object, or NULL, if there are no long/lat coordinates.
-     */
-    function coords() {
-        $ret = NULL;
-        
-        $this->_load_data();
-        
-        if (isset($this->_object_data) && isset($this->_object_data->coords)) {
-            $temp = explode(',', $this->_object_data->coords);
-            if (isset($temp) && is_array($temp) && (1 < count($temp))) {
-                $ret = [];
-                $ret['latitude'] = floatval($temp[0]);
-                $ret['longitude'] = floatval($temp[1]);
-            }
-        }
-                
-        return $ret;
-    }
-    
-    /***********************/
-    /**
-    This requires a a "detailed" load.
-    
-    \returns the distance, if provided. Otherwise, it returns 0.
-     */
-    function distance() {
-        $ret = 0;
-        
-        $this->_load_data(false, true);
-        
-        if (isset($this->_object_data) && isset($this->_object_data->distance_in_km)) {
-            $ret = floatval($this->_object_data->distance_in_km);
-        }
-                
-        return $ret;
-    }
-    
-    /***********************/
-    /**
-    This requires a "detailed" load.
-    
-    \returns true, if the object declares that it is "fuzzy" (has location obfuscation).
-     */
-    function is_fuzzy() {
-        $ret = false;
-        
-        $this->_load_data(false, true);
-        
-        if (isset($this->_object_data) && isset($this->_object_data->fuzzy)) {
-            $ret = true;
-        }
-                
-        return $ret;
-    }
-    
-    /***********************/
-    /**
-    This requires a "detailed" load.
-    
-    \returns the "raw" coordinates for a "fuzzy" location, assuming the current login has rights to them. If not, it returns NULL.
-     */
-    function raw_coords() {
-        $ret = NULL;
-        
-        $this->_load_data(false, true);
-        
-        if (isset($this->_object_data) && isset($this->_object_data->raw_latitude) && isset($this->_object_data->raw_longitude)) {
-            $ret = [];
-            $ret['latitude'] = floatval($this->_object_data->raw_latitude);
-            $ret['longitude'] = floatval($this->_object_data->raw_longitude);
-        }
-                
-        return $ret;
-    }
-    
-    /***********************/
-    /**
-    This requires a "detailed" load.
-    
-    \returns an associative array ('data' => binary data string, 'type' => string MIME type), containing the data in the payload, and its type. The data is not Base64-encoded.
-     */
-    function payload() {
-        $ret = NULL;
-        
-        $this->_load_data(false, true);
-        
-        if (isset($this->_object_data) && isset($this->_object_data->payload)) {
-            $payload_data = base64_decode($this->_object_data->payload);
-            
-            $ret = ['data' => $payload_data];
-            
-            if (isset($this->_object_data->payload_type)) {
-                $ret['type'] = str_replace(';base64', '', $this->_object_data->payload_type);
-            }
-        }
-        
-        return $ret;
-    }
-    
-    /***********************/
-    /**
-    This requires a "detailed" load.
-    
-    \returns an associative array ('people' => integer array of IDs, 'places' => integer array of IDs, and 'things' => integer array of IDs), containing the IDs of any "child" objects for this object.
-     */
-    function children_ids() {
-        $ret = NULL;
-        
-        $this->_load_data(false, true);
-        
-        if (isset($this->_object_data) && isset($this->_object_data->children)) {
-            $child_data = (array)$this->_object_data->children;
-
-            if (count($child_data)) {
-                $ret = $child_data;
-            }
-        }
-        
-        return $ret;
-    }
-    
-    /***********************/
-    /**
-    This requires a "detailed and parents" load.
-    
-    **NOTE:** Calling this can incur a fairly significant performance penalty!
-    
-    \returns an associative array ('people' => integer array of IDs, 'places' => integer array of IDs, and 'things' => integer array of IDs), containing the IDs of any "parent" objects for this object.
-     */
-    function parent_ids() {
-        $ret = NULL;
-        
-        $this->_load_data(false, true, true);
-        
-        if (isset($this->_object_data) && isset($this->_object_data->parents)) {
-            $parent_data = $this->_object_data->parents;
-
-            if (isset($parent_data) && is_array($parent_data) && count($parent_data)) {
-                $ret = $parent_data;
-            }
         }
         
         return $ret;

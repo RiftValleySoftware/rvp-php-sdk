@@ -33,6 +33,27 @@ class RVP_PHP_SDK_Place extends A_RVP_PHP_SDK_Data_Object {
     
     /***********************/
     /**
+    This is called after a successful save. It has the change record[s], and we will parse them to save the "before" object.
+    
+    \returns true, if the save was successful.
+     */
+    protected function _save_change_record( $in_change_record_object    ///< REQUIRED: The change response, as a parsed object.
+                                            ) {
+        $ret = false;
+      
+        if (isset($in_change_record_object->places) && isset($in_change_record_object->places->changed_places) && is_array($in_change_record_object->places->changed_places) && count($in_change_record_object->places->changed_places)) {
+            foreach ($in_change_record_object->places->changed_places as $changed_place) {
+                if ($before = $changed_place->before) {
+                    $this->_changed_states[] = new RVP_PHP_SDK_Place($this->_sdk_object, $before->id, $before, true);
+                }
+            }
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
     This is the specific "load some data" method. It will send a GET REST request to the API in order to fetch information about this object.
     
     \returns true, if it loaded the data.
