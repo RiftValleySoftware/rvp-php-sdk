@@ -35,7 +35,7 @@ abstract class A_RVP_PHP_SDK_Data_Object extends A_RVP_PHP_SDK_Object {
         
         $put_args = '&owner_id='.$owner_id.'&latitude='.$latitude.'&longitude='.$longitude;
         
-        $ret = parent::_save_data($put_args.$in_args));
+        $ret = parent::_save_data($put_args.$in_args);
         
         return $ret;
     }
