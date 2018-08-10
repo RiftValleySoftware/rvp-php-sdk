@@ -724,7 +724,7 @@ class RVP_PHP_SDK {
         if ($this->is_logged_in() && isset($in_plugin_path) && trim($in_plugin_path) && isset($in_query_args) && trim($in_query_args)) {
             $in_plugin_path .= '?'.ltrim($in_query_args, '&');
         
-            $response = $this->_call_REST_API('PUT', $in_plugin_path, $in_data_object, true);
+            $response = $this->_call_REST_API('PUT', $in_plugin_path, $in_data_object);
         } elseif ($this->is_logged_in()) {
             $this->set_error(_ERR_NOT_AUTHORIZED__);
         } else {
