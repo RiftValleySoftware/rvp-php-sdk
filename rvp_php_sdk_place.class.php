@@ -30,7 +30,36 @@ class RVP_PHP_SDK_Place extends A_RVP_PHP_SDK_Data_Object {
     /************************************************************************************************************************/    
     /*#################################################### INTERNAL METHODS ################################################*/
     /************************************************************************************************************************/
-    
+    /***********************/
+    /**
+    \returns true, if the save was successful.
+     */
+    protected function _save_data(  $in_args = ''   ///< OPTIONAL: Default is an empty string. This is any previous arguments. This will be appeneded to the end of the list, so it should begin with an ampersand (&), and be url-encoded.
+                                ) {
+        $to_set = [
+            'address_venue' => (isset($this->_object_data->address_elements->venue) ? $this->_object_data->address_elements->venue : NULL),
+            'address_street_address' => (isset($this->_object_data->address_elements->street_address) ? $this->_object_data->address_elements->street_address : NULL),
+            'address_extra_information' => (isset($this->_object_data->address_elements->extra_information) ? $this->_object_data->address_elements->extra_information : NULL),
+            'address_town' => (isset($this->_object_data->address_elements->town) ? $this->_object_data->address_elements->town : NULL),
+            'address_county' => (isset($this->_object_data->address_elements->county) ? $this->_object_data->address_elements->county : NULL),
+            'address_state' => (isset($this->_object_data->address_elements->state) ? $this->_object_data->address_elements->state : NULL),
+            'address_postal_code' => (isset($this->_object_data->address_elements->postal_code) ? $this->_object_data->address_elements->postal_code : NULL),
+            'address_nation' => (isset($this->_object_data->address_elements->nation) ? $this->_object_data->address_elements->nation : NULL)
+            ];
+        
+        $put_args = '';
+        
+        foreach ($to_set as $key => $value) {
+            if (isset($key) && isset($value)) {
+                $put_args .= '&'.$key.'='.urlencode(trim(strval($value)));
+            }
+        }
+        
+        $ret = parent::_save_data($put_args.$in_args);
+        
+        return $ret;
+    }
+        
     /***********************/
     /**
     This is called after a successful save. It has the change record[s], and we will parse them to save the "before" object.
@@ -105,6 +134,71 @@ class RVP_PHP_SDK_Place extends A_RVP_PHP_SDK_Data_Object {
         
         if (isset($this->_object_data) && isset($this->_object_data->address)) {
             $ret = $this->_object_data->address;
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    This requires a detailed string load.
+    
+    \returns an associative array of string, containing the individual address elements. This can contain:
+                    - 'venue' This is the name of the venue/building.
+                    - 'street_address' This is the number, street and any apartment/suite/other information.
+                    - 'extra_information' This is "extra information," like "Behind the bridge entrance," etc.
+                    - 'town' This is the municipality/city/town.
+                    - 'county' The county or sub-province.
+                    - 'state' The state or province.
+                    - 'postal_code' The postal or ZIP code.
+                    - 'nation' The nation.
+             Not all elements need to be present. If an element is not represented, then that means that it is empty in the record.
+     */
+    function address_elements() {
+        $ret = NULL;
+        
+        $this->_load_data(false, true);
+        
+        if (isset($this->_object_data) && isset($this->_object_data->address_elements)) {
+            $ret = (array)$this->_object_data->address_elements;
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    This sets the address elements of the place.
+     */
+    function set_address_elements(  $in_address_elements_array  /**< REQUIRED: This is an associative array, with the new values:
+                                                                                - 'venue' This is the name of the venue/building.
+                                                                                - 'street_address' This is the number, street and any apartment/suite/other information.
+                                                                                - 'extra_information' This is "extra information," like "Behind the bridge entrance," etc.
+                                                                                - 'town' This is the municipality/city/town.
+                                                                                - 'county' The county or sub-province.
+                                                                                - 'state' The state or province.
+                                                                                - 'postal_code' The postal or ZIP code.
+                                                                                - 'nation' The nation.
+                                                                                
+                                                                            If an array element is not present, then that part of the address will not be affected.
+                                                                            If an array element is present, but contains an empty string, then the corresponding address element will be removed.
+                                                                */
+                                ) {
+        
+        $ret = NULL;
+        
+        $this->_load_data(false, true);
+        
+        if (isset($this->_object_data)) {
+            foreach($in_address_elements_array as $key => $value) {
+                $key = strtolower(trim(strval($key)));
+                $value = trim(strval($value));
+                $this->_object_data->address_elements->$key = $value;
+            }
+            
+            $ret = $this->save_data();
+            
+            $this->_load_data(true, true);  // Force a reload.
         }
         
         return $ret;

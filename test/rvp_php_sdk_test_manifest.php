@@ -346,7 +346,7 @@ $rvp_php_sdk_test_manifest = [
                                                     'file'      =>  'test-scripts/run_test_26_place_record_put_tests.php'
                                                     ],
                                     'login'     =>  [
-                                                    'login_id'  =>  'login-310',
+                                                    'login_id'  =>  'login-445',
                                                     'password'  =>  'CoreysGoryStory',
                                                     'timeout'   =>  CO_Config::$session_timeout_in_seconds,
                                                     'logout'    =>  true
