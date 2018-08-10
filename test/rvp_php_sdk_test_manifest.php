@@ -336,6 +336,22 @@ $rvp_php_sdk_test_manifest = [
                                                     'file'      =>  'test-scripts/run_test_25_more_data_record_put_tests.php'
                                                     ]
                                 ],
+                                
+                                [
+                                    'blurb'     =>  'PLACE RECORD PUT TESTS',
+                                    'explain'   =>  'Test Place Record Commands. Log In As A User, Get A Record, Modify It, and Save It',
+                                    'db'        =>  'sdk_3',
+                                    'closure'   =>  [
+                                                    'function'  =>  'run_test_26_place_record_put_tests',
+                                                    'file'      =>  'test-scripts/run_test_26_place_record_put_tests.php'
+                                                    ],
+                                    'login'     =>  [
+                                                    'login_id'  =>  'login-310',
+                                                    'password'  =>  'CoreysGoryStory',
+                                                    'timeout'   =>  CO_Config::$session_timeout_in_seconds,
+                                                    'logout'    =>  true
+                                                    ]
+                                ],
 
     ];
 ?>
