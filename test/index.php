@@ -53,8 +53,8 @@ require_once (dirname(__FILE__).'/config/s_config.class.php');
                     define('LGV_BASALT_CATCHER', 1);
                 }
                 
-                if ( !defined('RVP_PHP_SDK') ) {
-                    define('RVP_PHP_SDK', 1);
+                if ( !defined('RVP_PHP_SDK_ACCESS') ) {
+                    define('RVP_PHP_SDK_ACCESS', true);
                 }
     
                 require_once(CO_Config::main_class_dir()."/co_basalt.class.php");
