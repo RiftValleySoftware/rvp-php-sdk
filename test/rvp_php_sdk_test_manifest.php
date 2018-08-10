@@ -352,6 +352,22 @@ $rvp_php_sdk_test_manifest = [
                                                     'logout'    =>  true
                                                     ]
                                 ],
+                                
+                                [
+                                    'blurb'     =>  'PLACE RECORD GEOCODE PUT TESTS',
+                                    'explain'   =>  'Test Place Record Geocode/Reverse Geocode Commands. Log In As A User, Get A Record, Run Geocode Commands On It.',
+                                    'db'        =>  'sdk_3',
+                                    'closure'   =>  [
+                                                    'function'  =>  'run_test_27_place_record_geocode_tests',
+                                                    'file'      =>  'test-scripts/run_test_27_place_record_geocode_tests.php'
+                                                    ],
+                                    'login'     =>  [
+                                                    'login_id'  =>  'login-445',
+                                                    'password'  =>  'CoreysGoryStory',
+                                                    'timeout'   =>  CO_Config::$session_timeout_in_seconds,
+                                                    'logout'    =>  true
+                                                    ]
+                                ],
 
     ];
 ?>

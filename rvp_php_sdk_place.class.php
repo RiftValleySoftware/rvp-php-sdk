@@ -44,7 +44,9 @@ class RVP_PHP_SDK_Place extends A_RVP_PHP_SDK_Data_Object {
             'address_county' => (isset($this->_object_data->address_elements->county) ? $this->_object_data->address_elements->county : NULL),
             'address_state' => (isset($this->_object_data->address_elements->state) ? $this->_object_data->address_elements->state : NULL),
             'address_postal_code' => (isset($this->_object_data->address_elements->postal_code) ? $this->_object_data->address_elements->postal_code : NULL),
-            'address_nation' => (isset($this->_object_data->address_elements->nation) ? $this->_object_data->address_elements->nation : NULL)
+            'address_nation' => (isset($this->_object_data->address_elements->nation) ? $this->_object_data->address_elements->nation : NULL),
+            'tag8' => (isset($this->_object_data->tag8) ? $this->_object_data->tag8 : NULL),
+            'tag9' => (isset($this->_object_data->tag9) ? $this->_object_data->tag9 : NULL)
             ];
         
         $put_args = '';
@@ -169,6 +171,8 @@ class RVP_PHP_SDK_Place extends A_RVP_PHP_SDK_Data_Object {
     /***********************/
     /**
     This sets the address elements of the place.
+    
+    \returns true, if the operation suceeded.
      */
     function set_address_elements(  $in_address_elements_array  /**< REQUIRED: This is an associative array, with the new values:
                                                                                 - 'venue' This is the name of the venue/building.
@@ -185,7 +189,7 @@ class RVP_PHP_SDK_Place extends A_RVP_PHP_SDK_Data_Object {
                                                                 */
                                 ) {
         
-        $ret = NULL;
+        $ret = false;
         
         $this->_load_data(false, true);
         
@@ -200,6 +204,102 @@ class RVP_PHP_SDK_Place extends A_RVP_PHP_SDK_Data_Object {
             
             $this->_load_data(true, true);  // Force a reload.
         }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    This requires a detailed string load.
+    
+    \returns the string value of Tag 8, or NULL.
+     */
+    function tag8() {
+        $ret = NULL;
+        
+        $this->_load_data(false, true);
+        
+        if (isset($this->_object_data)) {
+            $ret = $this->_object_data->tag8;
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    This requires a detailed string load.
+    
+    \returns the string value of Tag 9, or NULL.
+     */
+    function tag9() {
+        $ret = NULL;
+        
+        $this->_load_data(false, true);
+        
+        if (isset($this->_object_data)) {
+            $ret = $this->_object_data->tag9;
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    This sets the value of tag 8.
+    
+    \returns true, if the operation suceeded.
+     */
+    function set_tag8(  $in_new_string_value    ///< REQUIRED: The new string value to be set. If empty, then the tag is cleared.
+                    ) {
+        $ret = false;
+        
+        $this->_load_data(false, true);
+        
+        if (isset($this->_object_data)) {
+            $this->_object_data->tag8 = trim(strval($in_new_string_value));
+            $ret = $this->save_data();
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    This sets the value of tag 9.
+    
+    \returns true, if the operation suceeded.
+     */
+    function set_tag9(  $in_new_string_value    ///< REQUIRED: The new string value to be set. If empty, then the tag is cleared.
+                    ) {
+        $ret = false;
+        
+        $this->_load_data(false, true);
+        
+        if (isset($this->_object_data)) {
+            $this->_object_data->tag9 = trim(strval($in_new_string_value));
+            $ret = $this->save_data();
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    This requires a forced detailed string load if successful.
+    
+    This method will force the server to look up a new address for the current longitude and latitude.
+    
+    This requires that the server be configured to support the operation (has an API key, and allows the current user to perform lookups).
+    
+    \returns true, if the operation succeeded. This reloads the object after completion.
+     */
+    function do_lookup() {
+        $ret = false;
+
+        $result = json_decode($this->_sdk_object->put_data('/json/'.$this->_plugin_path.'/'.$this->id(), 'geocode=-1'));
+        
+        $this->_load_data(false, true);
         
         return $ret;
     }
