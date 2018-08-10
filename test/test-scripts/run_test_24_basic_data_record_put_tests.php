@@ -15,6 +15,8 @@ defined('__TEST_24_ID__') or define('__TEST_24_ID__', 5403);
 defined('__TEST_24_NEW_COORDS_LAT_') or define('__TEST_24_NEW_COORDS_LAT_', 34.235951);
 defined('__TEST_24_NEW_COORDS_LNG_') or define('__TEST_24_NEW_COORDS_LNG_', -118.563670);
 defined('__TEST_24_FUZZ_FACTOR__') or define('__TEST_24_FUZZ_FACTOR__', 10);
+defined('__TEST_24_UNRELATED_LOGIN__') or define('__TEST_24_UNRELATED_LOGIN__', 'login-445');
+defined('__TEST_24_UNRELATED_LOGIN_ID__') or define('__TEST_24_UNRELATED_LOGIN_ID__', 148);
 
 function run_test_24_basic_data_record_put_tests($test_harness_instance) {
     $all_pass = false;
@@ -142,10 +144,44 @@ function run_test_24_basic_data_record_put_tests($test_harness_instance) {
                                     $test_harness_instance->write_log_entry('UNEXPECTED CHANGES ARRAY', $test_count++, false);
                                     echo('<h4 style="color:red">UNEXPECTED CHANGES ARRAY! (COUNT -'.count($changes).'- OFF).</h4>');
                                 }
+                                    
+                                if ($second_sdk_instance->login(__TEST_24_UNRELATED_LOGIN__, __PASSWORD__)) {
+                                    $second_record = $second_sdk_instance->get_place_info(__TEST_24_ID__);
+                                    if (isset($second_record) && ($second_record instanceof RVP_PHP_SDK_Place)) {
+                                        $test_harness_instance->sdk_instance->logout();
+                                        $test_harness_instance->sdk_instance->login('admin', CO_Config::god_mode_password(), CO_Config::$god_session_timeout_in_seconds);
+                                        $record = $test_harness_instance->sdk_instance->get_place_info(__TEST_24_ID__);
+                                        if (isset($record) && ($record instanceof RVP_PHP_SDK_Place)) {
+                                            $raw_coords = $record->raw_coords();
+                                            $first_second_raw_coords = $second_record->raw_coords();
+                                            if ($record->set_can_see_through_the_fuzz(__TEST_24_UNRELATED_LOGIN_ID__)) {
+                                                $second_record = $second_sdk_instance->get_place_info(__TEST_24_ID__);
+                                                if (isset($second_record) && ($second_record instanceof RVP_PHP_SDK_Place)) {
+                                                    $second_second_raw_coords = $second_record->raw_coords();
+                                                    if (($first_second_raw_coords != $raw_coords) && ($second_second_raw_coords == $raw_coords)) {
+                                                        $test_harness_instance->write_log_entry('SEE THOUGH THE FUZZ', $test_count++, true);
+                                                    } else {
+                                                        $all_pass = false;
+                                                        $test_harness_instance->write_log_entry('SEE THOUGH THE FUZZ', $test_count++, false);
+                                                        echo('<h4 style="color:red">FAILED CAN SEE THOUGH THE FUZZ!</h4>');
+                                                    }
+                                                }
+                                            } else {
+                                                $all_pass = false;
+                                                $test_harness_instance->write_log_entry('FAILED TO SET CAN SEE THOUGH THE FUZZ', $test_count++, false);
+                                                echo('<h4 style="color:red">FAILED TO SET CAN SEE THOUGH THE FUZZ!</h4>');
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    $all_pass = false;
+                                    $test_harness_instance->write_log_entry('CANNOT LOG IN SECOND ID', $test_count++, false);
+                                    echo('<h4 style="color:red">CANNOT LOG IN SECOND ID!</h4>');
+                                }
                             } else {
                                 $all_pass = false;
                                 $test_harness_instance->write_log_entry('NEW COORDS MATCH. THEY SHOULDN\'T.', $test_count++, false);
-                                echo('<h4 style="color:red">NEW COORDS MATCH. THEY SHOULDN\'T.!</h4>');
+                                echo('<h4 style="color:red">NEW COORDS MATCH. THEY SHOULDN\'T!</h4>');
                             }
                         } else {
                             $all_pass = false;

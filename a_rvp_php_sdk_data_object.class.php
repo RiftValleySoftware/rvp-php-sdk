@@ -33,8 +33,9 @@ abstract class A_RVP_PHP_SDK_Data_Object extends A_RVP_PHP_SDK_Object {
         $latitude = isset($this->_object_data->raw_latitude) ? floatval($this->_object_data->raw_latitude) : floatval($this->_object_data->latitude);
         $longitude = isset($this->_object_data->raw_longitude) ? floatval($this->_object_data->raw_longitude) : floatval($this->_object_data->longitude);
         $fuzz_factor = isset($this->_object_data->fuzz_factor) ? floatval($this->_object_data->fuzz_factor) : NULL;
+        $can_see_through_the_fuzz = isset($this->_object_data->can_see_through_the_fuzz) ? intval($this->_object_data->can_see_through_the_fuzz) : NULL;
         
-        $put_args = '&owner_id='.$owner_id.'&latitude='.$latitude.'&longitude='.$longitude.(isset($fuzz_factor) ? '&fuzz_factor='.$fuzz_factor : '');
+        $put_args = '&owner_id='.$owner_id.'&latitude='.$latitude.'&longitude='.$longitude.(isset($fuzz_factor) ? '&fuzz_factor='.$fuzz_factor : '').(isset($can_see_through_the_fuzz) ? '&can_see_through_the_fuzz='.$can_see_through_the_fuzz : '');
         
         $ret = parent::_save_data($put_args.$in_args);
         
@@ -176,6 +177,29 @@ abstract class A_RVP_PHP_SDK_Data_Object extends A_RVP_PHP_SDK_Object {
         $this->_load_data(false, true);
         
         $this->_object_data->fuzz_factor = $in_new_factor;
+        
+        $ret = $this->save_data();
+    
+        if ($ret) { // We force a reload, because fuzz.
+            $this->_load_data(true, true);
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    Sets a new "fuzz factor." Setting to 0 or NULL turns off location obfuscation. Any positive floating-point number is the "fuzz radius," in kilometers, of the obfuscation.
+    Long/lat returned in the normal coords() call will be obfuscated.
+    If the user has the rights to "see through the fuzz," calls to raw_coords() will return accurate results (otherwise, they will return NULL).
+    
+    \returns true, if it worked.
+     */
+    function set_can_see_through_the_fuzz(  $in_token_id    ///< REQUIRED: The new token for the "see clearly" IDs. 0 will clear this field.
+                                        ) {
+        $this->_load_data(false, true);
+        
+        $this->_object_data->can_see_through_the_fuzz = $in_token_id;
         
         $ret = $this->save_data();
     
