@@ -297,7 +297,7 @@ $rvp_php_sdk_test_manifest = [
                                 
                                 [
                                     'blurb'     =>  'BASIC PUT TESTS',
-                                    'explain'   =>  'Log In As A Manager, Get A Record, Modify It, and Save It',
+                                    'explain'   =>  'Test Universal Put Commands. Log In As A Manager, Get A Record, Modify It, and Save It',
                                     'db'        =>  'sdk_3',
                                     'closure'   =>  [
                                                     'function'  =>  'run_test_23_basic_put_tests',
@@ -312,12 +312,12 @@ $rvp_php_sdk_test_manifest = [
                                 ],
                                 
                                 [
-                                    'blurb'     =>  'BASIC PLACE PUT TESTS',
-                                    'explain'   =>  'Log In As A Manager, Get A Record, Modify It, and Save It',
+                                    'blurb'     =>  'BASIC DATA RECORD PUT TESTS',
+                                    'explain'   =>  'Test Data Database Record Commands. Log In As A Manager, Get A Record, Modify It, and Save It',
                                     'db'        =>  'sdk_3',
                                     'closure'   =>  [
-                                                    'function'  =>  'run_test_24_basic_place_put_tests',
-                                                    'file'      =>  'test-scripts/run_test_24_basic_place_put_tests.php'
+                                                    'function'  =>  'run_test_24_basic_data_record_put_tests',
+                                                    'file'      =>  'test-scripts/run_test_24_basic_data_record_put_tests.php'
                                                     ],
                                     'login'     =>  [
                                                     'login_id'  =>  'login-311',

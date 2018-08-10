@@ -11,6 +11,7 @@
 
     Little Green Viper Software Development: https://littlegreenviper.com
 */
+defined('__TEST_23_ID__') or define('__TEST_23_ID__', 5403);
 defined('__TEST_23_NAME__') or define('__TEST_23_NAME__', 'Sharing Clean, Living Dirty');
 defined('__TEST_23_LANG__') or define('__TEST_23_LANG__', 'sv');
 function run_test_23_basic_put_tests($test_harness_instance) {
@@ -20,9 +21,9 @@ function run_test_23_basic_put_tests($test_harness_instance) {
     if (isset($test_harness_instance->sdk_instance)) {
         $all_pass = true;
         if ($test_harness_instance->sdk_instance->valid()) {
-            $record = $test_harness_instance->sdk_instance->get_place_info(5403);
+            $record = $test_harness_instance->sdk_instance->get_place_info(__TEST_23_ID__);
             if (isset($record) && ($record instanceof RVP_PHP_SDK_Place)) {
-                echo('<h5>Modifying record ID 5403 ('.$record->name().').</h5>');
+                echo('<h5>Modifying record ID '.__TEST_23_ID__.' ('.$record->name().').</h5>');
                 $old_name = $record->name();
                 $old_lang = $record->lang();
                 
@@ -81,7 +82,7 @@ function run_test_23_basic_put_tests($test_harness_instance) {
                 }
 
                 $second_sdk_instance = new RVP_PHP_SDK(__SERVER_URI__, __SERVER_SECRET__);
-                $second_records = $second_sdk_instance->get_objects(5403);
+                $second_records = $second_sdk_instance->get_objects(__TEST_23_ID__);
                 if (isset($second_records) && is_array($second_records) && (1 == count($second_records))) {
                     if ($second_records[0] instanceof RVP_PHP_SDK_Place) {
                         if ($record->name() != $second_records[0]->name()) {
@@ -96,18 +97,18 @@ function run_test_23_basic_put_tests($test_harness_instance) {
                         }
                     } else {
                         $all_pass = false;
-                        $test_harness_instance->write_log_entry('FAILED TO GET SECOND INSTANCE OF RECORD 5403 (Not in Array)', $test_count++, false);
-                        echo('<h4 style="color:red">FAILED TO GET SECOND INSTANCE OF RECORD 5403 (NOT IN ARRAY)!</h4>');
+                        $test_harness_instance->write_log_entry('FAILED TO GET SECOND INSTANCE OF RECORD '.__TEST_23_ID__.' (Not in Array)', $test_count++, false);
+                        echo('<h4 style="color:red">FAILED TO GET SECOND INSTANCE OF RECORD '.__TEST_23_ID__.' (NOT IN ARRAY)!</h4>');
                     }
                 } else {
                     $all_pass = false;
-                    $test_harness_instance->write_log_entry('FAILED TO GET SECOND INSTANCE OF RECORD 5403', $test_count++, false);
-                    echo('<h4 style="color:red">FAILED TO GET SECOND INSTANCE OF RECORD 5403!</h4>');
+                    $test_harness_instance->write_log_entry('FAILED TO GET SECOND INSTANCE OF RECORD '.__TEST_23_ID__.'', $test_count++, false);
+                    echo('<h4 style="color:red">FAILED TO GET SECOND INSTANCE OF RECORD '.__TEST_23_ID__.'!</h4>');
                 }
             } else {
                 $all_pass = false;
-                $test_harness_instance->write_log_entry('FAILED TO GET RECORD 5403', $test_count++, false);
-                echo('<h4 style="color:red">FAILED TO GET RECORD 5403!</h4>');
+                $test_harness_instance->write_log_entry('FAILED TO GET RECORD '.__TEST_23_ID__.'', $test_count++, false);
+                echo('<h4 style="color:red">FAILED TO GET RECORD '.__TEST_23_ID__.'!</h4>');
             }
         } else {
             $all_pass = false;

@@ -75,11 +75,12 @@ class RVP_PHP_SDK_Thing extends A_RVP_PHP_SDK_Data_Object {
     /***********************/
     /**
      */
-    function __construct(   $in_sdk_object,     ///< REQUIRED: The "owning" SDK object.
-                            $in_id,             ///< REQUIRED: The server ID of the object. An integer.
-                            $in_data = NULL     ///< OPTIONAL: Parsed JSON Data for the object. Default is NULL.
+    function __construct(   $in_sdk_object,             ///< REQUIRED: The "owning" SDK object.
+                            $in_id,                     ///< REQUIRED: The server ID of the object. An integer.
+                            $in_data = NULL,            ///< OPTIONAL: Parsed JSON Data for the object. Default is NULL.
+                            $in_detailed_data = false   ///< OPTIONAL: Ignored if $in_data is NULL. Default is false. If true, then the data sent in was in "detailed" format.
                         ) {
-        parent::__construct($in_sdk_object, $in_id, $in_data, false, 'things');
+        parent::__construct($in_sdk_object, $in_id, $in_data, $in_detailed_data, 'things');
     }
     
     /***********************/

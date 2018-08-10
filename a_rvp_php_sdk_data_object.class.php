@@ -32,8 +32,9 @@ abstract class A_RVP_PHP_SDK_Data_Object extends A_RVP_PHP_SDK_Object {
         $owner_id = isset($this->_object_data->owner_id) ? intval($this->_object_data->owner_id) : 0;
         $latitude = isset($this->_object_data->raw_latitude) ? floatval($this->_object_data->raw_latitude) : floatval($this->_object_data->latitude);
         $longitude = isset($this->_object_data->raw_longitude) ? floatval($this->_object_data->raw_longitude) : floatval($this->_object_data->longitude);
+        $fuzz_factor = isset($this->_object_data->fuzz_factor) ? floatval($this->_object_data->fuzz_factor) : NULL;
         
-        $put_args = '&owner_id='.$owner_id.'&latitude='.$latitude.'&longitude='.$longitude;
+        $put_args = '&owner_id='.$owner_id.'&latitude='.$latitude.'&longitude='.$longitude.(isset($fuzz_factor) ? '&fuzz_factor='.$fuzz_factor : '');
         
         $ret = parent::_save_data($put_args.$in_args);
         
@@ -155,7 +156,7 @@ abstract class A_RVP_PHP_SDK_Data_Object extends A_RVP_PHP_SDK_Object {
         
         $this->_load_data(false, true);
         
-        if (isset($this->_object_data) && isset($this->_object_data->fuzz_factor) && $this->_object_data->fuzz_factor) {
+        if (isset($this->_object_data) && isset($this->_object_data->fuzz_factor) && floatval($this->_object_data->fuzz_factor)) {
             $ret = floatval($this->_object_data->fuzz_factor);
         }
                 
@@ -176,7 +177,13 @@ abstract class A_RVP_PHP_SDK_Data_Object extends A_RVP_PHP_SDK_Object {
         
         $this->_object_data->fuzz_factor = $in_new_factor;
         
-        return $this->save_data();
+        $ret = $this->save_data();
+    
+        if ($ret) { // We force a reload, because fuzz.
+            $this->_load_data(true, true);
+        }
+        
+        return $ret;
     }
     
     /***********************/

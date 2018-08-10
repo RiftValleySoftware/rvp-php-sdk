@@ -75,14 +75,29 @@ class RVP_PHP_SDK_User extends A_RVP_PHP_SDK_Data_Object {
     /***********************/
     /**
      */
-    function __construct(   $in_sdk_object,     ///< REQUIRED: The "owning" SDK object.
-                            $in_id,             ///< REQUIRED: The server ID of the object. An integer.
-                            $in_data = NULL     ///< OPTIONAL: Parsed JSON Data for the object. Default is NULL.
+    function __construct(   $in_sdk_object,             ///< REQUIRED: The "owning" SDK object.
+                            $in_id,                     ///< REQUIRED: The server ID of the object. An integer.
+                            $in_data = NULL,            ///< OPTIONAL: Parsed JSON Data for the object. Default is NULL.
+                            $in_detailed_data = false   ///< OPTIONAL: Ignored if $in_data is NULL. Default is false. If true, then the data sent in was in "detailed" format.
                         ) {
-        parent::__construct($in_sdk_object, $in_id, $in_data, false, 'people/people');
+        parent::__construct($in_sdk_object, $in_id, $in_data, $in_detailed_data, 'people/people');
     }
     
     /***********************/
     /**
+    This requires a "detailed" load.
+    
+    \returns an array of integer (security tokens) that comprise the "pool" for this user (assuming it has a login).
      */
+    function tokens() {
+        $ret = [];
+        
+        $this->_load_data(false, true);
+        
+        if (isset($this->_object_data) && isset($this->_object_data->associated_login) && isset($this->_object_data->associated_login->security_tokens)) {
+            $ret = $this->_object_data->associated_login->security_tokens;
+        }
+        
+        return $ret;
+    }
 };

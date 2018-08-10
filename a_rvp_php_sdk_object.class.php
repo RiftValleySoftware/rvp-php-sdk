@@ -116,7 +116,7 @@ abstract class A_RVP_PHP_SDK_Object {
     \returns an array of instances, representing the "before" state of this object, prior to any changes made. It should be noted that the lifetime of these changes are dependent on the lifetime of this instance.
      */
     function changes() {
-        return $this->_changed_states;
+        return isset($this->_changed_states) ? $this->_changed_states : [];
     }
     
     /***********************/

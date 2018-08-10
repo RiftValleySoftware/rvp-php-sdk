@@ -256,6 +256,10 @@ class RVP_PHP_SDK_Test_Harness {
         }
     }
     
+    function echo_sha_data($in_sha) {
+        echo('<p><strong>SHA:</strong> <big><code>'.$in_sha.'</code></big></p>');
+    }
+    
     function close_log_file() {
         if ($this->log_file) {
             fclose($this->log_file);
