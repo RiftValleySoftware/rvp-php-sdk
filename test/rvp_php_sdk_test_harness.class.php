@@ -11,7 +11,7 @@
 
     Little Green Viper Software Development: https://littlegreenviper.com
 */
-define('RVP_PHP_SDK', true);
+define('RVP_PHP_SDK_ACCESS', true);
 require_once (dirname(dirname(__FILE__)).'/rvp_php_sdk.class.php');
 
 define('LGV_CONFIG_CATCHER', true);

@@ -11,7 +11,7 @@
 
     Little Green Viper Software Development: https://littlegreenviper.com
 */
-defined( 'RVP_PHP_SDK' ) or die ( 'Cannot Execute Directly' );	// Makes sure that this file is in the correct context.
+defined( 'RVP_PHP_SDK_ACCESS' ) or die ( 'Cannot Execute Directly' );	// Makes sure that this file is in the correct context.
 
 require_once(dirname(__FILE__).'/rvp_php_sdk.class.php');   // Make sure that we have the main SDK class in place.
 
@@ -210,6 +210,31 @@ abstract class A_RVP_PHP_SDK_Object {
 
         if (isset($this->_object_data)) {
             $this->_object_data->lang = $in_new_value;
+            
+            $ret = $this->save_data();
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    This sets the read and write tokens of the object.
+    
+    The current login must have at least read access to each of the tokens. If a token is NULL, then the token is not changed.
+    
+    \returns true, if the save worked.
+     */
+    function set_object_access( $in_new_read = NULL,    ///< OPTIONAL: A new read token. Default is NULL (no change).
+                                $in_new_write = NULL    ///< OPTIONAL: A new write token. Default is NULL (no change).
+                                ) {
+        $ret = false;
+        
+        $this->_load_data(false, true);
+
+        if (isset($this->_object_data)) {
+            $this->_object_data->read_token = isset($in_new_read) ? intval($in_new_read) : $this->_object_data->read_token;
+            $this->_object_data->write_token = isset($in_new_write) ? intval($in_new_write) : $this->_object_data->write_token;
             
             $ret = $this->save_data();
         }

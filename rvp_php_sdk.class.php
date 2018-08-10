@@ -11,7 +11,7 @@
 
     Little Green Viper Software Development: https://littlegreenviper.com
 */
-defined( 'RVP_PHP_SDK' ) or die ( 'Cannot Execute Directly' );	// Makes sure that this file is in the correct context.
+defined( 'RVP_PHP_SDK_ACCESS' ) or die ( 'Cannot Execute Directly' );	// Makes sure that this file is in the correct context.
 require_once(dirname(__FILE__).'/rvp_php_sdk_login.class.php');
 require_once(dirname(__FILE__).'/rvp_php_sdk_user.class.php');
 require_once(dirname(__FILE__).'/rvp_php_sdk_place.class.php');

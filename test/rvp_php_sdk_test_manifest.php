@@ -334,12 +334,6 @@ $rvp_php_sdk_test_manifest = [
                                     'closure'   =>  [
                                                     'function'  =>  'run_test_25_more_data_record_put_tests',
                                                     'file'      =>  'test-scripts/run_test_25_more_data_record_put_tests.php'
-                                                    ],
-                                    'login'     =>  [
-                                                    'login_id'  =>  'login-311',
-                                                    'password'  =>  'CoreysGoryStory',
-                                                    'timeout'   =>  CO_Config::$session_timeout_in_seconds,
-                                                    'logout'    =>  true
                                                     ]
                                 ],
 
