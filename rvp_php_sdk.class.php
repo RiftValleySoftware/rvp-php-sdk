@@ -151,7 +151,7 @@ class RVP_PHP_SDK {
         }
 
         $curl = curl_init();                    // Initialize the cURL handle.
-        $url = $this->_server_uri.'/'.$url_extension;
+        $url = $this->_server_uri.'/'.trim($url_extension, '/');
         curl_setopt($curl, CURLOPT_URL, $url);  // This is the URL we are calling.
         
         // Different methods require different ways of dealing with any file that has been passed in.

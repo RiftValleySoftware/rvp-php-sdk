@@ -288,18 +288,46 @@ class RVP_PHP_SDK_Place extends A_RVP_PHP_SDK_Data_Object {
     /**
     This requires a forced detailed string load if successful.
     
+    This method will force the server to look up a new longitude and latitude for the current address information.
+    
+    This requires that the server be configured to support the operation (has an API key, and allows the current user to perform lookups).
+    
+    \returns true, if the operation succeeded. This reloads the object after completion.
+     */
+    function geocode() {
+        $ret = false;
+
+        $result = json_decode($this->_sdk_object->put_data('/json/'.$this->_plugin_path.'/'.$this->id(), 'geocode'));
+        
+        if (isset($result) && $result) {
+            $this->_save_change_record($result);
+        }
+        
+        $this->_load_data(true, true);
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    This requires a forced detailed string load if successful.
+    
     This method will force the server to look up a new address for the current longitude and latitude.
     
     This requires that the server be configured to support the operation (has an API key, and allows the current user to perform lookups).
     
     \returns true, if the operation succeeded. This reloads the object after completion.
      */
-    function do_lookup() {
+    function reverse_geocode() {
         $ret = false;
 
-        $result = json_decode($this->_sdk_object->put_data('/json/'.$this->_plugin_path.'/'.$this->id(), 'geocode=-1'));
+        $result = json_decode($this->_sdk_object->put_data('/json/'.$this->_plugin_path.'/'.$this->id(), 'reverse-geocode'));
         
-        $this->_load_data(false, true);
+        if (isset($result) && $result) {
+            $this->_save_change_record($result);
+        }
+        
+        $this->_load_data(true, true);
         
         return $ret;
     }
