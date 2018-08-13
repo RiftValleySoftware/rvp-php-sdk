@@ -50,6 +50,10 @@ function run_test_21_harness_test_backup($test_harness_instance) {
                     $test_harness_instance->write_log_entry('BACKUP FETCH', $test_count++, true);
                 }
                 fclose($handle);
+            } else {
+                $all_pass = false;
+                $test_harness_instance->write_log_entry('CREATE BACKUP FILE', $test_count++, false);
+                echo('<h4 style="color:red">UNABLE TO CREATE BACKUP FILE!</h4>');
             }
         } else {
             $all_pass = false;

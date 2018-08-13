@@ -16,7 +16,7 @@ CREATE TABLE co_security_nodes (
 
 INSERT INTO co_security_nodes (api_key, login_id, access_class, last_access, read_security_id, write_security_id, object_name, access_class_context, ids) VALUES
 (NULL, NULL, 'CO_Security_Node', '1970-01-01 00:00:00', -1, -1, NULL, NULL, NULL),
-(NULL, 'admin', 'CO_Security_Login', '2018-08-06 15:48:55', 2, 2, 'God Admin Login', 'a:2:{s:4:\"lang\";s:2:\"en\";s:15:\"hashed_password\";s:8:\"5f7cec32\";}', NULL),
+(NULL, 'admin', 'CO_Security_Login', '1970-01-01 00:00:00', 2, 2, 'God Admin Login', 'a:2:{s:4:\"lang\";s:2:\"en\";s:15:\"hashed_password\";s:60:\"$2y$10$XpzX3po3WSjRN98Zq.3Z3ev5nkgiz7GKsDo70zULYbJRWHhlwbbRC\";}', NULL),
 (NULL, 'login-300', 'CO_Cobra_Login', '2018-08-06 15:48:18', 3, 3, 'Brazos Valley Area Administrator', 'a:2:{s:4:\"lang\";s:2:\"en\";s:15:\"hashed_password\";s:60:\"$2y$10$XpzX3po3WSjRN98Zq.3Z3ev5nkgiz7GKsDo70zULYbJRWHhlwbbRC\";}', NULL),
 (NULL, 'login-301', 'CO_Cobra_Login', '2018-08-06 15:48:18', 4, 4, 'Central Texas Area Administrator', 'a:2:{s:4:\"lang\";s:2:\"en\";s:15:\"hashed_password\";s:60:\"$2y$10$0Dc6dwM8xaHESdsg3oaidu81mlnC9eLbFoozxQqY2yiJBWYBE5gvC\";}', NULL),
 (NULL, 'login-302', 'CO_Cobra_Login', '2018-08-06 15:48:18', 5, 5, 'Coastal Bend Area Administrator', 'a:2:{s:4:\"lang\";s:2:\"en\";s:15:\"hashed_password\";s:60:\"$2y$10$55vBrg3sCshSukme7jOeUuik4jyRNb/YbCCmIwIsU5qmuINRus5/u\";}', NULL),
