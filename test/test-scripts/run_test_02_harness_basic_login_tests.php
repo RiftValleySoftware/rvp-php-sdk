@@ -15,7 +15,7 @@ define('__LOGIN_NAME__', 'Main Admin Login');
 define('__LOGIN_ID__', 12);
 define('__LOGIN_READ_TOKEN__', 12);
 define('__LOGIN_WRITE_TOKEN__', 12);
-define('__LOGIN_TIME_DIFF__', 7);
+define('__LOGIN_TIME_DIFF__', 10);
 define('__LOGIN_LANG__', 'en');
 define('__LOGIN_WRITEABLE__', true);
 define('__LOGIN_MANAGER__', true);
@@ -174,8 +174,9 @@ function run_test_02_harness_basic_login_tests($test_harness_instance) {
             $user_pass &= $pass;
             $test_harness_instance->write_log_entry('USER (LACK OF) PAYLOAD CHECK', $test_count++, $pass);
             
-            include_once(dirname(__FILE__).'/run_test_02_harness_basic_login_tests_children_data.php');
-            $pass = ($children_array == $info['user']->children_ids());
+            $sha = sha1(serialize($info['user']->children_ids()));
+            $test_harness_instance->echo_sha_data($sha);
+            $pass = ('a1238d8016abdc795b83f9740eb24d1c6191d39f' == $sha);
             $user_pass &= $pass;
             $test_harness_instance->write_log_entry('LOGIN INFO CHILD IDS CHECK', $test_count++, $pass);
             

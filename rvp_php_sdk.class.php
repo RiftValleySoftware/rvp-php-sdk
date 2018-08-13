@@ -151,8 +151,6 @@ class RVP_PHP_SDK {
         }
 
         $curl = curl_init();                    // Initialize the cURL handle.
-        $url = $this->_server_uri.'/'.trim($url_extension, '/');
-        curl_setopt($curl, CURLOPT_URL, $url);  // This is the URL we are calling.
         
         // Different methods require different ways of dealing with any file that has been passed in.
         // The file is ignored for GET and DELETE.
@@ -192,12 +190,22 @@ class RVP_PHP_SDK {
         if (isset($this->_server_secret) && isset($this->_api_key)) {
             curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
             curl_setopt($curl, CURLOPT_USERPWD, $this->_server_secret.':'.$this->_api_key);
+            
+            if (isset($url_extension) && (false !== strpos($url_extension, '?'))) {
+                $url_extension .= '&';
+            } else {
+                $url_extension .= '?';
+            }
+            
+            $url_extension .= 'login_server_secret='.urlencode($this->_server_secret).'&login_api_key='.urlencode($this->_api_key);
         }
 
         curl_setopt($curl, CURLOPT_HEADER, false);          // Do not return any headers, please.
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);   // Please return to sender as a function response.
         curl_setopt($curl, CURLOPT_VERBOSE, false);         // Let's keep this thing simple.
-    
+        $url = $this->_server_uri.'/'.trim($url_extension, '/');
+        curl_setopt($curl, CURLOPT_URL, $url);  // This is the URL we are calling.
+
         // This is if we want to see a display log (echoed directly).
         if (isset($display_log) && $display_log) {
             curl_setopt($curl, CURLOPT_HEADERFUNCTION, function ( $curl, $header_line ) {
