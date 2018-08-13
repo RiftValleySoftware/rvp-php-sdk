@@ -29,7 +29,8 @@ function run_test_21_harness_test_backup($test_harness_instance) {
             if ($handle) {
                 $data = $test_harness_instance->sdk_instance->backup();
                 $test_data = [];
-                foreach (explode("\n", $data) as $line) {
+                $data_dump = explode("\n", $data);
+                foreach ($data_dump as $line) {
                     $line_ex = explode(',', $line);
                     if (isset($line_ex) && is_array($line_ex) && count($line_ex)) {
                         if (intval($line_ex[0]) != CO_Config::god_mode_id()) {
@@ -37,9 +38,9 @@ function run_test_21_harness_test_backup($test_harness_instance) {
                         }
                     }
                 }
-                $control_sha = 'e949e1bec8c6744b540c48e83419db7213d4df9f';
+                $control_sha = 'f89caaffadd18a925efbc891dd2596e95954c6ec';
                 $variable_sha = sha1(serialize($test_data));
-                echo('<p><strong>SHA:</strong> <big><code>'.$variable_sha.'</code></big></p>');
+                $test_harness_instance->echo_sha_data($variable_sha);
                 if ($variable_sha != $control_sha) {
                     $all_pass = false;
                     $test_harness_instance->write_log_entry('BACKUP FETCH VALIDITY CHECK', $test_count++, false);
