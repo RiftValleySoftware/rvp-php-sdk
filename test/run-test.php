@@ -116,6 +116,16 @@ require_once(dirname(__FILE__).'/rvp_php_sdk_test_manifest.php');
                 text-align:left;
             }
             
+            div.test-pass div.closed h2 a,
+            div.test-pass div.closed h2 a:visited {
+                color:green;
+            }
+            
+            div.test-fail div.closed h2 a,
+            div.test-fail div.closed h2 a:visited {
+                color:red;
+            }
+            
             div.open h3.inner_header a,
             div.open h2 a {
                 color:white;
@@ -320,12 +330,16 @@ require_once(dirname(__FILE__).'/rvp_php_sdk_test_manifest.php');
                     if (current_test == (test_array.length - 1)) {
                         last_test = true;
                     };
+                    var item = document.getElementById('progress-report');
+                    item.innerHTML = 'RUNNING ' + test_array[current_test].toString() + '.';
                     ajaxLoader.ajaxRequest('test-runner.php?' + ('start_index=' + current_test.toString()) + ('&end_index=' + (current_test + 1).toString()) + '&allpass=' + (pass ? '1' : '0') + (last_test ? '&last_test' : ''), runTestCallback, 'GET');
                 };
             };
             
             function runTests () {
                 document.getElementById('test-results-displayed').innerHTML = '';
+                var item = document.getElementById('progress-report');
+                item.innerHTML = 'RUNNING ' + test_array[0].toString() + '.';
                 ajaxLoader.ajaxRequest('test-runner.php?first_test&start_index=0&end_index=1&allpass=1', runTestCallback, 'GET');
             };
         </script>

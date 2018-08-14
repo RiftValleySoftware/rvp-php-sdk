@@ -29,11 +29,13 @@ function run_test_01_harness_basic_login_tests($test_harness_instance) {
                     $test_harness_instance->write_log_entry('LOGIN CHECK', $test_count++, true);
                     echo('<h4 style="color:green">NO LOGIN AND VALID PLUGINS!</h4>');
                 } else {
+                    $all_pass = false;
                     $test_harness_instance->write_log_entry('PLUGIN CHECK', $test_count++, false);
                     echo('<h4 style="color:red">PLUGINS NOT VALID!</h4>');
                 }
             }
         } else {
+            $all_pass = false;
             $test_harness_instance->write_log_entry('VALIDITY CHECK', $test_count++, false);
             echo('<h4 style="color:red">SERVER NOT VALID!</h4>');
         }

@@ -16,7 +16,7 @@ require_once (dirname(dirname(__FILE__)).'/rvp_php_sdk.class.php');
 
 define('LGV_CONFIG_CATCHER', true);
 require_once (dirname(__FILE__).'/config/s_config.class.php');
-define('__SERVER_URI__', 'http://localhost'.dirname($_SERVER['PHP_SELF']).'/baobab.php');
+define('__SERVER_URI__', 'http://localhost:81'.dirname($_SERVER['PHP_SELF']).'/baobab.php');
 define('__SERVER_SECRET__', 'Supercalifragilisticexpialidocious');
 define('__LOG_FILE__', dirname(__FILE__).'/tmp/test_log_file.csv');
 
@@ -302,6 +302,7 @@ class RVP_PHP_SDK_Test_Harness {
         $this->prep_start_time = 0;
         $this->test_start_time = 0;
         $this->test_index = 0;
+        $thispass = true;
         
         $this->open_log_file($in_new_log);
         
@@ -419,7 +420,7 @@ class RVP_PHP_SDK_Test_Harness {
         
         $this->close_log_file();
         
-        $html = ob_get_contents();
+        $html = '<div class="'.($thispass ? 'test-pass' : 'test-fail').'">'.ob_get_contents().'</div>';
         ob_end_clean();
         
         echo('{"html":'.json_encode($html).',"pass":'.($in_all_pass ? 'true' : 'false').'}');
