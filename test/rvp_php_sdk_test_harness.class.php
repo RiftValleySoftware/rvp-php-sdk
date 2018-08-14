@@ -16,7 +16,7 @@ require_once (dirname(dirname(__FILE__)).'/rvp_php_sdk.class.php');
 
 define('LGV_CONFIG_CATCHER', true);
 require_once (dirname(__FILE__).'/config/s_config.class.php');
-define('__SERVER_URI__', 'http://localhost:81'.dirname($_SERVER['PHP_SELF']).'/baobab.php');
+define('__SERVER_URI__', 'http://localhost'.dirname($_SERVER['PHP_SELF']).'/baobab.php');
 define('__SERVER_SECRET__', 'Supercalifragilisticexpialidocious');
 define('__LOG_FILE__', dirname(__FILE__).'/tmp/test_log_file.csv');
 
@@ -353,6 +353,7 @@ class RVP_PHP_SDK_Test_Harness {
                 if (!$result) {
                     echo('<h3>Databases Ready.</h3>');
                 } else {
+                    $thispass = false;
                     $this->write_log_entry('FAILED DATABASE SETUP', 0, false);
                     echo($result);
                     echo('</div>');
@@ -378,6 +379,7 @@ class RVP_PHP_SDK_Test_Harness {
                 if ($this->sdk_instance->is_logged_in()) {
                     echo('<h3>SDK Ready And Logged In. There Are '.$this->sdk_instance->login_time_left().' Seconds Left.</h3>');
                 } else {
+                    $thispass = false;
                     $this->write_log_entry('FAILED SDK LOGIN', 0, false);
                     echo('<h3 style="color:red">SDK NOT LOGGED IN!</h3>');
                 }
@@ -419,7 +421,7 @@ class RVP_PHP_SDK_Test_Harness {
         }
         
         $this->close_log_file();
-        
+        $in_all_pass &= $thispass;
         $html = '<div class="'.($thispass ? 'test-pass' : 'test-fail').'">'.ob_get_contents().'</div>';
         ob_end_clean();
         
