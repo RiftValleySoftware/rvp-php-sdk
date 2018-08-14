@@ -480,7 +480,7 @@ class RVP_PHP_SDK {
      */
     function login( $in_username,           ///< REQUIRED: The Login Username
                     $in_password,           ///< REQUIRED: The password.
-                    $in_login_timeout = -1  ///< OPTIONAL: If we have a known login timeout, we provide it here.
+                    $in_login_timeout = -1  ///< OPTIONAL: If we have a known login timeout, we provide it here. Default is -1 (no timeout).
                     ) {
         if (!$this->_api_key && $this->valid()) {
             $this->_login_time_limit = (0 < $in_login_timeout) ? (floatval($in_login_timeout) + microtime(true)) : -1;
@@ -614,7 +614,7 @@ class RVP_PHP_SDK {
     \returns true, if we are currently logged in.
      */
     function is_logged_in() {
-        return 0 < $this->login_time_left();
+        return isset($this->_api_key) && (0 < $this->login_time_left());
     }
     
     /***********************/
@@ -622,7 +622,7 @@ class RVP_PHP_SDK {
     \returns true, if we are currently logged in as a manager.
      */
     function is_manager() {
-        if (isset($this->_my_login_info)) {
+        if ($this->is_logged_in() && isset($this->_my_login_info)) {
             return $this->_my_login_info->is_manager();
         }
         
@@ -634,7 +634,7 @@ class RVP_PHP_SDK {
     \returns true, if we are currently logged in as a main admin.
      */
     function is_main_admin() {
-        if (isset($this->_my_login_info)) {
+        if ($this->is_manager() && isset($this->_my_login_info)) {
             return $this->_my_login_info->is_main_admin();
         }
         
@@ -646,7 +646,7 @@ class RVP_PHP_SDK {
     \returns a string, with the current login ID. NULL, if not logged in.
      */
     function current_login_id() {
-        if (isset($this->_my_login_info)) {
+        if ($this->is_logged_in() && isset($this->_my_login_info)) {
             return $this->_my_login_info->login_id();
         }
         
@@ -672,7 +672,7 @@ class RVP_PHP_SDK {
     \returns an associative array ('login' => login object, 'user' => user object), with our information.
      */
     function my_info() {
-        if (isset($this->_my_login_info)) {
+        if ($this->is_logged_in() && isset($this->_my_login_info)) {
             $ret = ['login' => $this->_my_login_info];
             
             if (isset($this->_my_user_info)) {
