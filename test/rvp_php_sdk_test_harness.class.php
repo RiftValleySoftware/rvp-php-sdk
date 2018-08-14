@@ -290,7 +290,12 @@ class RVP_PHP_SDK_Test_Harness {
         }
     }
     
-    function __construct(   $in_function_manifest   ///< REQUIRED: A List of all the functions we need to call with this test.
+    function __construct(   $in_function_manifest,  ///< REQUIRED: A List of all the functions we need to call with this test.
+                            $in_all_pass,           ///< REQUIRED: The current pass/fail state of the tests.
+                            $in_starting_index = 0, ///< OPTIONAL: The index of the test to run first (0-based). 0 is default
+                            $in_ending_index = 0,   ///< OPTIONAL: The index of the test to run last (1-based). 0 is default, which means run all tests.
+                            $in_new_log = false,    ///< OPTIONAL: True, if the log file should start anew (default is false).
+                            $in_close_log = false   ///< OPTIONAL: True, if the log file should end now (default is false).
                         ) {
         $this->log_file = NULL;
         $this->main_start_time = microtime(true);
@@ -298,16 +303,25 @@ class RVP_PHP_SDK_Test_Harness {
         $this->test_start_time = 0;
         $this->test_index = 0;
         
-        $this->open_log_file(true);
+        $this->open_log_file($in_new_log);
         
         $this->current_test_name = '****';
         $this->write_log_entry('MAIN TEST START');
         
-        $allpass = true;
         $this->test_count = 0;
         
-        foreach ($in_function_manifest as $test) {
+        if (0 >= $in_ending_index) { 
+            $in_ending_index = count($in_function_manifest);
+        }
+        
+        $in_ending_index = min($in_ending_index, count($in_function_manifest));
+        
+        ob_start();
+        
+        for ($test_no = $in_starting_index; $test_no < $in_ending_index; $test_no++) {
+            $test = $in_function_manifest[$test_no];
             $this_pass = true;
+            $this->test_index = $test_no + 1;
             
             $this->prep_time = 0;
             $this->test_time = 0;
@@ -319,7 +333,6 @@ class RVP_PHP_SDK_Test_Harness {
             $db_prefix = isset($test['db']) ? $test['db'] : NULL;
             $login_setup = isset($test['login']) ? $test['login'] : NULL;
             
-            $this->test_index++;
             $this->current_test_name = $blurb;
             $this->write_log_entry('START PREP');
             $main_id = 'test_wrapper_'.$this->test_index.'_'.uniqid();
@@ -382,7 +395,7 @@ class RVP_PHP_SDK_Test_Harness {
                 $thispass = $function($this);
             }
             
-            $allpass &= $thispass;
+            $in_all_pass &= $thispass;
             if ($logout && $this->sdk_instance && $this->sdk_instance->is_logged_in()) {
                 echo('<h3>SDK Logging Out. There Were '.$this->sdk_instance->login_time_left().' Seconds Left In the Login.</h3>');
                 $this->sdk_instance->logout();
@@ -396,13 +409,20 @@ class RVP_PHP_SDK_Test_Harness {
             echo('</div>');
         }
         
-        $this->prep_time = 0;
-        $this->test_time = 0;
-        $this->test_index = 0;
-        $this->current_test_name = '****';
-        $this->write_log_entry('MAIN TEST END', 0, $allpass);
+        if ($in_close_log) {
+            $this->prep_time = 0;
+            $this->test_time = 0;
+            $this->test_index = 0;
+            $this->current_test_name = '****';
+            $this->write_log_entry('MAIN TEST END', 0, $in_all_pass);
+        }
         
         $this->close_log_file();
+        
+        $html = ob_get_contents();
+        ob_end_clean();
+        
+        echo('{"html":'.json_encode($html).',"pass":'.($in_all_pass ? 'true' : 'false').'}');
     }
 
     function hybrid_search_test(&$test_count, $in_search_type, $in_sha, $in_text_search, $in_location = NULL, $in_logins_only = false, $in_debug_display = false) {

@@ -19,6 +19,9 @@ define('__TEST_07_IDS__', [100,101,102,106,1725,1726,1727,1731,1732,1733,1734,17
 define('__TEST_11_OBJECT_IDS__', [2,835,874,1729,1730,1731,1732,1734,1738,1739,1744,1745,1750,1751]);
 define('__TEST_11_TOKEN_IDS__', [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]);
 
+define('LGV_CONFIG_CATCHER', true);
+require_once (dirname(__FILE__).'/config/s_config.class.php');
+
 $rvp_php_sdk_test_manifest = [
                                 [
                                     'blurb'     =>  'INITIAL INSTANTIATION TEST (NO LOGIN)',

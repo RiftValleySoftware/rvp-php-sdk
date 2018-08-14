@@ -15,6 +15,12 @@
     
     require_once(dirname(__FILE__).'/rvp_php_sdk_test_harness.class.php');
     require_once(dirname(__FILE__).'/rvp_php_sdk_test_manifest.php');
-
-    $test = new RVP_PHP_SDK_Test_Harness($rvp_php_sdk_test_manifest);
+    
+    $first = isset($_GET['first_test']);
+    $last = isset($_GET['last_test']);
+    $start = intval($_GET['start_index']);
+    $end = intval($_GET['end_index']);
+    $allpass = intval($_GET['allpass']);
+    
+    $test = new RVP_PHP_SDK_Test_Harness($rvp_php_sdk_test_manifest, (1 == $allpass) ? true : false, $start, $end, $first, $last);
 ?>

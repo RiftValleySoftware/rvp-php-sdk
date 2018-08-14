@@ -12,6 +12,7 @@
     Little Green Viper Software Development: https://littlegreenviper.com
 */
 set_time_limit(3600);
+require_once(dirname(__FILE__).'/rvp_php_sdk_test_manifest.php');
 ?><!DOCTYPE html>
 <html lang="en">
     <head>
@@ -202,6 +203,10 @@ set_time_limit(3600);
                 margin:auto;
             }
             
+            div.tests-displayed {
+                margin-top:1em;
+            }
+            
             div.pass_failimage_display_div {
                 padding:2em;
                 text-align:center;
@@ -212,11 +217,43 @@ set_time_limit(3600);
                 border-radius:2em;
                 margin:auto;
             }
+            
+            div.thermometer-div {
+                border-radius: 0.25em;
+                border: 2px solid #03f;
+                height: 1em;
+                width:50%;
+                margin:auto;
+                margin-top: 1em;
+                background-color: #9bf;
+            }
+            
+            div.thermometer-complete-div {
+                border: none;
+                height: 100%;
+                background-color: #03f;
+            }
+            
         </style>
         <script type="text/javascript" src="ajaxLoader.js"></script>
         <script type="text/javascript">
+            var test_array = [<?php
+                $tests = [];
+                foreach ($rvp_php_sdk_test_manifest as $test) {
+                    $tests[] = $test['blurb'];
+                }
+                $tests = "'".implode("','", $tests)."'";
+                
+                echo($tests);
+            ?>];
+            var current_test = 0;
             var start_time =  <?php echo microtime(true); ?>;
             var ajaxLoader = new ajaxLoader();
+            
+            function set_thermometer(in_completness) {
+                var thermometer_complete_div = document.getElementById('thermometer-complete-div');
+                thermometer_complete_div.style.width = (in_completness * 100).toString() + '%';
+            };
             
             function toggle_main_state(in_id) {
                 var item = document.getElementById(in_id);
@@ -239,30 +276,58 @@ set_time_limit(3600);
                 
             };
             
-            function expose_tests() {
+            function expose_tests(in_pass) {
                 var item = document.getElementById('throbber-container');
                 
                 if (item) {
                     item.style="display:none";
                 };
                 
-                var item = document.getElementById('tests-wrapped-up');
+                item = document.getElementById('tests-displayed');
+                
+                if (item) {
+                    item.innerHTML = '<h2 style="color:' + (in_pass ? 'green' : 'red') + '">' + (in_pass ? 'ALL TESTS PASS' : 'TEST FAILURES') + '</pre>';
+                };
+                
+                item = document.getElementById('tests-wrapped-up');
                 
                 if (item) {
                     item.style="display:block";
                 };
             };
             
+            function incrementHTML (in_html) {
+                document.getElementById('test-results-displayed').innerHTML += in_html;
+            };
+            
             function runTestCallback (in_response_object) {
+                var pass = false;
+                
                 if (in_response_object.responseText) {
-                    document.getElementById('test-results-displayed').innerHTML = in_response_object.responseText;
-                    expose_tests();
+                    eval('var json_object = ' + in_response_object.responseText + ';');
+                    incrementHTML(json_object.html);
+                    pass = json_object.pass;
+                };
+                
+                current_test++;
+                set_thermometer(current_test / test_array.length);
+                
+                if (current_test == test_array.length) {
+                    expose_tests(pass);
+                } else {
+                    var last_test = false;
+                    
+                    if (current_test == (test_array.length - 1)) {
+                        last_test = true;
+                    };
+                    ajaxLoader.ajaxRequest('test-runner.php?' + ('start_index=' + current_test.toString()) + ('&end_index=' + (current_test + 1).toString()) + '&allpass=' + (pass ? '1' : '0') + (last_test ? '&last_test' : ''), runTestCallback, 'GET');
                 };
             };
             
             function runTests () {
-                ajaxLoader.ajaxRequest('test-runner.php', runTestCallback, 'GET');
-            }
+                document.getElementById('test-results-displayed').innerHTML = '';
+                ajaxLoader.ajaxRequest('test-runner.php?first_test&start_index=0&end_index=1&allpass=1', runTestCallback, 'GET');
+            };
         </script>
     </head>
     <body>
@@ -270,6 +335,7 @@ set_time_limit(3600);
         <div style="text-align:center;padding:1em;">
             <div id="throbber-container" style="text-align:center">
                 <h3 id="progress-report" style="margin-top:1em"></h3>
+                <div class="thermometer-div"><div class="thermometer-complete-div" id="thermometer-complete-div" style="width:0"></div></div>
                 <img src="basalt/test/images/throbber.gif" alt="throbber" style="position:absolute;width:190px;top:50%;left:50%;margin-top:-95px;margin-left:-95px" />
                 <img src="../icon.png" alt="icon" style="position:absolute;width:128px;top:50%;left:50%;margin-top:-64px;margin-left:-64px" />
             </div>
@@ -278,7 +344,7 @@ set_time_limit(3600);
             ?>
             <div id="tests-wrapped-up" style="display:none">
                 <img src="../icon.png" style="display:block;margin:auto;width:80px" alt="" />
-                <div id="tests-displayed"></div>
+                <div class="tests-displayed" id="tests-displayed"></div>
                 <div id="test-results-displayed"></div>
                 <h3 style="margin-top:1em"><a href="./">RETURN TO MAIN ENVIRONMENT SETUP</a></h3>
             </div>
