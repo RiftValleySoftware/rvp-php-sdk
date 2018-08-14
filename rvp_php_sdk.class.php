@@ -191,7 +191,8 @@ class RVP_PHP_SDK {
             curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
             curl_setopt($curl, CURLOPT_USERPWD, $this->_server_secret.':'.$this->_api_key);
             
-            if (isset($url_extension) && (false !== strpos($url_extension, '?'))) {
+            // This is because some servers may intercept the auth headers, so we also supply the credentials as URL query arguments.
+            if (isset($url_extension) && (false !== strpos($url_extension, '?'))) {  // See iff we need to append, or begin a new query.
                 $url_extension .= '&';
             } else {
                 $url_extension .= '?';
@@ -243,7 +244,7 @@ class RVP_PHP_SDK {
                 echo('<div>HTTP CODE:<code>'.htmlspecialchars($httpCode, true).'</code></div>');
             }
         
-            if ((1024 * 1024 * 2) <= strlen($result)) { // Anything over 2MB gets spewed to a file.
+            if ((2048 * 1024) <= strlen($result)) { // Anything over 2MB gets spewed to a file.
                 $integer = 1;
                 $original_file_name = dirname(dirname(__FILE__)).'/text-dump-result';
                 $file_name = $original_file_name.'.txt';
