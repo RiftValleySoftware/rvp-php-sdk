@@ -292,6 +292,7 @@ class RVP_PHP_SDK_Test_Harness {
     
     function __construct(   $in_function_manifest,  ///< REQUIRED: A List of all the functions we need to call with this test.
                             $in_all_pass,           ///< REQUIRED: The current pass/fail state of the tests.
+                            $in_current_total,      ///< REQUIRED: The current total.
                             $in_starting_index = 0, ///< OPTIONAL: The index of the test to run first (0-based). 0 is default
                             $in_ending_index = 0,   ///< OPTIONAL: The index of the test to run last (1-based). 0 is default, which means run all tests.
                             $in_new_log = false,    ///< OPTIONAL: True, if the log file should start anew (default is false).
@@ -309,7 +310,7 @@ class RVP_PHP_SDK_Test_Harness {
         $this->current_test_name = '****';
         $this->write_log_entry('MAIN TEST START');
         
-        $this->test_count = 0;
+        $this->test_count = $in_current_total;
         
         if (0 >= $in_ending_index) { 
             $in_ending_index = count($in_function_manifest);
@@ -425,7 +426,7 @@ class RVP_PHP_SDK_Test_Harness {
         $html = '<div class="'.($thispass ? 'test-pass' : 'test-fail').'">'.ob_get_contents().'</div>';
         ob_end_clean();
         
-        echo('{"html":'.json_encode($html).',"pass":'.($in_all_pass ? 'true' : 'false').'}');
+        echo('{"html":'.json_encode($html).',"pass":'.($in_all_pass ? 'true' : 'false').',"current_total":'.($this->test_count - 1).'}');
     }
 
     function hybrid_search_test(&$test_count, $in_search_type, $in_sha, $in_text_search, $in_location = NULL, $in_logins_only = false, $in_debug_display = false) {

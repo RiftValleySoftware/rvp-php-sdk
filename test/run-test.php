@@ -312,11 +312,13 @@ require_once(dirname(__FILE__).'/rvp_php_sdk_test_manifest.php');
             
             function runTestCallback (in_response_object) {
                 var pass = false;
+                var current_total = 0;
                 
                 if (in_response_object.responseText) {
                     eval('var json_object = ' + in_response_object.responseText + ';');
                     incrementHTML(json_object.html);
                     pass = json_object.pass;
+                    current_total = json_object.current_total;
                 };
                 
                 current_test++;
@@ -332,7 +334,7 @@ require_once(dirname(__FILE__).'/rvp_php_sdk_test_manifest.php');
                     };
                     var item = document.getElementById('progress-report');
                     item.innerHTML = 'RUNNING ' + test_array[current_test].toString() + '.';
-                    ajaxLoader.ajaxRequest('test-runner.php?' + ('start_index=' + current_test.toString()) + ('&end_index=' + (current_test + 1).toString()) + '&allpass=' + (pass ? '1' : '0') + (last_test ? '&last_test' : ''), runTestCallback, 'GET');
+                    ajaxLoader.ajaxRequest('test-runner.php?' + ('start_index=' + current_test.toString()) + ('&end_index=' + (current_test + 1).toString()) + '&current_total=' + current_total.toString() + '&allpass=' + (pass ? '1' : '0') + (last_test ? '&last_test' : ''), runTestCallback, 'GET');
                 };
             };
             
@@ -340,7 +342,7 @@ require_once(dirname(__FILE__).'/rvp_php_sdk_test_manifest.php');
                 document.getElementById('test-results-displayed').innerHTML = '';
                 var item = document.getElementById('progress-report');
                 item.innerHTML = 'RUNNING ' + test_array[0].toString() + '.';
-                ajaxLoader.ajaxRequest('test-runner.php?first_test&start_index=0&end_index=1&allpass=1', runTestCallback, 'GET');
+                ajaxLoader.ajaxRequest('test-runner.php?first_test&start_index=0&end_index=1&allpass=1&current_total=0', runTestCallback, 'GET');
             };
         </script>
     </head>

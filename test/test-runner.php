@@ -21,6 +21,7 @@
     $start = intval($_GET['start_index']);
     $end = intval($_GET['end_index']);
     $allpass = intval($_GET['allpass']);
+    $current_total = intval($_GET['current_total']);
     
-    $test = new RVP_PHP_SDK_Test_Harness($rvp_php_sdk_test_manifest, (1 == $allpass) ? true : false, $start, $end, $first, $last);
+    $test = new RVP_PHP_SDK_Test_Harness($rvp_php_sdk_test_manifest, (1 == $allpass) ? true : false, $current_total, $start, $end, $first, $last);
 ?>
