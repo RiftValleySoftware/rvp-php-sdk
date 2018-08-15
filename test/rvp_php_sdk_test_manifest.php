@@ -371,6 +371,22 @@ $rvp_php_sdk_test_manifest = [
                                                     'logout'    =>  true
                                                     ]
                                 ],
+                                
+                                [
+                                    'blurb'     =>  'PEOPLE PUT TESTS',
+                                    'explain'   =>  'Basic People (User) GET and PUT Tests.',
+                                    'db'        =>  'sdk_1',
+                                    'closure'   =>  [
+                                                    'function'  =>  'run_test_28_people_tests',
+                                                    'file'      =>  'test-scripts/run_test_28_people_tests.php'
+                                                    ],
+                                    'login'     =>  [
+                                                    'login_id'  =>  'PHB',
+                                                    'password'  =>  'CoreysGoryStory',
+                                                    'timeout'   =>  CO_Config::$session_timeout_in_seconds,
+                                                    'logout'    =>  true
+                                                    ]
+                                ],
 
     ];
 ?>

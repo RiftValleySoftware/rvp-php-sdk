@@ -942,16 +942,16 @@ class RVP_PHP_SDK {
     The searched columns are the "object_name" column, or tags 0-9.
     \returns an array of objects (of any kind) that have the requested text in the fields supplied. SQL-style wildcards (%) are applicable.
      */
-    function general_search(   $in_text_array = [],    /**< OPTIONAL:  An associative array, laying out which text fields to search, and the search text.
+    function general_search(    $in_text_array = [],    /**< OPTIONAL:  An associative array, laying out which text fields to search, and the search text.
                                                                     The key is the name of the field to search, and the value is the text to search for.
                                                                     You can use SQL-style wildcards (%).
                                                                     Available keys:
                                                                         - 'name'            Searches the 'object_name' column.
                                                                         - 'tag0' - 'tag9'   Searches the tag indicated. It should be noted that different plugins use these tags for different fixed purposes.
                                                             */
-                                    $in_location = NULL,    ///< OPTIONAL: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
-                                    $in_writeable = false   ///< OPTIONAL: If true, then only places the current login can edit are returned. Ignored if not logged in.
-                                    ) {
+                                $in_location = NULL,    ///< OPTIONAL: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
+                                $in_writeable = false   ///< OPTIONAL: If true, then only places the current login can edit are returned. Ignored if not logged in.
+                                ) {
         $ret = NULL;
         
         $added_parameters = '';
@@ -1007,7 +1007,7 @@ class RVP_PHP_SDK {
     
     \returns an array of people objects that have the requested text in the fields supplied. SQL-style wildcards (%) are applicable.
      */
-    function people_search(    $in_text_array = [],    /**< OPTIONAL:  An associative array, laying out which text fields to search, and the search text.
+    function people_search(     $in_text_array = [],    /**< OPTIONAL:  An associative array, laying out which text fields to search, and the search text.
                                                                     The key is the name of the field to search, and the value is the text to search for.
                                                                     You can use SQL-style wildcards (%).
                                                                     Available keys:
@@ -1022,10 +1022,10 @@ class RVP_PHP_SDK {
                                                                         - 'tag8'        Searches tag 8.
                                                                         - 'tag9'        Searches tag 9.
                                                             */
-                                    $in_location = NULL,            ///< OPTIONAL: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
-                                    $in_get_logins_only = false,    ///< OPTIONAL: If true (Default is false), then only login objects associated with the user objects that fall within the search will be returned.
-                                    $in_writeable = false           ///< OPTIONAL: If true, then only places the current login can edit are returned. Ignored if not logged in.
-                                    ) {
+                                $in_location = NULL,            ///< OPTIONAL: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
+                                $in_get_logins_only = false,    ///< OPTIONAL: If true (Default is false), then only login objects associated with the user objects that fall within the search will be returned.
+                                $in_writeable = false           ///< OPTIONAL: If true, then only places the current login can edit are returned. Ignored if not logged in.
+                                ) {
         $ret = NULL;
         
         $added_parameters = '';
@@ -1107,7 +1107,7 @@ class RVP_PHP_SDK {
     
     \returns an array of place objects that have the requested text in the fields supplied. SQL-style wildcards (%) are applicable.
      */
-    function places_search(    $in_text_array = [],    /**< OPTIONAL:  An associative array, laying out which text fields to search, and the search text.
+    function places_search(     $in_text_array = [],    /**< OPTIONAL:  An associative array, laying out which text fields to search, and the search text.
                                                                     The key is the name of the field to search, and the value is the text to search for.
                                                                     You can use SQL-style wildcards (%).
                                                                     Available keys:
@@ -1123,9 +1123,9 @@ class RVP_PHP_SDK {
                                                                         - 'tag8'                        Searches tag 8.
                                                                         - 'tag9'                        Searches tag 9.
                                                             */
-                                    $in_location = NULL,    ///< OPTIONAL: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
-                                    $in_writeable = false   ///< OPTIONAL: If true, then only places the current login can edit are returned. Ignored if not logged in.
-                                    ) {
+                                $in_location = NULL,    ///< OPTIONAL: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
+                                $in_writeable = false   ///< OPTIONAL: If true, then only places the current login can edit are returned. Ignored if not logged in.
+                                ) {
         $ret = NULL;
         
         $added_parameters = '';
@@ -1190,7 +1190,7 @@ class RVP_PHP_SDK {
     
     \returns an array of thing objects that have the requested text in the fields supplied. SQL-style wildcards (%) are applicable.
      */
-    function things_search(    $in_text_array = [],    /**< OPTIONAL:  An associative array, laying out which text fields to search, and the search text.
+    function things_search(     $in_text_array = [],    /**< OPTIONAL:  An associative array, laying out which text fields to search, and the search text.
                                                                     The key is the name of the field to search, and the value is the text to search for.
                                                                     You can use SQL-style wildcards (%).
                                                                     Available keys:
@@ -1198,9 +1198,9 @@ class RVP_PHP_SDK {
                                                                         - 'description'     Searches the thing description tag.
                                                                         - 'tag2' - 'tag9'   Searches the tag indicated.
                                                             */
-                                    $in_location = NULL,    ///< OPTIONAL: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
-                                    $in_writeable = false   ///< OPTIONAL: If true, then only places the current login can edit are returned. Ignored if not logged in.
-                                    ) {
+                                $in_location = NULL,    ///< OPTIONAL: An associative array ('latitude' => float, 'longitude' => float, 'radius' => float), with the long/lat (in degrees), and the radius of the location search (in Kilometers).
+                                $in_writeable = false   ///< OPTIONAL: If true, then only places the current login can edit are returned. Ignored if not logged in.
+                                ) {
         $ret = NULL;
         
         $added_parameters = '';
