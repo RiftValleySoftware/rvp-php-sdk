@@ -30,6 +30,30 @@ class RVP_PHP_SDK_Login extends A_RVP_PHP_SDK_Security_Object {
     /************************************************************************************************************************/    
     /*#################################################### INTERNAL METHODS ################################################*/
     /************************************************************************************************************************/
+    /***********************/
+    /**
+    \returns true, if the save was successful.
+     */
+    protected function _save_data(  $in_args = ''   ///< OPTIONAL: Default is an empty string. This is any previous arguments. This will be appeneded to the end of the list, so it should begin with an ampersand (&), and be url-encoded.
+                                ) {
+        $to_set = [
+            'password' => (isset($this->_object_data->password) ? $this->_object_data->password : NULL),
+            'tokens' => ((isset($this->_object_data->security_tokens) && is_array($this->_object_data->security_tokens) && count($this->_object_data->security_tokens)) ? implode(',', $this->_object_data->tokens) : NULL)
+            ];
+        
+        $put_args = '';
+        
+        foreach ($to_set as $key => $value) {
+            if (isset($key) && isset($value)) {
+                $put_args .= '&'.$key.'='.urlencode(trim(strval($value)));
+            }
+        }
+        
+        $ret = parent::_save_data($put_args.$in_args);
+        
+        return $ret;
+    }
+    
     
     /***********************/
     /**
@@ -127,8 +151,7 @@ class RVP_PHP_SDK_Login extends A_RVP_PHP_SDK_Security_Object {
     function is_manager() {
         $ret = false;
         
-        $this->_load_data(false, true);
-        if (isset($this->_object_data) && isset($this->_object_data->is_manager) && $this->_object_data->is_manager) {
+        if ($this->is_logged_in() && isset($this->_object_data->is_manager) && $this->_object_data->is_manager) {
             $ret = true;
         }
         
@@ -144,9 +167,7 @@ class RVP_PHP_SDK_Login extends A_RVP_PHP_SDK_Security_Object {
     function is_main_admin() {
         $ret = false;
         
-        $this->_load_data(false, true);
-        
-        if (isset($this->_object_data) && isset($this->_object_data->is_main_admin) && $this->_object_data->is_main_admin) {
+        if ($this->is_manager() && isset($this->_object_data->is_main_admin) && $this->_object_data->is_main_admin) {
             $ret = true;
         }
         
@@ -166,6 +187,47 @@ class RVP_PHP_SDK_Login extends A_RVP_PHP_SDK_Security_Object {
         
         if (isset($this->_object_data) && isset($this->_object_data->security_tokens)) {
             $ret = $this->_object_data->security_tokens;
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    Set the tokens for this ID. NOTE: For security reasons, a user is not allowed to change their own tokens. In order to set the tokens for another user, the current user must be a manager.
+    The manager must "own" all the tokens they specify. If they specify tokens they don't "own," then those tokens will be ignored.
+    
+    \returns true, if the operation succeeded
+     */
+    function set_tokens(    $in_token_array ///< REQUIRED: An array of int. The new tokens (will completely replace any existing ones).
+                        ) {
+        $ret = false;
+        
+        $this->_load_data(false, true);
+        
+        if (isset($this->_object_data) && $this->_sdk_object->is_manager() && ($this->_sdk_object->current_login_id() != $this->id())) {
+            $this->_object_data->security_tokens = array_map('intval', $in_token_array);
+            $ret = $this->save_data();
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    Sets the password for this login. You cannot remove a password.
+    
+    \returns true, if the operation succeeded
+     */
+    function set_password(  $in_new_password    ///< REQUIRED: The new cleartext password.
+                        ) {
+        $ret = false;
+        
+        $this->_load_data(false, true);
+        
+        if (isset($this->_object_data)) {
+            $this->_object_data->password = trim(strval($in_new_password));
+            $ret = $this->save_data();
         }
         
         return $ret;
