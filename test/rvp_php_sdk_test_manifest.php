@@ -373,7 +373,7 @@ $rvp_php_sdk_test_manifest = [
                                 ],
                                 
                                 [
-                                    'blurb'     =>  'PEOPLE PUT TESTS',
+                                    'blurb'     =>  'PEOPLE PUT TESTS (USERS)',
                                     'explain'   =>  'Basic People (User) GET and PUT Tests.',
                                     'db'        =>  'sdk_1',
                                     'closure'   =>  [
