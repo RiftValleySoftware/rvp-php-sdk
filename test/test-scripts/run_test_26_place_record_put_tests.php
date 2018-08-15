@@ -22,6 +22,7 @@ function run_test_26_place_record_put_tests($test_harness_instance) {
         if ($test_harness_instance->sdk_instance->valid()) {
             $record = $test_harness_instance->sdk_instance->get_place_info(__TEST_26_ID__);
             if (isset($record) && ($record instanceof RVP_PHP_SDK_Place)) {
+                $original_record = $record;
                 echo('<h5>Modifying record ID '.__TEST_26_ID__.' ('.$record->name().').</h5>');
                 echo('<h6>Basic Address: '.htmlspecialchars($record->basic_address()).'</h6>');
                 $elements = [];
@@ -46,6 +47,54 @@ function run_test_26_place_record_put_tests($test_harness_instance) {
                             $all_pass = false;
                             $test_harness_instance->write_log_entry('NEW ADDRESS ELEMENTS DON\'T MATCH', $test_count++, false);
                             echo('<h4 style="color:red">NEW ADDRESS ELEMENTS DON\'T MATCH!</h4>');
+                        }
+                    } else {
+                        $all_pass = false;
+                        $test_harness_instance->write_log_entry('VALIDITY CHECK (SECOND SDK INSTANCE)', $test_count++, false);
+                        echo('<h4 style="color:red">SECOND SDK INSTANCE NOT VALID!</h4>');
+                    }
+                } else {
+                    $all_pass = false;
+                    $test_harness_instance->write_log_entry('SET ELEMENTS FOR RECORD '.__TEST_26_ID__.' FAILED', $test_count++, false);
+                    echo('<h4 style="color:red">SET ELEMENTS FOR RECORD '.__TEST_26_ID__.' FAILED!</h4>');
+                }
+            
+                echo('<h6>Testing Tags.</h6>');
+                
+                if ($original_record->set_tag8('Tag-Eight')) {
+                    $second_sdk_instance = new RVP_PHP_SDK(__SERVER_URI__, __SERVER_SECRET__);
+                    if ($second_sdk_instance->valid()) {
+                        $record = $second_sdk_instance->get_place_info(__TEST_26_ID__);
+                        
+                        if ('Tag-Eight' == $record->tag8()) {
+                            $test_harness_instance->write_log_entry('TEST PUT TAG 8', $test_count++, true);
+                        } else {
+                            $all_pass = false;
+                            $test_harness_instance->write_log_entry('TEST PUT TAG 8', $test_count++, false);
+                            echo('<h4 style="color:red">SET TAG 8 FAILED!</h4>');
+                        }
+                    } else {
+                        $all_pass = false;
+                        $test_harness_instance->write_log_entry('VALIDITY CHECK (SECOND SDK INSTANCE)', $test_count++, false);
+                        echo('<h4 style="color:red">SECOND SDK INSTANCE NOT VALID!</h4>');
+                    }
+                } else {
+                    $all_pass = false;
+                    $test_harness_instance->write_log_entry('SET ELEMENTS FOR RECORD '.__TEST_26_ID__.' FAILED', $test_count++, false);
+                    echo('<h4 style="color:red">SET ELEMENTS FOR RECORD '.__TEST_26_ID__.' FAILED!</h4>');
+                }
+                
+                if ($original_record->set_tag9('Tag-Nine')) {
+                    $second_sdk_instance = new RVP_PHP_SDK(__SERVER_URI__, __SERVER_SECRET__);
+                    if ($second_sdk_instance->valid()) {
+                        $record = $second_sdk_instance->get_place_info(__TEST_26_ID__);
+                        
+                        if ('Tag-Nine' == $record->tag9()) {
+                            $test_harness_instance->write_log_entry('TEST PUT TAG 9', $test_count++, true);
+                        } else {
+                            $all_pass = false;
+                            $test_harness_instance->write_log_entry('TEST PUT TAG 9', $test_count++, false);
+                            echo('<h4 style="color:red">SET TAG 9 FAILED!</h4>');
                         }
                     } else {
                         $all_pass = false;
