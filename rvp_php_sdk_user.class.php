@@ -134,7 +134,7 @@ class RVP_PHP_SDK_User extends A_RVP_PHP_SDK_Data_Object {
     
     \returns an array of integer (security tokens) that comprise the "pool" for this user (assuming it has a login).
      */
-    function tokens() {
+    function security_tokens() {
         $ret = [];
         
         $this->_load_data(false, true);

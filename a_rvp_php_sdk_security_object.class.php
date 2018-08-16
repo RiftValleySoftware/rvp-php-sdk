@@ -30,6 +30,19 @@ abstract class A_RVP_PHP_SDK_Security_Object extends A_RVP_PHP_SDK_Object {
      */
     protected function _save_data(  $in_args = ''   ///< OPTIONAL: Default is an empty string. This is any previous arguments. This will be appeneded to the end of the list, so it should begin with an ampersand (&), and be url-encoded.
                                 ) {
+        $to_set = [
+            'tokens' => ((isset($this->_object_data->security_tokens) && is_array($this->_object_data->security_tokens) && count($this->_object_data->security_tokens)) ? implode(',', $this->_object_data->tokens) : NULL)
+            ];
+        
+        $put_args = '';
+        
+        foreach ($to_set as $key => $value) {
+            if (isset($key) && isset($value)) {
+                $put_args .= '&'.$key.'='.urlencode(trim(strval($value)));
+            }
+        }
+        
+        return parent::_save_data($put_args.$in_args);
     }
     
     /************************************************************************************************************************/    
@@ -51,35 +64,38 @@ abstract class A_RVP_PHP_SDK_Security_Object extends A_RVP_PHP_SDK_Object {
     
     /***********************/
     /**
-    This requires a load, but not a "detailed" load.
+    This requires a "detailed" load.
     
-    \returns an associative array ('read' => integer, 'write' => integer), with the tokens for the object. The tokens will only be available if they are visible to the current user, or NULL, if there are no tokens (should never happen).
+    \returns an array of integer (security tokens) that comprise the "pool" for this login.
      */
-    function tokens() {
-        $ret = NULL;
-        $read_token = NULL;
-        $write_token = NULL;
+    function security_tokens() {
+        $ret = [];
         
-        $this->_load_data();
+        $this->_load_data(false, true);
         
-        if (isset($this->_object_data) && isset($this->_object_data->read_token)) {
-            $read_token = intval($this->_object_data->read_token);
+        if (isset($this->_object_data) && isset($this->_object_data->security_tokens)) {
+            $ret = $this->_object_data->security_tokens;
         }
         
-        if (isset($this->_object_data) && isset($this->_object_data->write_token)) {
-            $write_token = intval($this->_object_data->write_token);
-        }
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    Set the tokens for this ID. NOTE: For security reasons, a user is not allowed to change their own tokens. In order to set the tokens for another user, the current user must be a manager.
+    The manager must "own" all the tokens they specify. If they specify tokens they don't "own," then those tokens will be ignored.
+    
+    \returns true, if the operation succeeded
+     */
+    function set_security_tokens(    $in_token_array ///< REQUIRED: An array of int. The new tokens (will completely replace any existing ones).
+                        ) {
+        $ret = false;
         
-        if ($read_token || $write_token) {
-            $ret = [];
-            
-            if ($read_token) {
-                $ret['read'] = $read_token;
-            }
-            
-            if ($write_token) {
-                $ret['write'] = $write_token;
-            }
+        $this->_load_data(false, true);
+        
+        if (isset($this->_object_data) && $this->_sdk_object->is_manager() && ($this->_sdk_object->current_login_id() != $this->id())) {
+            $this->_object_data->security_tokens = array_map('intval', $in_token_array);
+            $ret = $this->save_data();
         }
         
         return $ret;

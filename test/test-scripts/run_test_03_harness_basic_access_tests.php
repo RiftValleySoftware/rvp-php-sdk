@@ -34,7 +34,6 @@ function run_test_03_harness_basic_access_tests($test_harness_instance) {
                         $test_harness_instance->write_log_entry('OBJECT 0 ID CHECK', $test_count++, false);
                         echo('<h4 style="color:red">INCORRECT ID FOR OBJECT!</h4>');
                     }
-                    
                     if ('Living Clean Group' == $object->name()) {
                         $test_harness_instance->write_log_entry('OBJECT 0 NAME CHECK', $test_count++, true);
                     } else {

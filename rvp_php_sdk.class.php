@@ -35,6 +35,7 @@ class RVP_PHP_SDK {
     protected   $_sdk_lang;             ///< The language specified for this SDK instance. Default is "en" (English).
     protected   $_server_secret;        ///< This is the "server secret" that is specified by the admin of the BAOBAB server.
     protected   $_api_key;              ///< This is the current session API key.
+    protected   $_login_timeout;        ///< The actual timeout value that was originally passed in.
     protected   $_login_time_limit;     ///< If >0, then this is the maximum time at which the current login is valid.
     protected   $_error;                ///< This is supposed to be NULL. However, if we have an error, it will contain an integer code.
     protected   $_my_login_info;        ///< This will contain any login information for the current login (NULL if not logged in).
@@ -393,6 +394,7 @@ class RVP_PHP_SDK {
                 $this->set_error(_ERR_NO_RESULTS__);
             }
         }
+        
         return $ret;
     }
     
@@ -417,6 +419,57 @@ class RVP_PHP_SDK {
         
         return $ret;
     }
+    
+    /***********************/
+    /**
+    This sets up the internal "my info" objects.
+    
+    \returns true, if the operation succeeded.
+     */
+    protected function _set_up_login_info() {
+        if ($this->_api_key) {
+            $this->_my_login_info = NULL;
+            $this->_my_user_info = NULL;
+        
+            $info = $this->_get_my_info();
+        
+            if (!$this->get_error()) {
+                if (isset($info['login'])) {
+                    $this->_my_login_info = new RVP_PHP_SDK_Login($this, $info['login']->id, $info['login'], true);
+            
+                    if (!($this->_my_login_info instanceof RVP_PHP_SDK_Login)) {
+                        $this->set_error(_ERR_INTERNAL_ERR__);
+                        $this->logout();
+                        $this->_api_key = NULL;
+                        $this->_login_time_limit = -1;
+                        $this->_my_login_info = NULL;
+                        $this->_my_user_info = NULL;
+                        return false;
+                    }
+                }
+        
+                if (isset($info['user'])) {
+                    $this->_my_user_info = new RVP_PHP_SDK_User($this, $info['user']->id, $info['user'], true);
+            
+                    if (!($this->_my_user_info instanceof RVP_PHP_SDK_User)) {
+                        $this->set_error(_ERR_INTERNAL_ERR__);
+                        $this->logout();
+                        $this->_api_key = NULL;
+                        $this->_login_time_limit = -1;
+                        $this->_my_login_info = NULL;
+                        $this->_my_user_info = NULL;
+                        return false;
+                    }
+                }
+        
+                return true;
+            }
+            
+            $this->_api_key = NULL;
+        }
+        
+        return false;
+    }
 
     /************************************************************************************************************************/    
     /*#################################################### PUBLIC METHODS ##################################################*/
@@ -430,12 +483,13 @@ class RVP_PHP_SDK {
                             $in_server_secret,      ///< REQUIRED: The "server secret" for the BAOBAB Server.
                             $in_username = NULL,    ///< OPTIONAL: The Login Username, if we are doing an immediate login.
                             $in_password = NULL,    ///< OPTIONAL: The password, if we are doing an immediate login.
-                            $in_login_timeout = -1  ///< OPTIONAL: If we have a known login timeout, we provide it here.
+                            $in_login_timeout = 0   ///< OPTIONAL/REQUIRED: The login timeout, in seconds (integer). This should be provided if there is a login/password.
                         ) {
         $this->_server_uri = trim($in_server_uri, '/'); // This is the server's base URI.
         $this->_server_secret  = $in_server_secret;     // This is the secret that we need to provide with authentication.
         $this->_api_key = NULL;                         // If we log in, this will be non-NULL, and will contain the active API key for this instance.
         $this->_login_time_limit = -1;                  // No timeout to start.
+        $this->_login_timeout = $in_login_timeout;      // Save this for posterity.
         $this->_my_login_info = NULL;                   // If we have logged in, we have the info for our login here.
         $this->_my_user_info = NULL;                    // If we have logged in, we have the info for our user (if available) here.
         
@@ -445,7 +499,7 @@ class RVP_PHP_SDK {
         $this->_available_plugins = $this->_get_plugins();
         
         if ($this->valid()) {
-            if ($in_username && $in_password) {
+            if ($in_username && $in_password && $in_login_timeout) {
                 $this->login($in_username, $in_password, $in_login_timeout);
             }
         }
@@ -488,42 +542,7 @@ class RVP_PHP_SDK {
             
             if (isset($api_key) && $api_key) {  // If we logged in, then we get our info.
                 $this->_api_key = $api_key;
-                $this->_my_login_info = NULL;
-                $this->_my_user_info = NULL;
-                
-                $info = $this->_get_my_info();
-                
-                if (!$this->get_error()) {
-                    if (isset($info['login'])) {
-                        $this->_my_login_info = new RVP_PHP_SDK_Login($this, $info['login']->id, $info['login'], true);
-                    
-                        if (!($this->_my_login_info instanceof RVP_PHP_SDK_Login)) {
-                            $this->set_error(_ERR_INTERNAL_ERR__);
-                            $this->logout();
-                            $this->_api_key = NULL;
-                            $this->_login_time_limit = -1;
-                            $this->_my_login_info = NULL;
-                            $this->_my_user_info = NULL;
-                            return false;
-                        }
-                    }
-                
-                    if (isset($info['user'])) {
-                        $this->_my_user_info = new RVP_PHP_SDK_User($this, $info['user']->id, $info['user'], true);
-                    
-                        if (!($this->_my_user_info instanceof RVP_PHP_SDK_User)) {
-                            $this->set_error(_ERR_INTERNAL_ERR__);
-                            $this->logout();
-                            $this->_api_key = NULL;
-                            $this->_login_time_limit = -1;
-                            $this->_my_login_info = NULL;
-                            $this->_my_user_info = NULL;
-                            return false;
-                        }
-                    }
-                
-                    return true;
-                }
+                return $this->_set_up_login_info();
             } else {
                 $this->set_error(_ERR_INVALID_LOGIN__);
                 $this->_api_key = NULL;
@@ -608,6 +627,13 @@ class RVP_PHP_SDK {
     function valid() {
         return isset($this->_available_plugins) && is_array($this->_available_plugins) && (3 < count($this->_available_plugins));
     }
+ 
+    /***********************/
+    /**
+     */
+    function force_reload() {
+        return $this->_set_up_login_info();
+    }
     
     /***********************/
     /**
@@ -643,9 +669,21 @@ class RVP_PHP_SDK {
     
     /***********************/
     /**
-    \returns a string, with the current login ID. NULL, if not logged in.
+    \returns an integer, with the current login ID. NULL, if not logged in.
      */
     function current_login_id() {
+        if ($this->is_logged_in() && isset($this->_my_login_info)) {
+            return $this->_my_login_info->id();
+        }
+        
+        return NULL;
+    }
+    
+    /***********************/
+    /**
+    \returns a string, with the current login ID. NULL, if not logged in.
+     */
+    function current_login_id_string() {
         if ($this->is_logged_in() && isset($this->_my_login_info)) {
             return $this->_my_login_info->login_id();
         }
@@ -701,6 +739,53 @@ class RVP_PHP_SDK {
     
     /***********************/
     /**
+    Allows a logged-in user to change their password.
+    The "God" user cannot change their password.
+    This will re-log in after changing the password (which logs you out).
+    
+    \returns true, if the change was successful.
+     */
+    function change_my_password_to( $in_new_password    ///< REQUIRED: The new password, in cleartext. It must be at least the minimum password length
+                                    ) {
+        $ret = NULL;
+        
+        if ($this->is_logged_in() && !$this->is_main_admin()) {
+            $my_login_id = $this->_my_login_info->login_id();
+            $result = $this->put_data('json/people/logins/my_info', 'password='.urlencode($in_new_password));
+            
+            if (isset($result)) {
+                $result = json_decode($result);
+                // The reason for this crazy Fabergé egg, is because it's easier to debug a nested set of comparisons.
+                if (isset($result)) {
+                    if (isset($result->people)) {
+                        if (isset($result->people->logins)) {
+                            if (isset($result->people->logins->changed_logins)) {
+                                if (is_array($result->people->logins->changed_logins)) {
+                                    if ((1 == count($result->people->logins->changed_logins))) {
+                                        if (isset($result->people->logins->changed_logins[0])) {
+                                            if (isset($result->people->logins->changed_logins[0]->after)) {
+                                                if (isset($result->people->logins->changed_logins[0]->after->password)) {
+                                                    if (($in_new_password == $result->people->logins->changed_logins[0]->after->password)) {
+                                                        $this->_api_key = NULL;
+                                                        $ret = $this->login($my_login_id, $in_new_password, $this->_login_timeout);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
     This method will initiate and complete a data GET connection to the server. It takes care of any authentication.
     
     \returns whatever data was returned. Usually JSON.
@@ -729,7 +814,7 @@ class RVP_PHP_SDK {
                         $in_data_object = NULL  ///< OPTIONAL: If supplied, this will be attached payload data. It should not be base64-encoded.
                     ) {
         $response = NULL;
-        
+
         if ($this->is_logged_in() && isset($in_plugin_path) && trim($in_plugin_path) && isset($in_query_args) && trim($in_query_args)) {
             $in_plugin_path .= '?'.ltrim($in_query_args, '&');
         
@@ -1421,6 +1506,25 @@ class RVP_PHP_SDK {
             $this->set_error(_ERR_NOT_AUTHORIZED__);
             return NULL;
         }
+    }
+    
+    /***********************/
+    /**
+    This method is only available to "God" logins. It fetches the server information structure.
+    
+    \returns the serverinfo object.
+     */
+    function get_serverinfo() {
+        if ($this->is_main_admin()) {
+            $result = json_decode($this->fetch_data('json/baseline/serverinfo'));
+            if (isset($result->baseline) && isset($result->baseline->serverinfo)) {
+                return $result->baseline->serverinfo;
+            }
+        } else {
+            $this->set_error(_ERR_NOT_AUTHORIZED__);
+        }
+        
+        return NULL;
     }
     
     /***********************/

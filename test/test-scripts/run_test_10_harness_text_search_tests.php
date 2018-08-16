@@ -47,7 +47,7 @@ define('__SEARCH_SPEC_19__', ['tag7' => '']);
 define('__RESULTS_19__', [['id' => 1725, 'type' => 'RVP_PHP_SDK_User', 'name' => 'MDAdmin'], ['id' => 1726, 'type' => 'RVP_PHP_SDK_User', 'name' => 'VAAdmin'], ['id' => 1727, 'type' => 'RVP_PHP_SDK_User', 'name' => 'DCAdmin'], ['id' => 1728, 'type' => 'RVP_PHP_SDK_User', 'name' => 'WVAdmin'], ['id' => 1729, 'type' => 'RVP_PHP_SDK_User', 'name' => 'DEAdmin'], ['id' => 1732, 'type' => 'RVP_PHP_SDK_Thing', 'name' => 'Worth Enough'], ['id' => 1733, 'type' => 'RVP_PHP_SDK_Thing', 'name' => 'Another World'], ['id' => 1735, 'type' => 'RVP_PHP_SDK_Thing', 'name' => 'The Great Shadow'], ['id' => 1736, 'type' => 'RVP_PHP_SDK_Thing', 'name' => 'Yosemite'], ['id' => 1737, 'type' => 'RVP_PHP_SDK_Thing', 'name' => 'Tom And Jerry'], ['id' => 1739, 'type' => 'RVP_PHP_SDK_Thing', 'name' => 'Winnie The Pooh'], ['id' => 1740, 'type' => 'RVP_PHP_SDK_Thing', 'name' => 'Crickets'], ['id' => 1741, 'type' => 'RVP_PHP_SDK_Thing', 'name' => 'Singing Pete'], ['id' => 1742, 'type' => 'RVP_PHP_SDK_Thing', 'name' => 'Spinning Earth'], ['id' => 1743, 'type' => 'RVP_PHP_SDK_Thing', 'name' => 'The Three Musketeers In Dutch'], ['id' => 1751, 'type' => 'RVP_PHP_SDK_User', 'name' => 'CEO']]);
 define('__SEARCH_SPEC_20__', ['tag7' => '%']);
 define('__RESULTS_20_A_', 1275);
-define('__RESULTS_20_B_', '5dfa9d6308d5a6b40365496d75b3ca73d42f2fbf');
+define('__RESULTS_20_B_', '4d4530ebc4fc2d630e91b7dbb5f8ac5e38b55f1d');
 define('__SEARCH_SPEC_21__', ['tag8' => 'dILBERT cO.']);
 define('__RESULTS_21__', [['id' => 1751, 'type' => 'RVP_PHP_SDK_User', 'name' => 'CEO']]);
 define('__SEARCH_SPEC_22__', ['tag8' => '7:%']);
@@ -320,6 +320,7 @@ function run_test_10_harness_text_search_tests($test_harness_instance) {
             
             echo('<h4>Do A Search for Records with A Non-Blank Tag 7</h4>');
             $results = $test_harness_instance->sdk_instance->general_search(__SEARCH_SPEC_20__);
+            $test_harness_instance->echo_sha_data(sha1(serialize($results)));
             if ((__RESULTS_20_A_ == count($results)) && (__RESULTS_20_B_ == sha1(serialize($results)))) {
                 $test_harness_instance->write_log_entry('Simple Baseline General Wildcard Text Search', $test_count++, true);
             } else {

@@ -49,8 +49,9 @@ abstract class A_RVP_PHP_SDK_Object {
         
         if ($in_force || $in_parents || (NULL == $this->_object_data) || ($in_details && !$this->_details)) {
             $this->_details = $in_details;
-            $this->_object_data = json_decode($this->_sdk_object->fetch_data('json/'.$this->_plugin_path.'/'.$this->_object_id, $in_details ? 'show_details'.($in_parents ? '&show_parents' : '') : NULL));
-            $ret = true;
+            $fetched_data = $this->_sdk_object->fetch_data('json/'.$this->_plugin_path.'/'.$this->_object_id, $in_details ? 'show_details'.($in_parents ? '&show_parents' : '') : NULL);
+            $this->_object_data = (NULL != $fetched_data) ? json_decode($fetched_data) : NULL;
+            $ret = (NULL != $this->_object_data);
         }
         
         return $ret;
@@ -74,7 +75,6 @@ abstract class A_RVP_PHP_SDK_Object {
         $longitude = isset($this->_object_data->raw_longitude) ? floatval($this->_object_data->raw_longitude) : floatval($this->_object_data->longitude);
         
         $put_args = '&name='.urlencode($name).'&lang='.urlencode($lang).'&read_token='.$read_token.'&write_token='.$write_token.'&owner_id='.$owner_id.'&latitude='.$latitude.'&longitude='.$longitude;
-        
         $result = json_decode($this->_sdk_object->put_data('/json/'.$this->_plugin_path.'/'.$this->id(), $put_args.$in_args));
         
         return $result;
@@ -219,6 +219,42 @@ abstract class A_RVP_PHP_SDK_Object {
     
     /***********************/
     /**
+    This requires a load, but not a "detailed" load.
+    
+    \returns an associative array ('read' => integer, 'write' => integer), with the tokens for the object. The tokens will only be available if they are visible to the current user, or NULL, if there are no tokens (should never happen).
+     */
+    function object_access() {
+        $ret = NULL;
+        $read_token = NULL;
+        $write_token = NULL;
+        
+        $this->_load_data();
+        
+        if (isset($this->_object_data) && isset($this->_object_data->read_token)) {
+            $read_token = intval($this->_object_data->read_token);
+        }
+        
+        if (isset($this->_object_data) && isset($this->_object_data->write_token)) {
+            $write_token = intval($this->_object_data->write_token);
+        }
+        
+        if ($read_token || $write_token) {
+            $ret = [];
+            
+            if ($read_token) {
+                $ret['read'] = $read_token;
+            }
+            
+            if ($write_token) {
+                $ret['write'] = $write_token;
+            }
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
     This sets the read and write tokens of the object.
     
     The current login must have at least read access to each of the tokens. If a token is NULL, then the token is not changed.
@@ -276,5 +312,18 @@ abstract class A_RVP_PHP_SDK_Object {
         }
         
         return $ret;
+    }
+    
+    /***********************/
+    /**
+    This forces at least a detailed load.
+    
+    This reloads the information, refreshing the object, if necessary.
+    
+    \returns true, if successful.
+     */
+    function force_reload(  $in_parents = false ///< OPTIONAL: Default is false. If true, then the parent info is also loaded.
+                        ) {
+        return $this->_load_data(true, true, $in_parents);
     }
 };

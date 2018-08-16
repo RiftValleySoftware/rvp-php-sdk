@@ -52,7 +52,7 @@ function run_test_02_harness_basic_login_tests($test_harness_instance) {
             $all_pass &= $pass;
             $test_harness_instance->write_log_entry('LOGIN INFO ID CHECK', $test_count++, $pass);
 
-            $tokens = $info['login']->tokens();
+            $tokens = $info['login']->security_tokens();
             
             if (isset($tokens) && is_array($tokens) && (2 == count($tokens))) {
                 $pass &= (__LOGIN_READ_TOKEN__ == $tokens['read']);
@@ -97,7 +97,7 @@ function run_test_02_harness_basic_login_tests($test_harness_instance) {
             $all_pass &= $pass;
             $test_harness_instance->write_log_entry('LOGIN INFO IS LOGGED IN CHECK', $test_count++, $pass);
             
-            $pass = (__LOGIN_TOKENS__ == $info['login']->tokens());
+            $pass = (__LOGIN_TOKENS__ == $info['login']->security_tokens());
         
             $all_pass &= $pass;
             $test_harness_instance->write_log_entry('LOGIN INFO TOKENS CHECK', $test_count++, $pass);
@@ -140,7 +140,7 @@ function run_test_02_harness_basic_login_tests($test_harness_instance) {
                 $test_harness_instance->write_log_entry('USER COORDINATES CHECK', $test_count++, $pass);
             }
 
-            $tokens = $info['user']->tokens();
+            $tokens = $info['user']->security_tokens();
             
             if (isset($tokens) && is_array($tokens) && (2 == count($tokens))) {
                 $pass &= (__USER_READ_TOKEN__ == $tokens['read']);

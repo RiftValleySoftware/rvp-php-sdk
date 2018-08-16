@@ -37,8 +37,7 @@ class RVP_PHP_SDK_Login extends A_RVP_PHP_SDK_Security_Object {
     protected function _save_data(  $in_args = ''   ///< OPTIONAL: Default is an empty string. This is any previous arguments. This will be appeneded to the end of the list, so it should begin with an ampersand (&), and be url-encoded.
                                 ) {
         $to_set = [
-            'password' => (isset($this->_object_data->password) ? $this->_object_data->password : NULL),
-            'tokens' => ((isset($this->_object_data->security_tokens) && is_array($this->_object_data->security_tokens) && count($this->_object_data->security_tokens)) ? implode(',', $this->_object_data->tokens) : NULL)
+            'password' => (isset($this->_object_data->password) ? $this->_object_data->password : NULL)
             ];
         
         $put_args = '';
@@ -49,9 +48,7 @@ class RVP_PHP_SDK_Login extends A_RVP_PHP_SDK_Security_Object {
             }
         }
         
-        $ret = parent::_save_data($put_args.$in_args);
-        
-        return $ret;
+        return parent::_save_data($put_args.$in_args);
     }
     
     
@@ -64,6 +61,14 @@ class RVP_PHP_SDK_Login extends A_RVP_PHP_SDK_Security_Object {
     protected function _save_change_record( $in_change_record_object    ///< REQUIRED: The change response, as a parsed object.
                                             ) {
         $ret = false;
+        if (isset($in_change_record_object->people->logins) && isset($in_change_record_object->people->logins->changed_logins) && is_array($in_change_record_object->people->logins->changed_logins) && count($in_change_record_object->people->logins->changed_logins)) {
+            foreach ($in_change_record_object->people->logins->changed_logins as $changed_login) {
+                if ($before = $changed_login->before) {
+                    $this->_changed_states[] = new RVP_PHP_SDK_Login($this->_sdk_object, $before->id, $before, true);
+                    $ret = true;
+                }
+            }
+        }
         
         return $ret;
     }
@@ -169,45 +174,6 @@ class RVP_PHP_SDK_Login extends A_RVP_PHP_SDK_Security_Object {
         
         if ($this->is_manager() && isset($this->_object_data->is_main_admin) && $this->_object_data->is_main_admin) {
             $ret = true;
-        }
-        
-        return $ret;
-    }
-    
-    /***********************/
-    /**
-    This requires a "detailed" load.
-    
-    \returns an array of integer (security tokens) that comprise the "pool" for this login.
-     */
-    function tokens() {
-        $ret = [];
-        
-        $this->_load_data(false, true);
-        
-        if (isset($this->_object_data) && isset($this->_object_data->security_tokens)) {
-            $ret = $this->_object_data->security_tokens;
-        }
-        
-        return $ret;
-    }
-    
-    /***********************/
-    /**
-    Set the tokens for this ID. NOTE: For security reasons, a user is not allowed to change their own tokens. In order to set the tokens for another user, the current user must be a manager.
-    The manager must "own" all the tokens they specify. If they specify tokens they don't "own," then those tokens will be ignored.
-    
-    \returns true, if the operation succeeded
-     */
-    function set_tokens(    $in_token_array ///< REQUIRED: An array of int. The new tokens (will completely replace any existing ones).
-                        ) {
-        $ret = false;
-        
-        $this->_load_data(false, true);
-        
-        if (isset($this->_object_data) && $this->_sdk_object->is_manager() && ($this->_sdk_object->current_login_id() != $this->id())) {
-            $this->_object_data->security_tokens = array_map('intval', $in_token_array);
-            $ret = $this->save_data();
         }
         
         return $ret;

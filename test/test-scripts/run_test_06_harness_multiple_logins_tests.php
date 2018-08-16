@@ -27,7 +27,7 @@ function run_test_06_harness_multiple_logins_tests($test_harness_instance) {
                     echo('<h6>Logging In '.$login_id.':</h6>');
                     $temp_sdk_instance = new RVP_PHP_SDK(__SERVER_URI__, __SERVER_SECRET__, $login_id, __PASSWORD__, $timeout);
                     // Different rule for trying to log in again as the God login.
-                    if ($login_id == $test_harness_instance->sdk_instance->current_login_id()) {
+                    if ($login_id == $test_harness_instance->sdk_instance->current_login_id_string()) {
                         if (isset($temp_sdk_instance) && ($temp_sdk_instance instanceof RVP_PHP_SDK) && $temp_sdk_instance->valid()) {
                             $test_harness_instance->write_log_entry('SDK INSTANCE FOR "'.$login_id.'" VALIDITY CHECK', $test_count++, true);
                             echo('<h4 style="color:green">SDK FOR "'.$login_id.'" UP AND VALID!</h4>');
@@ -90,7 +90,7 @@ function run_test_06_harness_multiple_logins_tests($test_harness_instance) {
             }
         
             foreach ($instances as $instance) {
-                $login_id = $instance->current_login_id();
+                $login_id = $instance->current_login_id_string();
                 echo('<h6>Logging Out '.$login_id.':</h6>');
                 if ($instance->logout()) {
                     echo('<h6 style="color:green">LOGOUT "'.$login_id.'" SUCCESS!</h6>');
