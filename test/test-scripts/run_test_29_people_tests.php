@@ -133,10 +133,10 @@ function test_29_run_login_tests($test_harness_instance, $god_mode_sdk_instance,
             
             if ($other_normal_sdk_instance->force_reload()) {
                 $all_pass = false;
-                $test_harness_instance->write_log_entry('DILBERT STILL LOGGED IN AFTER PASSWORD CHANGE', $test_count++, false);
+                $test_harness_instance->write_log_entry('DILBERT NOT LOGGED IN AFTER PASSWORD CHANGE', $test_count++, false);
                 echo('<h4 style="color:red">DILBERT IS STILL LOGGED IN AFTER PASSWORD CHANGE!</h4>');
             } else {
-                $test_harness_instance->write_log_entry('DILBERT STILL LOGGED IN AFTER PASSWORD CHANGE', $test_count++, true);
+                $test_harness_instance->write_log_entry('DILBERT NOT LOGGED IN AFTER PASSWORD CHANGE', $test_count++, true);
                 $other_normal_sdk_instance = new RVP_PHP_SDK(__SERVER_URI__, __SERVER_SECRET__, 'Dilbert', __TEST_29_NEW_PASSWORD__, CO_Config::$session_timeout_in_seconds);
         
                 if (($other_normal_sdk_instance instanceof RVP_PHP_SDK) && $other_normal_sdk_instance->is_logged_in()) {
@@ -171,6 +171,94 @@ function test_29_run_login_tests($test_harness_instance, $god_mode_sdk_instance,
         $all_pass = false;
         $test_harness_instance->write_log_entry('MANAGER ACCESS TO DILBERT LOGIN CHECK', $test_count++, false);
         echo('<h4 style="color:red">PHB FAILED TO ACCESS DILBERT!</h4>');
+    }
+    
+    $normal_record = $normal_sdk_instance->current_login_object();
+    $manager_record = $manager_sdk_instance->current_login_object();
+    $manager_dilbert_record = $manager_sdk_instance->get_login_info($dilbert_id);
+    $god_record = $god_mode_sdk_instance->current_login_object();
+    
+    $normal_tokens = $normal_record->security_tokens();
+    $manager_tokens = $manager_record->security_tokens();
+    $all_tokens = $god_record->security_tokens();
+    
+    if ($normal_record->set_security_tokens($manager_tokens)) {
+        $all_pass = false;
+        $test_harness_instance->write_log_entry('SETTING SECURITY TOKENS -DILBERT LOGIN', $test_count++, false);
+        echo('<h4 style="color:red">DILBERT WAS ABLE TO GIVE TOKENS TO HIMSELF! THAT\'S NOT GOOD!</h4>');
+    } else {
+        $test_harness_instance->write_log_entry('SETTING SECURITY TOKENS -DILBERT LOGIN', $test_count++, true);
+    }
+    
+    if ($manager_dilbert_record->set_security_tokens($manager_tokens)) {
+        $test_harness_instance->write_log_entry('SETTING SECURITY TOKENS -PHB LOGIN', $test_count++, true);
+    } else {
+        $all_pass = false;
+        $test_harness_instance->write_log_entry('SETTING SECURITY TOKENS -PHB LOGIN', $test_count++, false);
+        echo('<h4 style="color:red">PHB WAS NOT ABLE TO GIVE TOKENS TO DILBERT!</h4>');
+    }
+    
+    $normal_tokens = $normal_record->security_tokens();
+    $normal_phb_tokens = $manager_dilbert_record->security_tokens();
+    
+    if ($manager_dilbert_record->set_security_tokens($normal_tokens)) {
+        $test_harness_instance->write_log_entry('RESTORING SECURITY TOKENS -PHB LOGIN', $test_count++, true);
+    } else {
+        $all_pass = false;
+        $test_harness_instance->write_log_entry('RESTORING SECURITY TOKENS -PHB LOGIN', $test_count++, false);
+        echo('<h4 style="color:red">PHB WAS NOT ABLE TO GIVE TOKENS TO DILBERT!</h4>');
+    }
+    
+    if ($manager_dilbert_record->set_security_tokens($all_tokens)) {
+        $test_harness_instance->write_log_entry('SETTING MANY SECURITY TOKENS -PHB LOGIN', $test_count++, true);
+        $normal_phb_tokens = $manager_dilbert_record->security_tokens();
+        sort($manager_tokens);
+        array_pop($manager_tokens);
+        sort($normal_phb_tokens);
+        
+        if ($normal_phb_tokens == $manager_tokens) {
+            $test_harness_instance->write_log_entry('FILTERING ONLY VALID TOKENS -PHB LOGIN', $test_count++, true);
+        } else {
+            $all_pass = false;
+            $test_harness_instance->write_log_entry('FILTERING ONLY VALID TOKENS -PHB LOGIN', $test_count++, false);
+            echo('<h4 style="color:red">THE RESULTING TOKEN LIST DID NOT MATCH THE EXPECTED LIST!</h4>');
+        }
+    } else {
+        $all_pass = false;
+        $test_harness_instance->write_log_entry('SETTING MANY SECURITY TOKENS -PHB LOGIN', $test_count++, false);
+        echo('<h4 style="color:red">PHB WAS NOT ABLE TO GIVE TOKENS TO DILBERT!</h4>');
+    }
+    
+    $god_dilbert_record = $god_mode_sdk_instance->get_login_info($dilbert_id);
+    $manager_tokens[] = 18;
+    $manager_tokens[] = 19;
+    
+    if ($god_dilbert_record->set_security_tokens($manager_tokens)) {
+        $test_harness_instance->write_log_entry('SETTING MANY SECURITY TOKENS -GOD LOGIN', $test_count++, true);
+        $normal_god_tokens = $god_dilbert_record->security_tokens();
+        sort($manager_tokens);
+        sort($normal_god_tokens);
+        
+        if ($normal_god_tokens == $manager_tokens) {
+            $test_harness_instance->write_log_entry('FILTERING ONLY VALID TOKENS -GOD LOGIN', $test_count++, true);
+        } else {
+            $all_pass = false;
+            $test_harness_instance->write_log_entry('FILTERING ONLY VALID TOKENS -GOD LOGIN', $test_count++, false);
+            echo('<h4 style="color:red">THE RESULTING TOKEN LIST DID NOT MATCH THE EXPECTED LIST!</h4>');
+        }
+    } else {
+        $all_pass = false;
+        $test_harness_instance->write_log_entry('SETTING MANY SECURITY TOKENS -GOD LOGIN', $test_count++, false);
+        echo('<h4 style="color:red">GOD WAS NOT ABLE TO GIVE TOKENS TO DILBERT!</h4>');
+    }
+    
+    $manager_dilbert_record = $manager_sdk_instance->get_login_info($dilbert_id);
+    if ($manager_dilbert_record->set_security_tokens($manager_tokens)) {
+        $all_pass = false;
+        $test_harness_instance->write_log_entry('SETTING SECURITY TOKENS TO ITEM WITH UNREACHABLE TOKENS -PHB LOGIN', $test_count++, false);
+        echo('<h4 style="color:red">PHB SHOULD NOT BE ABLE TO MODIFY DILBERT\'S TOKENS!</h4>');
+    } else {
+        $test_harness_instance->write_log_entry('SETTING SECURITY TOKENS TO ITEM WITH UNREACHABLE TOKENS -PHB LOGIN', $test_count++, true);
     }
     return $all_pass;
 }

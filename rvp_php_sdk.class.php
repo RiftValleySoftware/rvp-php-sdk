@@ -693,6 +693,20 @@ class RVP_PHP_SDK {
     
     /***********************/
     /**
+    \returns a string, with the current login ID. NULL, if not logged in.
+     */
+    function current_login_object() {
+        $ret = NULL;
+        
+        if ($this->is_logged_in() && isset($this->_my_login_info)) {
+            $ret = new RVP_PHP_SDK_Login($this, $this->_my_login_info->login_id());
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
     If we logged in with a known time limit, we report how mucg time we have left.
     
     \returns the number of seconds (float) we have left in our current login.

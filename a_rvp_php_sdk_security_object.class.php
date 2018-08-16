@@ -30,10 +30,11 @@ abstract class A_RVP_PHP_SDK_Security_Object extends A_RVP_PHP_SDK_Object {
      */
     protected function _save_data(  $in_args = ''   ///< OPTIONAL: Default is an empty string. This is any previous arguments. This will be appeneded to the end of the list, so it should begin with an ampersand (&), and be url-encoded.
                                 ) {
-        $to_set = [
-            'tokens' => ((isset($this->_object_data->security_tokens) && is_array($this->_object_data->security_tokens) && count($this->_object_data->security_tokens)) ? implode(',', $this->_object_data->tokens) : NULL)
-            ];
+        $tokens = $this->_object_data->security_tokens;
         
+        $to_set = [
+            'tokens' => ((isset($tokens) && is_array($tokens) && count($tokens)) ? implode(',', $tokens) : NULL)
+            ];
         $put_args = '';
         
         foreach ($to_set as $key => $value) {
@@ -41,7 +42,6 @@ abstract class A_RVP_PHP_SDK_Security_Object extends A_RVP_PHP_SDK_Object {
                 $put_args .= '&'.$key.'='.urlencode(trim(strval($value)));
             }
         }
-        
         return parent::_save_data($put_args.$in_args);
     }
     
@@ -94,8 +94,12 @@ abstract class A_RVP_PHP_SDK_Security_Object extends A_RVP_PHP_SDK_Object {
         $this->_load_data(false, true);
         
         if (isset($this->_object_data) && $this->_sdk_object->is_manager() && ($this->_sdk_object->current_login_id() != $this->id())) {
-            $this->_object_data->security_tokens = array_map('intval', $in_token_array);
+            $in_vals = array_map('intval', $in_token_array);
+            $this->_object_data->security_tokens = $in_vals;
             $ret = $this->save_data();
+            if ($ret) {
+                $ret = $this->_load_data(true, true);
+            }
         }
         
         return $ret;
