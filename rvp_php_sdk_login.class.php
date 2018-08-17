@@ -46,8 +46,11 @@ class RVP_PHP_SDK_Login extends A_RVP_PHP_SDK_Security_Object {
      */
     protected function _save_data(  $in_args = ''   ///< OPTIONAL: Default is an empty string. This is any previous arguments. This will be appeneded to the end of the list, so it should begin with an ampersand (&), and be url-encoded.
                                 ) {
+        $tokens = $this->_object_data->security_tokens;
+        
         $to_set = [
-            'password' => (isset($this->_object_data->password) ? $this->_object_data->password : NULL)
+            'password' => (isset($this->_object_data->password) ? $this->_object_data->password : NULL),
+            'tokens' => ((isset($tokens) && is_array($tokens)) ? implode(',', $tokens) : NULL)
             ];
         
         $put_args = '';
@@ -222,6 +225,71 @@ class RVP_PHP_SDK_Login extends A_RVP_PHP_SDK_Security_Object {
         
         if (isset($this->_object_data) && isset($this->_object_data->user_object_id)) {
             $ret = intval($this->_object_data->user_object_id);
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    This requires a "detailed" load.
+    
+    \returns an array of integer (security tokens) that comprise the "pool" for this login. It sorts the tokens, which include 1 (login) and the ID of this instance.
+     */
+    function security_tokens() {
+        $ret = [1, $this->id()];
+        
+        $this->_load_data(false, true);
+        
+        if (isset($this->_object_data) && isset($this->_object_data->security_tokens)) {
+            $ret = array_merge($ret, array_map('intval', $this->_object_data->security_tokens));
+        }
+
+        sort($ret);
+        $ret = array_unique($ret);
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    Set the tokens for this ID. NOTE: For security reasons, a user is not allowed to change their own tokens. In order to set the tokens for another user, the current user must be a manager.
+    The manager must "own" all the tokens they specify. If they specify tokens they don't "own," then those tokens will be ignored.
+    
+    AN IMPORTANT NOTE ABOUT SECURITY TOKENS
+    =======================================
+    
+    There are a few rules with setting security tokens:
+    
+    - You cannot set your own security tokens. It must be done by a manager object with edit rights to your login (not user).
+    
+    - You must be a manager to edit security tokens.
+    
+    - You must "own" every single token currently in the target object, and, of course, have mod rights to that login.
+    
+    - Any security tokens that you wish to add must be ones that your login "owns." Ones you don't own will be ignored.
+    
+    - This will entirely replace all the tokens currently in the object.
+    
+    The object will force-reload its data after this operation, in order to reflect the new security tokens.
+    
+    \returns true, if the operation succeeded
+     */
+    function set_security_tokens(   $in_token_array ///< REQUIRED: An array of int.
+                        ) {
+        $ret = false;
+        
+        $this->_load_data(false, true);
+        
+        if (isset($this->_object_data) && $this->_sdk_object->is_manager() && ($this->_sdk_object->current_login_id() != $this->id())) {
+            $in_vals = array_map('intval', $in_token_array);
+            $this->_object_data->security_tokens = $in_vals;
+            $ret = $this->save_data();
+            if ($ret) {
+                $ret = $this->_load_data(true, true);
+            } else {
+                $this->_load_data(true, true);  // We reload the data in any case, but we don't record the result if the operation failed.
+            }
         }
         
         return $ret;

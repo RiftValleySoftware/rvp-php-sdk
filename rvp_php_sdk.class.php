@@ -749,6 +749,19 @@ class RVP_PHP_SDK {
     
     /***********************/
     /**
+    \returns an array of integer, with the current tokens "owned" by this login (including 1, and the login ID). NULL, if not logged in.
+     */
+    function my_tokens() {
+        $ret = NULL;
+        if ($this->is_logged_in() && isset($this->_my_login_info)) {
+            $ret = $this->_my_login_info->security_tokens();
+        }
+   
+        return $ret;
+    }
+    
+    /***********************/
+    /**
     \returns an array of strings, with the available plugins.
      */
     function plugins() {

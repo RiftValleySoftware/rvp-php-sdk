@@ -172,101 +172,149 @@ function test_29_run_login_tests($test_harness_instance, $god_mode_sdk_instance,
         $test_harness_instance->write_log_entry('MANAGER ACCESS TO DILBERT LOGIN CHECK', $test_count++, false);
         echo('<h4 style="color:red">PHB FAILED TO ACCESS DILBERT!</h4>');
     }
-    
-    $normal_record = $normal_sdk_instance->current_login_object();
-    $manager_record = $manager_sdk_instance->current_login_object();
-    $manager_dilbert_record = $manager_sdk_instance->get_login_info($dilbert_id);
-    $god_record = $god_mode_sdk_instance->current_login_object();
-    
-    $normal_tokens = $normal_record->security_tokens();
-    $manager_tokens = $manager_record->security_tokens();
-    $all_tokens = $god_record->security_tokens();
-    
-    if ($normal_record->set_security_tokens($manager_tokens)) {
-        $all_pass = false;
-        $test_harness_instance->write_log_entry('SETTING SECURITY TOKENS -DILBERT LOGIN', $test_count++, false);
-        echo('<h4 style="color:red">DILBERT WAS ABLE TO GIVE TOKENS TO HIMSELF! THAT\'S NOT GOOD!</h4>');
+
+    $record_myself = $normal_sdk_instance->get_login_info(__TEST_29_USER_ID__);
+    $record_manager = $manager_sdk_instance->get_login_info(__TEST_29_USER_ID__);
+    $record_god = $god_mode_sdk_instance->get_login_info(__TEST_29_USER_ID__);
+
+    $normal_tokens = $normal_sdk_instance->my_tokens();
+    $manager_tokens = $manager_sdk_instance->my_tokens();
+    $all_tokens = $god_mode_sdk_instance->my_tokens();
+
+    if ($record_god->set_security_tokens($all_tokens)) {
+        $test_harness_instance->write_log_entry('SETTING SECURITY TOKENS TO ITEM WITH UNREACHABLE TOKENS -GOD LOGIN', $test_count++, true);
     } else {
-        $test_harness_instance->write_log_entry('SETTING SECURITY TOKENS -DILBERT LOGIN', $test_count++, true);
+        $all_pass = false;
+        $test_harness_instance->write_log_entry('SETTING SECURITY TOKENS TO ITEM WITH UNREACHABLE TOKENS -GOD LOGIN', $test_count++, false);
+        echo('<h4 style="color:red">GOD WAS NOT ABLE TO MODIFY THE TOKENS!</h4>');
     }
     
-    if ($manager_dilbert_record->set_security_tokens($manager_tokens)) {
-        $test_harness_instance->write_log_entry('SETTING SECURITY TOKENS -PHB LOGIN', $test_count++, true);
+    $record_myself->force_reload();
+    $record_manager->force_reload();
+    $record_god->force_reload();
+
+    $from_myself = $record_myself->security_tokens();
+    $from_manager = $record_manager->security_tokens();
+    $from_god = $record_god->security_tokens();
+    
+    if ($test_harness_instance->are_arrays_equal($from_myself, $all_tokens)) {
+        $test_harness_instance->write_log_entry('VERIFY NEW TOKENS (MYSELF)', $test_count++, true);
     } else {
         $all_pass = false;
-        $test_harness_instance->write_log_entry('SETTING SECURITY TOKENS -PHB LOGIN', $test_count++, false);
-        echo('<h4 style="color:red">PHB WAS NOT ABLE TO GIVE TOKENS TO DILBERT!</h4>');
+        $test_harness_instance->write_log_entry('VERIFY NEW TOKENS (MYSELF)', $test_count++, false);
+        echo('<h4 style="color:red">THE NEW TOKEN SET DOES NOT MATCH WHAT IS EXPECTED (MYSELF)!</h4>');
     }
     
-    $normal_tokens = $normal_record->security_tokens();
-    $normal_phb_tokens = $manager_dilbert_record->security_tokens();
-    
-    if ($manager_dilbert_record->set_security_tokens($normal_tokens)) {
-        $test_harness_instance->write_log_entry('RESTORING SECURITY TOKENS -PHB LOGIN', $test_count++, true);
+    if ($test_harness_instance->are_arrays_equal($from_manager, $manager_tokens)) {
+        $test_harness_instance->write_log_entry('VERIFY NEW TOKENS (MANAGER)', $test_count++, true);
     } else {
         $all_pass = false;
-        $test_harness_instance->write_log_entry('RESTORING SECURITY TOKENS -PHB LOGIN', $test_count++, false);
-        echo('<h4 style="color:red">PHB WAS NOT ABLE TO GIVE TOKENS TO DILBERT!</h4>');
+        $test_harness_instance->write_log_entry('VERIFY NEW TOKENS (MANAGER)', $test_count++, false);
+        echo('<h4 style="color:red">THE NEW TOKEN SET DOES NOT MATCH WHAT IS EXPECTED (MANAGER)!</h4>');
     }
     
-    if ($manager_dilbert_record->set_security_tokens($all_tokens)) {
-        $test_harness_instance->write_log_entry('SETTING MANY SECURITY TOKENS -PHB LOGIN', $test_count++, true);
-        $normal_phb_tokens = $manager_dilbert_record->security_tokens();
-        $manager_tokens = $manager_record->security_tokens();
-        array_unshift($manager_tokens, 1);
-        sort($normal_phb_tokens);
-        sort($manager_tokens);
-        
-        if ($normal_phb_tokens == $manager_tokens) {
-            $test_harness_instance->write_log_entry('FILTERING ONLY VALID TOKENS -PHB LOGIN', $test_count++, true);
-        } else {
-            $all_pass = false;
-            $test_harness_instance->write_log_entry('FILTERING ONLY VALID TOKENS -PHB LOGIN', $test_count++, false);
-            echo('<h4 style="color:red">THE RESULTING TOKEN LIST DID NOT MATCH THE EXPECTED LIST!</h4>');
-        }
+    if ($test_harness_instance->are_arrays_equal($from_god, $all_tokens)) {
+        $test_harness_instance->write_log_entry('VERIFY NEW TOKENS (MANAGER)', $test_count++, true);
     } else {
         $all_pass = false;
-        $test_harness_instance->write_log_entry('SETTING MANY SECURITY TOKENS -PHB LOGIN', $test_count++, false);
-        echo('<h4 style="color:red">PHB WAS NOT ABLE TO GIVE TOKENS TO DILBERT!</h4>');
+        $test_harness_instance->write_log_entry('VERIFY NEW TOKENS (MANAGER)', $test_count++, false);
+        echo('<h4 style="color:red">THE NEW TOKEN SET DOES NOT MATCH WHAT IS EXPECTED (MANAGER)!</h4>');
+    }
+
+    if ($record_manager->set_security_tokens($manager_tokens)) {
+        $test_harness_instance->write_log_entry('ATTEMPT TO SET TOKENS WHEN WE DON\'T HAVE PERMISSION -MANAGER LOGIN', $test_count++, true);
+    } else {
+        $all_pass = false;
+        $test_harness_instance->write_log_entry('ATTEMPT TO SET TOKENS WHEN WE DON\'T HAVE PERMISSION -MANAGER LOGIN', $test_count++, false);
+        echo('<h4 style="color:red">THIS SHOULD NOT HAVE FAILED!</h4>');
     }
     
-    $god_dilbert_record = $god_mode_sdk_instance->get_login_info($dilbert_id);
-    $manager_tokens[] = 19;
-    
-    if ($god_dilbert_record->set_security_tokens($manager_tokens)) {
-        $test_harness_instance->write_log_entry('SETTING MANY SECURITY TOKENS -GOD LOGIN', $test_count++, true);
-        $normal_god_tokens = $god_dilbert_record->security_tokens();
-        sort($manager_tokens);
-        sort($normal_god_tokens);
-        
-        if ($normal_god_tokens == $manager_tokens) {
-            $test_harness_instance->write_log_entry('FILTERING ONLY VALID TOKENS -GOD LOGIN', $test_count++, true);
-        } else {
-            $all_pass = false;
-            $test_harness_instance->write_log_entry('FILTERING ONLY VALID TOKENS -GOD LOGIN', $test_count++, false);
-            echo('<h4 style="color:red">THE RESULTING TOKEN LIST DID NOT MATCH THE EXPECTED LIST!</h4>');
-        }
+    $record_myself->force_reload();
+    $record_manager->force_reload();
+    $record_god->force_reload();
+
+    $from_myself = $record_myself->security_tokens();
+    $from_manager = $record_manager->security_tokens();
+    $from_god = $record_god->security_tokens();
+
+    if ($test_harness_instance->are_arrays_equal($from_god, $all_tokens)) {
+        $test_harness_instance->write_log_entry('VERIFY NEW TOKENS WERE NOT CHANGED (MANAGER)', $test_count++, true);
     } else {
         $all_pass = false;
-        $test_harness_instance->write_log_entry('SETTING MANY SECURITY TOKENS -GOD LOGIN', $test_count++, false);
-        echo('<h4 style="color:red">GOD WAS NOT ABLE TO GIVE TOKENS TO DILBERT!</h4>');
+        $test_harness_instance->write_log_entry('VERIFY NEW TOKENS WERE NOT CHANGED (MANAGER)', $test_count++, false);
+        echo('<h4 style="color:red">THE NEW TOKEN SET DOES NOT MATCH WHAT IS EXPECTED (MANAGER)!</h4>');
+    }
+
+    if ($record_myself->set_security_tokens($manager_tokens)) {
+        $all_pass = false;
+        $test_harness_instance->write_log_entry('ATTEMPT TO SET TOKENS WHEN WE DON\'T HAVE PERMISSION -MYSELF LOGIN', $test_count++, false);
+        echo('<h4 style="color:red">THIS SHOULD HAVE FAILED!</h4>');
+    } else {
+        $test_harness_instance->write_log_entry('ATTEMPT TO SET TOKENS WHEN WE DON\'T HAVE PERMISSION -MYSELF LOGIN', $test_count++, true);
     }
     
-    $manager_dilbert_record = $manager_sdk_instance->get_login_info($dilbert_id);
-    if ($manager_dilbert_record->set_security_tokens($manager_tokens)) {
-        $test_harness_instance->write_log_entry('SETTING SECURITY TOKENS TO ITEM WITH UNREACHABLE TOKENS -PHB LOGIN', $test_count++, true);
+    $record_myself->force_reload();
+    $record_manager->force_reload();
+    $record_god->force_reload();
+
+    $from_myself = $record_myself->security_tokens();
+    $from_manager = $record_manager->security_tokens();
+    $from_god = $record_god->security_tokens();
+
+    if ($test_harness_instance->are_arrays_equal($from_god, $all_tokens)) {
+        $test_harness_instance->write_log_entry('VERIFY NEW TOKENS WERE NOT CHANGED (MYSELF)', $test_count++, true);
     } else {
         $all_pass = false;
-        $test_harness_instance->write_log_entry('SETTING SECURITY TOKENS TO ITEM WITH UNREACHABLE TOKENS -PHB LOGIN', $test_count++, false);
-        echo('<h4 style="color:red">PHB WAS NOT ABLE TO MODIFY DILBERT\'S TOKENS!</h4>');
+        $test_harness_instance->write_log_entry('VERIFY NEW TOKENS WERE NOT CHANGED (MYSELF)', $test_count++, false);
+        echo('<h4 style="color:red">THE NEW TOKEN SET DOES NOT MATCH WHAT IS EXPECTED (MYSELF)!</h4>');
+    }
+
+    if ($record_god->set_security_tokens($manager_tokens)) {
+        $test_harness_instance->write_log_entry('SET MANAGER TOKENS -GOD LOGIN', $test_count++, true);
+    } else {
+        $all_pass = false;
+        $test_harness_instance->write_log_entry('SET MANAGER TOKENS -GOD LOGIN', $test_count++, false);
+        echo('<h4 style="color:red">THIS SHOULD NOT HAVE FAILED!</h4>');
     }
     
-    if ($god_dilbert_record->set_security_tokens([-14,-15])) {
-        $test_harness_instance->write_log_entry('SETTING SECURITY TOKENS TO ITEM WITH UNREACHABLE TOKENS -PHB LOGIN', $test_count++, true);
+    $record_myself->force_reload();
+    $record_manager->force_reload();
+    $record_god->force_reload();
+
+    $from_myself = $record_myself->security_tokens();
+    $from_manager = $record_manager->security_tokens();
+    $from_god = $record_god->security_tokens();
+
+    if ($test_harness_instance->are_arrays_equal($from_god, $manager_tokens)) {
+        $test_harness_instance->write_log_entry('VERIFY NEW TOKENS WERE CHANGED (GOD)', $test_count++, true);
     } else {
         $all_pass = false;
-        $test_harness_instance->write_log_entry('SETTING SECURITY TOKENS TO ITEM WITH UNREACHABLE TOKENS -PHB LOGIN', $test_count++, false);
-        echo('<h4 style="color:red">PHB WAS NOT ABLE TO MODIFY DILBERT\'S TOKENS!</h4>');
+        $test_harness_instance->write_log_entry('VERIFY NEW TOKENS WERE CHANGED (GOD)', $test_count++, false);
+        echo('<h4 style="color:red">THE NEW TOKEN SET DOES NOT MATCH WHAT IS EXPECTED (GOD)!</h4>');
+    }
+
+    if ($record_manager->set_security_tokens([])) {
+        $test_harness_instance->write_log_entry('CLEAR TOKENS -MANAGER LOGIN', $test_count++, true);
+    } else {
+        $all_pass = false;
+        $test_harness_instance->write_log_entry('CLEAR TOKENS -MANAGER LOGIN', $test_count++, false);
+        echo('<h4 style="color:red">THIS SHOULD NOT HAVE FAILED!</h4>');
+    }
+    
+    $record_myself->force_reload();
+    $record_manager->force_reload();
+    $record_god->force_reload();
+
+    $from_myself = $record_myself->security_tokens();
+    $from_manager = $record_manager->security_tokens();
+    $from_god = $record_god->security_tokens();
+
+    if ($test_harness_instance->are_arrays_equal($from_god, $normal_tokens)) {
+        $test_harness_instance->write_log_entry('VERIFY NEW TOKENS WERE CHANGED (GOD)', $test_count++, true);
+    } else {
+        $all_pass = false;
+        $test_harness_instance->write_log_entry('VERIFY NEW TOKENS WERE CHANGED (GOD)', $test_count++, false);
+        echo('<h4 style="color:red">THE NEW TOKEN SET DOES NOT MATCH WHAT IS EXPECTED (GOD)!</h4>');
     }
 
     return $all_pass;
