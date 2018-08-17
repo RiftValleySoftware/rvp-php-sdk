@@ -96,9 +96,26 @@ abstract class A_RVP_PHP_SDK_Security_Object extends A_RVP_PHP_SDK_Object {
     Set the tokens for this ID. NOTE: For security reasons, a user is not allowed to change their own tokens. In order to set the tokens for another user, the current user must be a manager.
     The manager must "own" all the tokens they specify. If they specify tokens they don't "own," then those tokens will be ignored.
     
+    AN IMPORTANT NOTE ABOUT SECURITY TOKENS
+    =======================================
+    
+    There are a few rules with setting security tokens:
+    
+    - You cannot set your own security tokens. It must be done by a manager object with edit rights to your login (not user).
+    
+    - You must be a manager to edit security tokens.
+    
+    - Any security tokens that you wish to edit must be ones that your login "owns."
+    
+    - You add security tokens by setting them as positive integers.
+    
+    - You remove security tokens by setting them as negative integers. HOWEVER, in order to remove security tokens, you must be an owner of EVERY SECURITY TOKEN IN THE TARGET LOGIN. If the login has tokens you can't see, the deletion will fail.
+    
+    The object will force-reload its data after this operation, in order to reflect the new security tokens.
+    
     \returns true, if the operation succeeded
      */
-    function set_security_tokens(    $in_token_array ///< REQUIRED: An array of int. The new tokens (will completely replace any existing ones).
+    function set_security_tokens(    $in_token_array ///< REQUIRED: An array of int. Positive ints will be added, negative ones will be deleted.
                         ) {
         $ret = false;
         
@@ -110,6 +127,8 @@ abstract class A_RVP_PHP_SDK_Security_Object extends A_RVP_PHP_SDK_Object {
             $ret = $this->save_data();
             if ($ret) {
                 $ret = $this->_load_data(true, true);
+            } else {
+                $this->_load_data(true, true);  // We reload the data in any case, but we don't record the result if the operation failed.
             }
         }
         
