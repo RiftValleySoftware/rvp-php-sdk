@@ -212,9 +212,10 @@ function test_29_run_login_tests($test_harness_instance, $god_mode_sdk_instance,
     if ($manager_dilbert_record->set_security_tokens($all_tokens)) {
         $test_harness_instance->write_log_entry('SETTING MANY SECURITY TOKENS -PHB LOGIN', $test_count++, true);
         $normal_phb_tokens = $manager_dilbert_record->security_tokens();
-        sort($manager_tokens);
-        array_pop($manager_tokens);
+        $manager_tokens = $manager_record->security_tokens();
+        array_unshift($manager_tokens, 1);
         sort($normal_phb_tokens);
+        sort($manager_tokens);
         
         if ($normal_phb_tokens == $manager_tokens) {
             $test_harness_instance->write_log_entry('FILTERING ONLY VALID TOKENS -PHB LOGIN', $test_count++, true);
@@ -230,7 +231,6 @@ function test_29_run_login_tests($test_harness_instance, $god_mode_sdk_instance,
     }
     
     $god_dilbert_record = $god_mode_sdk_instance->get_login_info($dilbert_id);
-    $manager_tokens[] = 18;
     $manager_tokens[] = 19;
     
     if ($god_dilbert_record->set_security_tokens($manager_tokens)) {
@@ -254,12 +254,21 @@ function test_29_run_login_tests($test_harness_instance, $god_mode_sdk_instance,
     
     $manager_dilbert_record = $manager_sdk_instance->get_login_info($dilbert_id);
     if ($manager_dilbert_record->set_security_tokens($manager_tokens)) {
+        $test_harness_instance->write_log_entry('SETTING SECURITY TOKENS TO ITEM WITH UNREACHABLE TOKENS -PHB LOGIN', $test_count++, true);
+    } else {
         $all_pass = false;
         $test_harness_instance->write_log_entry('SETTING SECURITY TOKENS TO ITEM WITH UNREACHABLE TOKENS -PHB LOGIN', $test_count++, false);
-        echo('<h4 style="color:red">PHB SHOULD NOT BE ABLE TO MODIFY DILBERT\'S TOKENS!</h4>');
-    } else {
-        $test_harness_instance->write_log_entry('SETTING SECURITY TOKENS TO ITEM WITH UNREACHABLE TOKENS -PHB LOGIN', $test_count++, true);
+        echo('<h4 style="color:red">PHB WAS NOT ABLE TO MODIFY DILBERT\'S TOKENS!</h4>');
     }
+    
+    if ($god_dilbert_record->set_security_tokens([-14,-15])) {
+        $test_harness_instance->write_log_entry('SETTING SECURITY TOKENS TO ITEM WITH UNREACHABLE TOKENS -PHB LOGIN', $test_count++, true);
+    } else {
+        $all_pass = false;
+        $test_harness_instance->write_log_entry('SETTING SECURITY TOKENS TO ITEM WITH UNREACHABLE TOKENS -PHB LOGIN', $test_count++, false);
+        echo('<h4 style="color:red">PHB WAS NOT ABLE TO MODIFY DILBERT\'S TOKENS!</h4>');
+    }
+
     return $all_pass;
 }
 ?>
