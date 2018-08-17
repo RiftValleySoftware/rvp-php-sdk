@@ -13,6 +13,8 @@
 */
 set_time_limit(3600);
 require_once(dirname(__FILE__).'/rvp_php_sdk_test_manifest.php');
+require_once(dirname(__FILE__).'/rvp_php_sdk_test_harness.class.php');
+RVP_PHP_SDK_Test_Harness::clear_out_tmp_dir();
 ?><!DOCTYPE html>
 <html lang="en">
     <head>

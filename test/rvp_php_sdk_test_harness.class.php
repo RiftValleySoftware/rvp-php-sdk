@@ -18,7 +18,8 @@ define('LGV_CONFIG_CATCHER', true);
 require_once (dirname(__FILE__).'/config/s_config.class.php');
 define('__SERVER_URI__', 'http://localhost'.dirname($_SERVER['PHP_SELF']).'/baobab.php');
 define('__SERVER_SECRET__', 'Supercalifragilisticexpialidocious');
-define('__LOG_FILE__', dirname(__FILE__).'/tmp/test_log_file.csv');
+define('__TMP_DIR__', dirname(__FILE__).'/tmp');
+define('__LOG_FILE__', __TMP_DIR__.'/test_log_file.csv');
 
 class RVP_PHP_SDK_Test_Harness {
     var $sdk_instance = NULL;
@@ -30,6 +31,19 @@ class RVP_PHP_SDK_Test_Harness {
     var $test_start_time = NULL;
     var $current_test_name = NULL;
     var $test_count = 0;
+    
+    static function static_echo_sha_data($in_sha) {
+        echo('<p><strong>SHA:</strong> <big><code>'.$in_sha.'</code></big></p>');
+    }
+    
+    static function clear_out_tmp_dir() {
+        $dir = new DirectoryIterator(__TMP_DIR__);
+        foreach ($dir as $fileinfo) {
+            if (!$fileinfo->isDot() && ($fileinfo->getBaseName() != 'index.php')) {
+                unlink($fileinfo->getPathName());
+            }
+        }
+    }
     
 	/*******************************************************************/
 	/**
@@ -257,7 +271,7 @@ class RVP_PHP_SDK_Test_Harness {
     }
     
     function echo_sha_data($in_sha) {
-        echo('<p><strong>SHA:</strong> <big><code>'.$in_sha.'</code></big></p>');
+        self::static_echo_sha_data($in_sha);
     }
     
     function close_log_file() {

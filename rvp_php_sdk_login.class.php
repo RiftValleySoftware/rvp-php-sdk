@@ -56,7 +56,6 @@ class RVP_PHP_SDK_Login extends A_RVP_PHP_SDK_Security_Object {
         return parent::_save_data($put_args.$in_args);
     }
     
-    
     /***********************/
     /**
     This is called after a successful save. It has the change record[s], and we will parse them to save the "before" object.

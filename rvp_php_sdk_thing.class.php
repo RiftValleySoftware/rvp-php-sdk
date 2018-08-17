@@ -59,7 +59,7 @@ class RVP_PHP_SDK_Thing extends A_RVP_PHP_SDK_Data_Object {
             }
         }
         
-        $ret = parent::_save_data($put_args.$in_args);
+        $ret = parent::_save_data($put_args.$in_args, NULL, NULL);
         
         return $ret;
     }
@@ -74,11 +74,17 @@ class RVP_PHP_SDK_Thing extends A_RVP_PHP_SDK_Data_Object {
                                             ) {
         $ret = false;
       
-        if (isset($in_change_record_object->things) && isset($in_change_record_object->things->changed_things) && is_array($in_change_record_object->things->changed_things) && count($in_change_record_object->things->changed_things)) {
-            foreach ($in_change_record_object->places->changed_things as $changed_things) {
-                if ($before = $changed_things->before) {
-                    $this->_changed_states[] = new RVP_PHP_SDK_Thing($this->_sdk_object, $before->id, $before, true);
-                    $ret = true;
+        if (isset($in_change_record_object->things)) {
+            if (isset($in_change_record_object->things->changed_things)) {
+                if (is_array($in_change_record_object->things->changed_things)) {
+                    if (count($in_change_record_object->things->changed_things)) {
+                        foreach ($in_change_record_object->things->changed_things as $changed_thing) {
+                            if ($before = $changed_thing->before) {
+                                $this->_changed_states[] = new RVP_PHP_SDK_Thing($this->_sdk_object, $before->id, $before, true);
+                                $ret = true;
+                            }
+                        }
+                    }
                 }
             }
         }

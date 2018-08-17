@@ -27,7 +27,11 @@ require_once(dirname(__FILE__).'/rvp_php_sdk.class.php');   // Make sure that we
 
 /****************************************************************************************************************************/
 /**
- This is an abstract base class for various data objects provided by the SDK.
+ This is an abstract base class for various data objects provided by the SDK. It deals with the "top-level" common data, like the read/write tokens, name and localization code.
+ 
+ This class will provide the history list, links to the SDK object, the basic JSON data object, as well as a bit of state.
+ 
+ It is a generic class that serves both the data and security databases.
  */
 abstract class A_RVP_PHP_SDK_Object {
     protected   $_sdk_object;       ///< This is the RVP_PHP_SDK object that "owns" this object.
@@ -40,14 +44,13 @@ abstract class A_RVP_PHP_SDK_Object {
     /************************************************************************************************************************/    
     /*#################################################### INTERNAL METHODS ################################################*/
     /************************************************************************************************************************/
-    
     /***********************/
     /**
     This is the base "load some data" method. It will send a JSON GET REST request to the API in order to fetch information about this object.
     
     Once it receives the object, it JSON-decodes it, and stores it in the _object_data internal field.
     
-    IT IS PROBABLT NOT YET READY! Subclasses should overload this, then apply their own filtering to the data after calling this parent method.
+    Subclasses will usually overload this, then apply their own filtering to the data after calling this parent method.
     
     \returns true, if it loaded the data.
      */
@@ -69,10 +72,12 @@ abstract class A_RVP_PHP_SDK_Object {
     
     /***********************/
     /**
+    This actually sends the data through the API to the server, and returns the response object.
+    
     \returns the JSON change object. NULL if not successful.
      */
     protected function _save_data(  $in_args = '',      ///< OPTIONAL: Default is an empty string. This is any previous arguments. This will be appeneded to the end of the list, so it should begin with an ampersand (&), and be url-encoded.
-                                    $in_payload = NULL  ///< OPTIONAL: Any payload to be asociated with this object.
+                                    $in_payload = NULL  ///< OPTIONAL: Any payload to be asociated with this object. Must be an associative array (['data' => data, 'type' => MIME Type string]).
                                 ) {
         $ret = NULL;
         
@@ -82,7 +87,7 @@ abstract class A_RVP_PHP_SDK_Object {
         $write_token = (isset($this->_object_data->write_token) && (0 < intval($this->_object_data->write_token))) ? intval($this->_object_data->write_token) : $this->_sdk_object->my_info()['login']->id();
         
         $put_args = '&name='.urlencode($name).'&lang='.urlencode($lang).'&read_token='.$read_token.'&write_token='.$write_token.'&owner_id='.$owner_id.'&latitude='.$latitude.'&longitude='.$longitude;
-        $result = json_decode($this->_sdk_object->put_data('/json/'.$this->_plugin_path.'/'.$this->id(), $put_args.$in_args), $in_payload);
+        $result = json_decode($this->_sdk_object->put_data('/json/'.$this->_plugin_path.'/'.$this->id(), $put_args.$in_args, $in_payload));
         
         return $result;
     }
@@ -90,6 +95,8 @@ abstract class A_RVP_PHP_SDK_Object {
     /***********************/
     /**
     This is called after a successful save. It has the change record[s], and the subclass should take care of parsing that record to save in the object's change record.
+    
+    It's important that subclasses apply their own parsing, as the response data is different, between people, places and things.
     
     \returns true, if the save was successful.
      */
@@ -99,7 +106,6 @@ abstract class A_RVP_PHP_SDK_Object {
     /************************************************************************************************************************/    
     /*#################################################### PUBLIC METHODS ##################################################*/
     /************************************************************************************************************************/
-    
     /***********************/
     /**
     The basic constructor for the class. You have the option of "priming" the object with information.
@@ -110,12 +116,21 @@ abstract class A_RVP_PHP_SDK_Object {
                             $in_detailed_data = false,      ///< OPTIONAL: Ignored if $in_data is NULL. Default is false. If true, then the data sent in was in "detailed" format.
                             $in_plugin_path = 'baseline'    ///< OPTIONAL: This is a path that is added to the server, to fetch data. Default is "baseline."
                         ) {
-        $this->_sdk_object = $in_sdk_object;    // This is the RVP_PHP_SDK object that "owns" this user.
         $this->_object_id = $in_id;
         $this->_object_data = $in_data;
         $this->_details = (NULL != $in_data) ? $in_detailed_data : false;
         $this->_plugin_path = $in_plugin_path;
         $this->_changed_states = [];
+        $this->set_sdk_object($in_sdk_object);
+    }
+    
+    /***********************/
+    /**
+    Simple accessor to set the "owning" SDK object.
+     */
+    function set_sdk_object(    $in_sdk_object  ///< REQUIRED: The "owning" SDK object.
+                            ) {
+        $this->_sdk_object = $in_sdk_object;    // This is the RVP_PHP_SDK object that "owns" this user.
     }
     
     /***********************/

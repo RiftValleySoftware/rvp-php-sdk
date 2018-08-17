@@ -65,7 +65,7 @@ class RVP_PHP_SDK_User extends A_RVP_PHP_SDK_Data_Object {
             }
         }
         
-        $ret = parent::_save_data($put_args.$in_args);
+        $ret = parent::_save_data($put_args.$in_args, NULL, NULL);
         
         return $ret;
     }

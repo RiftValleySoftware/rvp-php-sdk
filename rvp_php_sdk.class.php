@@ -140,7 +140,8 @@ class RVP_PHP_SDK {
         $content_type = NULL;       // This is used to signal the content-type for uploaded files.
         $file_size = 0;             // This is the size, in bytes, of uploaded files.
         $temp_file_name = NULL;     // This is a temporary file that is used to hold files before they are sent to the server.
-    
+        $file_data = NULL;
+        
         // If data is provided by the caller, we read it into a temporary location, and Base64-encode it.
         if ($data_input) {
             $file_data = base64_encode($data_input['data']);
@@ -239,16 +240,12 @@ class RVP_PHP_SDK {
 
         curl_close($curl);  // Bye, now.
     
-        // If we had a file open for transfer, we close it now.
-        if ($file) {
-            fclose($file);
-        }
-    
         // More reportage.
         if (isset($display_log) && $display_log) {
-            if (isset($data_file)) {
-                echo('<div>ADDITIONAL DATA:<pre>'.htmlspecialchars(print_r($data_file, true)).'</pre></div>');
+            if (isset($file_data)) {
+                echo('<p><strong>ADDITIONAL DATA SHA:</strong> <big><code>'.sha1($file_data).'</code></big></p>');
             }
+            
             if (isset($httpCode) && $httpCode) {
                 echo('<div>HTTP CODE:<code>'.htmlspecialchars($httpCode, true).'</code></div>');
             }
@@ -269,6 +266,11 @@ class RVP_PHP_SDK {
                 echo('<div>RESULT:<pre>'.htmlspecialchars(print_r(chunk_split($result, 1024), true)).'</pre></div>');
             }
             echo("</div>");
+        }
+    
+        // If we had a file open for transfer, we close it now.
+        if ($file) {
+            fclose($file);
         }
 
         return $result;
@@ -851,7 +853,6 @@ class RVP_PHP_SDK {
 
         if ($this->is_logged_in() && isset($in_plugin_path) && trim($in_plugin_path) && isset($in_query_args) && trim($in_query_args)) {
             $in_plugin_path .= '?'.ltrim($in_query_args, '&');
-        
             $response = $this->_call_REST_API('PUT', $in_plugin_path, $in_data_object);
         } elseif ($this->is_logged_in()) {
             $this->set_error(_ERR_NOT_AUTHORIZED__);

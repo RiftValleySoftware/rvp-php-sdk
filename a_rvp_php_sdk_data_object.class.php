@@ -28,6 +28,8 @@ require_once(dirname(__FILE__).'/a_rvp_php_sdk_object.class.php');   // Get our 
 /****************************************************************************************************************************/
 /**
  This is an abstract base class for various data objects provided by the SDK.
+ 
+ It deals with some of the common functionality, like the payload, location data, location obfuscation, and child IDs.
  */
 abstract class A_RVP_PHP_SDK_Data_Object extends A_RVP_PHP_SDK_Object {
     /************************************************************************************************************************/    
@@ -38,8 +40,8 @@ abstract class A_RVP_PHP_SDK_Data_Object extends A_RVP_PHP_SDK_Object {
     \returns true, if the save was successful.
      */
     protected function _save_data(  $in_args = '',              ///< OPTIONAL: Default is an empty string. This is any previous arguments. This will be appeneded to the end of the list, so it should begin with an ampersand (&), and be url-encoded.
-                                    $in_payload = NULL,         ///< OPTIONAL: If we want this to be a "payload save," we send in a payload here.
-                                    $in_new_child_ids = NULL    ///< OPTIONAL: If provided, then this is an array of new child IDs.
+                                    $in_payload = NULL,         ///< OPTIONAL: Any payload to be asociated with this object. Must be an associative array (['data' => data, 'type' => MIME Type string]).
+                                    $in_new_child_ids = NULL    ///< OPTIONAL: If provided, then this is an array of new child IDs (array of integer).
                                 ) {
         $owner_id = isset($this->_object_data->owner_id) ? intval($this->_object_data->owner_id) : 0;
         $latitude = isset($this->_object_data->raw_latitude) ? floatval($this->_object_data->raw_latitude) : floatval($this->_object_data->latitude);
@@ -265,6 +267,11 @@ abstract class A_RVP_PHP_SDK_Data_Object extends A_RVP_PHP_SDK_Object {
         if (isset($this->_object_data) && isset($this->_object_data->payload)) {
             $payload_data = base64_decode($this->_object_data->payload);
             
+            // We make sure that this was already Base64 before decoding.
+            if (base64_encode(base64_decode($payload_data)) == $payload_data) {
+                $payload_data = base64_decode($payload_data);
+            }
+            
             $ret = ['data' => $payload_data];
             
             if (isset($this->_object_data->payload_type)) {
@@ -283,13 +290,8 @@ abstract class A_RVP_PHP_SDK_Data_Object extends A_RVP_PHP_SDK_Object {
      */
     function set_payload(   $in_payload_data    ///< REQUIRED (can be NULL). This is the data to set as the instance payload. It should NOT be Base64 encoded.
                         ) {
-        $this->_load_data(false, true);
-        
-        $this->_object_data->payload = $in_payload_data;
-        
-        if (isset($this->_object_data->payload_type)) {
-            unset($this->_object_data->payload_type);
-        }
+        $payload = NULL;
+        $args = '';
         
         // We figure out the payload type by uploading to a file, then checking the file type.
         if ($in_payload_data) {
@@ -299,17 +301,19 @@ abstract class A_RVP_PHP_SDK_Data_Object extends A_RVP_PHP_SDK_Object {
             $content_type = finfo_file($finfo, $temp_file);
             unlink($temp_file);
             $this->_object_data->payload_type = $content_type;
-        }
-        
-        $args = '';
-        
-        // See if we want to explicitly remove the payload.
-        if (!$in_payload_data) {
+            $payload = ['data' => $in_payload_data, 'type' => $content_type];
+        } else {
             $args = '&remove_payload';
         }
         
         // We circumvent our caller for this one.
-        $ret = $this->_save_change_record($this->_save_data($args, $in_payload_data));
+        $ret = $this->_save_change_record(self::_save_data($args, $payload));
+        
+        if ($ret) {
+            $ret = $this->_load_data(true, true);
+        } else {
+            $this->_load_data(true, true);
+        }
         
         return $ret;
     }
@@ -353,7 +357,7 @@ abstract class A_RVP_PHP_SDK_Data_Object extends A_RVP_PHP_SDK_Object {
         $ret = false;
         
         // We circumvent our caller for this one.
-        $ret = $this->_save_change_record($this->_save_data('', NULL, $in_child_ids));
+        $ret = $this->_save_change_record(self::_save_data('', NULL, $in_child_ids));
         
         if ($ret) {
             $ret = $this->force_reload();
