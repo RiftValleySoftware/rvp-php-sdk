@@ -71,7 +71,8 @@ abstract class A_RVP_PHP_SDK_Object {
     /**
     \returns the JSON change object. NULL if not successful.
      */
-    protected function _save_data(  $in_args = ''   ///< OPTIONAL: Default is an empty string. This is any previous arguments. This will be appeneded to the end of the list, so it should begin with an ampersand (&), and be url-encoded.
+    protected function _save_data(  $in_args = '',      ///< OPTIONAL: Default is an empty string. This is any previous arguments. This will be appeneded to the end of the list, so it should begin with an ampersand (&), and be url-encoded.
+                                    $in_payload = NULL  ///< OPTIONAL: Any payload to be asociated with this object.
                                 ) {
         $ret = NULL;
         
@@ -79,13 +80,9 @@ abstract class A_RVP_PHP_SDK_Object {
         $lang = isset($this->_object_data->lang) ? $this->_object_data->lang : '';
         $read_token = isset($this->_object_data->read_token) ? intval($this->_object_data->read_token) : 0;
         $write_token = (isset($this->_object_data->write_token) && (0 < intval($this->_object_data->write_token))) ? intval($this->_object_data->write_token) : $this->_sdk_object->my_info()['login']->id();
-        $owner_id = isset($this->_object_data->owner_id) ? intval($this->_object_data->owner_id) : 0;
-
-        $latitude = isset($this->_object_data->raw_latitude) ? floatval($this->_object_data->raw_latitude) : floatval($this->_object_data->latitude);
-        $longitude = isset($this->_object_data->raw_longitude) ? floatval($this->_object_data->raw_longitude) : floatval($this->_object_data->longitude);
         
         $put_args = '&name='.urlencode($name).'&lang='.urlencode($lang).'&read_token='.$read_token.'&write_token='.$write_token.'&owner_id='.$owner_id.'&latitude='.$latitude.'&longitude='.$longitude;
-        $result = json_decode($this->_sdk_object->put_data('/json/'.$this->_plugin_path.'/'.$this->id(), $put_args.$in_args));
+        $result = json_decode($this->_sdk_object->put_data('/json/'.$this->_plugin_path.'/'.$this->id(), $put_args.$in_args), $in_payload);
         
         return $result;
     }

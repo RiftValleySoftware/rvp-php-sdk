@@ -58,7 +58,6 @@ class RVP_PHP_SDK {
     /************************************************************************************************************************/    
     /*################################################ INTERNAL STATIC METHODS #############################################*/
     /************************************************************************************************************************/
-    
     /***********************/
     /**
     \returns an associative array, with a matching table for short names to their "search_*" equivalents.
@@ -117,7 +116,6 @@ class RVP_PHP_SDK {
     /************************************************************************************************************************/    
     /*#################################################### INTERNAL METHODS ################################################*/
     /************************************************************************************************************************/
-    
     /***********************/
     /**
     This is the function that is used by the SDK to make REST calls to the BAOBAB server.
@@ -484,7 +482,6 @@ class RVP_PHP_SDK {
     /************************************************************************************************************************/    
     /*#################################################### PUBLIC METHODS ##################################################*/
     /************************************************************************************************************************/
-    
     /***********************/
     /**
     The basic constructor, which includes a validity test and a possible login.
@@ -493,7 +490,7 @@ class RVP_PHP_SDK {
                             $in_server_secret,      ///< REQUIRED: The "server secret" for the BAOBAB Server.
                             $in_username = NULL,    ///< OPTIONAL: The Login Username, if we are doing an immediate login.
                             $in_password = NULL,    ///< OPTIONAL: The password, if we are doing an immediate login.
-                            $in_login_timeout = 0   ///< OPTIONAL/REQUIRED: The login timeout, in seconds (integer). This should be provided if there is a login/password.
+                            $in_login_timeout = 0   ///< OPTIONAL/REQUIRED: The login timeout, in seconds (integer). This must be provided if there is a login/password.
                         ) {
         $this->_server_uri = trim($in_server_uri, '/'); // This is the server's base URI.
         $this->_server_secret  = $in_server_secret;     // This is the secret that we need to provide with authentication.

@@ -37,7 +37,9 @@ abstract class A_RVP_PHP_SDK_Data_Object extends A_RVP_PHP_SDK_Object {
     /**
     \returns true, if the save was successful.
      */
-    protected function _save_data(  $in_args = ''   ///< OPTIONAL: Default is an empty string. This is any previous arguments. This will be appeneded to the end of the list, so it should begin with an ampersand (&), and be url-encoded.
+    protected function _save_data(  $in_args = '',              ///< OPTIONAL: Default is an empty string. This is any previous arguments. This will be appeneded to the end of the list, so it should begin with an ampersand (&), and be url-encoded.
+                                    $in_payload = NULL,         ///< OPTIONAL: If we want this to be a "payload save," we send in a payload here.
+                                    $in_new_child_ids = NULL    ///< OPTIONAL: If provided, then this is an array of new child IDs.
                                 ) {
         $owner_id = isset($this->_object_data->owner_id) ? intval($this->_object_data->owner_id) : 0;
         $latitude = isset($this->_object_data->raw_latitude) ? floatval($this->_object_data->raw_latitude) : floatval($this->_object_data->latitude);
@@ -47,7 +49,16 @@ abstract class A_RVP_PHP_SDK_Data_Object extends A_RVP_PHP_SDK_Object {
         
         $put_args = '&owner_id='.$owner_id.'&latitude='.$latitude.'&longitude='.$longitude.(isset($fuzz_factor) ? '&fuzz_factor='.$fuzz_factor : '').(isset($can_see_through_the_fuzz) ? '&can_see_through_the_fuzz='.$can_see_through_the_fuzz : '');
         
-        $ret = parent::_save_data($put_args.$in_args);
+        if (isset($in_new_child_ids) && is_array($in_new_child_ids) && count($in_new_child_ids)) {
+            $in_new_child_ids = array_filter(array_map('intval', $in_new_child_ids), function($i) { return 0 != intval($i); });
+            if (count($in_new_child_ids)) {
+                $put_args .= '&child_ids='.implode(',', $in_new_child_ids);
+            }
+        }
+        
+        $payload = isset($in_payload) ? $in_payload : NULL;
+        
+        $ret = parent::_save_data($put_args.$in_args, $payload);
         
         return $ret;
     }
@@ -266,12 +277,51 @@ abstract class A_RVP_PHP_SDK_Data_Object extends A_RVP_PHP_SDK_Object {
     
     /***********************/
     /**
+    This adds (or removes) a payload from this object. It figures out the data type on its own.
+    
+    \returns true, if the operation succeeds.
+     */
+    function set_payload(   $in_payload_data    ///< REQUIRED (can be NULL). This is the data to set as the instance payload. It should NOT be Base64 encoded.
+                        ) {
+        $this->_load_data(false, true);
+        
+        $this->_object_data->payload = $in_payload_data;
+        
+        if (isset($this->_object_data->payload_type)) {
+            unset($this->_object_data->payload_type);
+        }
+        
+        // We figure out the payload type by uploading to a file, then checking the file type.
+        if ($in_payload_data) {
+            $temp_file = tempnam(sys_get_temp_dir(), 'RVP');  
+            file_put_contents($temp_file , $in_payload_data);
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);  
+            $content_type = finfo_file($finfo, $temp_file);
+            unlink($temp_file);
+            $this->_object_data->payload_type = $content_type;
+        }
+        
+        $args = '';
+        
+        // See if we want to explicitly remove the payload.
+        if (!$in_payload_data) {
+            $args = '&remove_payload';
+        }
+        
+        // We circumvent our caller for this one.
+        $ret = $this->_save_change_record($this->_save_data($args, $in_payload_data));
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
     This requires a "detailed" load.
     
     \returns an associative array ('people' => integer array of IDs, 'places' => integer array of IDs, and 'things' => integer array of IDs), containing the IDs of any "child" objects for this object.
      */
     function children_ids() {
-        $ret = NULL;
+        $ret = [];
         
         $this->_load_data(false, true);
         
@@ -283,6 +333,33 @@ abstract class A_RVP_PHP_SDK_Data_Object extends A_RVP_PHP_SDK_Object {
             }
         }
         
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    This sets new child object IDs for this object.
+    
+    \returns true, if the operation succeeded.
+     */
+    function set_new_children_ids(  $in_child_ids   /**< REQUIRED:  The new children IDs. We do not separate these into different classes of ID. It's a simple integer array.
+                                                                    This is a "delta" array. That means that what it contains are CHANGES.
+                                                                    You ADD children by indicating positive integers.
+                                                                    You DELETE children by indicating negative integers.
+                                                                    If your login does not have the ability to read (write is not necessary) the child ID, then that ID is ignored.
+                                                                    If the ID to be deleted is not in the record, then it is ignored.
+                                                    */
+                                ) {
+        $ret = false;
+        
+        // We circumvent our caller for this one.
+        $ret = $this->_save_change_record($this->_save_data('', NULL, $in_child_ids));
+        
+        if ($ret) {
+            $ret = $this->force_reload();
+        } else {    // If there was an error, then we don't send back the result (it may also be an error).
+            $this->force_reload();
+        }
         return $ret;
     }
     

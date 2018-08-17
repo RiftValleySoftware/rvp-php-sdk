@@ -30,17 +30,40 @@ require_once(dirname(__FILE__).'/a_rvp_php_sdk_data_object.class.php');   // Mak
  */
 class RVP_PHP_SDK_Thing extends A_RVP_PHP_SDK_Data_Object {
     /************************************************************************************************************************/    
-    /*################################################ INTERNAL STATIC METHODS #############################################*/
-    /************************************************************************************************************************/
-    
-    /***********************/
-    /**
-     */
-
-    /************************************************************************************************************************/    
     /*#################################################### INTERNAL METHODS ################################################*/
     /************************************************************************************************************************/
-    
+    /***********************/
+    /**
+    \returns true, if the save was successful.
+     */
+    protected function _save_data(  $in_args = ''   ///< OPTIONAL: Default is an empty string. This is any previous arguments. This will be appeneded to the end of the list, so it should begin with an ampersand (&), and be url-encoded.
+                                ) {
+        $to_set = [
+            'key' => (isset($this->_object_data->key) ? trim($this->_object_data->key) : NULL),
+            'description' => (isset($this->_object_data->description) ? trim($this->_object_data->description) : NULL),
+            'tag2' => (isset($this->_object_data->tag2) ? $this->_object_data->tag2 : NULL),
+            'tag3' => (isset($this->_object_data->tag3) ? $this->_object_data->tag3 : NULL),
+            'tag4' => (isset($this->_object_data->tag4) ? $this->_object_data->tag4 : NULL),
+            'tag5' => (isset($this->_object_data->tag5) ? $this->_object_data->tag5 : NULL),
+            'tag6' => (isset($this->_object_data->tag6) ? $this->_object_data->tag6 : NULL),
+            'tag7' => (isset($this->_object_data->tag7) ? $this->_object_data->tag7 : NULL),
+            'tag8' => (isset($this->_object_data->tag8) ? $this->_object_data->tag8 : NULL),
+            'tag9' => (isset($this->_object_data->tag9) ? $this->_object_data->tag9 : NULL)
+            ];
+        
+        $put_args = '';
+        
+        foreach ($to_set as $key => $value) {
+            if (isset($key) && isset($value)) {
+                $put_args .= '&'.$key.'='.urlencode(trim(strval($value)));
+            }
+        }
+        
+        $ret = parent::_save_data($put_args.$in_args);
+        
+        return $ret;
+    }
+        
     /***********************/
     /**
     This is called after a successful save. It has the change record[s], and we will parse them to save the "before" object.
@@ -50,6 +73,15 @@ class RVP_PHP_SDK_Thing extends A_RVP_PHP_SDK_Data_Object {
     protected function _save_change_record( $in_change_record_object    ///< REQUIRED: The change response, as a parsed object.
                                             ) {
         $ret = false;
+      
+        if (isset($in_change_record_object->things) && isset($in_change_record_object->things->changed_things) && is_array($in_change_record_object->things->changed_things) && count($in_change_record_object->things->changed_things)) {
+            foreach ($in_change_record_object->places->changed_things as $changed_things) {
+                if ($before = $changed_things->before) {
+                    $this->_changed_states[] = new RVP_PHP_SDK_Thing($this->_sdk_object, $before->id, $before, true);
+                    $ret = true;
+                }
+            }
+        }
         
         return $ret;
     }
@@ -81,7 +113,6 @@ class RVP_PHP_SDK_Thing extends A_RVP_PHP_SDK_Data_Object {
     /************************************************************************************************************************/    
     /*#################################################### PUBLIC METHODS ##################################################*/
     /************************************************************************************************************************/
-    
     /***********************/
     /**
      */
@@ -95,14 +126,379 @@ class RVP_PHP_SDK_Thing extends A_RVP_PHP_SDK_Data_Object {
     
     /***********************/
     /**
+    This requires a detailed load.
+    
+    \returns the key for this thing, as a string.
      */
     function key() {
         $ret = NULL;
         
-        $this->_load_data();
+        $this->_load_data(false, true);
         
         if (isset($this->_object_data) && isset($this->_object_data->key)) {
             $ret = $this->_object_data->key;
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    Change/Set the key for this thing.
+    
+    \returns true, if the operation succeeds.
+     */
+    function set_key(   $in_new_string_value    ///< REQUIRED: A string, with the new key value
+                    ) {
+        $ret = false;
+        
+        $this->_load_data(false, true);
+        
+        if (isset($this->_object_data)) {
+            $this->_object_data->key = trim(strval($in_new_string_value));
+            $ret = $this->save_data();
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    This requires a detailed load.
+    
+    \returns the description for this thing, as a string.
+     */
+    function description() {
+        $ret = NULL;
+        
+        $this->_load_data(false, true);
+        
+        if (isset($this->_object_data) && isset($this->_object_data->key)) {
+            $ret = $this->_object_data->description;
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    Change/Set the description for this thing.
+    
+    \returns true, if the operation succeeds.
+     */
+    function set_description(   $in_new_string_value    ///< REQUIRED: A string, with the new description value
+                            ) {
+        $ret = false;
+        
+        $this->_load_data(false, true);
+        
+        if (isset($this->_object_data)) {
+            $this->_object_data->description = trim(strval($in_new_string_value));
+            $ret = $this->save_data();
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    This requires a detailed load.
+    
+    \returns the string value of Tag 2, or NULL.
+     */
+    function tag2() {
+        $ret = NULL;
+        
+        $this->_load_data(false, true);
+        
+        if (isset($this->_object_data)) {
+            $ret = $this->_object_data->tag2;
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    This sets the value of tag 2.
+    
+    \returns true, if the operation suceeded.
+     */
+    function set_tag2(  $in_new_string_value    ///< REQUIRED: The new string value to be set. If empty, then the tag is cleared.
+                    ) {
+        $ret = false;
+        
+        $this->_load_data(false, true);
+        
+        if (isset($this->_object_data)) {
+            $this->_object_data->tag2 = trim(strval($in_new_string_value));
+            $ret = $this->save_data();
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    This requires a detailed string load.
+    
+    \returns the string value of Tag 3, or NULL.
+     */
+    function tag3() {
+        $ret = NULL;
+        
+        $this->_load_data(false, true);
+        
+        if (isset($this->_object_data)) {
+            $ret = $this->_object_data->tag3;
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    This sets the value of tag 3.
+    
+    \returns true, if the operation suceeded.
+     */
+    function set_tag3(  $in_new_string_value    ///< REQUIRED: The new string value to be set. If empty, then the tag is cleared.
+                    ) {
+        $ret = false;
+        
+        $this->_load_data(false, true);
+        
+        if (isset($this->_object_data)) {
+            $this->_object_data->tag3 = trim(strval($in_new_string_value));
+            $ret = $this->save_data();
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    This requires a detailed string load.
+    
+    \returns the string value of Tag 4, or NULL.
+     */
+    function tag4() {
+        $ret = NULL;
+        
+        $this->_load_data(false, true);
+        
+        if (isset($this->_object_data)) {
+            $ret = $this->_object_data->tag4;
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    This sets the value of tag 4.
+    
+    \returns true, if the operation suceeded.
+     */
+    function set_tag4(  $in_new_string_value    ///< REQUIRED: The new string value to be set. If empty, then the tag is cleared.
+                    ) {
+        $ret = false;
+        
+        $this->_load_data(false, true);
+        
+        if (isset($this->_object_data)) {
+            $this->_object_data->tag4 = trim(strval($in_new_string_value));
+            $ret = $this->save_data();
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    This requires a detailed string load.
+    
+    \returns the string value of Tag 5, or NULL.
+     */
+    function tag5() {
+        $ret = NULL;
+        
+        $this->_load_data(false, true);
+        
+        if (isset($this->_object_data)) {
+            $ret = $this->_object_data->tag5;
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    This sets the value of tag 5.
+    
+    \returns true, if the operation suceeded.
+     */
+    function set_tag5(  $in_new_string_value    ///< REQUIRED: The new string value to be set. If empty, then the tag is cleared.
+                    ) {
+        $ret = false;
+        
+        $this->_load_data(false, true);
+        
+        if (isset($this->_object_data)) {
+            $this->_object_data->tag5 = trim(strval($in_new_string_value));
+            $ret = $this->save_data();
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    This requires a detailed string load.
+    
+    \returns the string value of Tag 6, or NULL.
+     */
+    function tag6() {
+        $ret = NULL;
+        
+        $this->_load_data(false, true);
+        
+        if (isset($this->_object_data)) {
+            $ret = $this->_object_data->tag6;
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    This sets the value of tag 6.
+    
+    \returns true, if the operation suceeded.
+     */
+    function set_tag6(  $in_new_string_value    ///< REQUIRED: The new string value to be set. If empty, then the tag is cleared.
+                    ) {
+        $ret = false;
+        
+        $this->_load_data(false, true);
+        
+        if (isset($this->_object_data)) {
+            $this->_object_data->tag6 = trim(strval($in_new_string_value));
+            $ret = $this->save_data();
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    This requires a detailed string load.
+    
+    \returns the string value of Tag 7, or NULL.
+     */
+    function tag7() {
+        $ret = NULL;
+        
+        $this->_load_data(false, true);
+        
+        if (isset($this->_object_data)) {
+            $ret = $this->_object_data->tag7;
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    This sets the value of tag 7.
+    
+    \returns true, if the operation suceeded.
+     */
+    function set_tag7(  $in_new_string_value    ///< REQUIRED: The new string value to be set. If empty, then the tag is cleared.
+                    ) {
+        $ret = false;
+        
+        $this->_load_data(false, true);
+        
+        if (isset($this->_object_data)) {
+            $this->_object_data->tag7 = trim(strval($in_new_string_value));
+            $ret = $this->save_data();
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    This requires a detailed string load.
+    
+    \returns the string value of Tag 8, or NULL.
+     */
+    function tag8() {
+        $ret = NULL;
+        
+        $this->_load_data(false, true);
+        
+        if (isset($this->_object_data)) {
+            $ret = $this->_object_data->tag8;
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    This sets the value of tag 8.
+    
+    \returns true, if the operation suceeded.
+     */
+    function set_tag8(  $in_new_string_value    ///< REQUIRED: The new string value to be set. If empty, then the tag is cleared.
+                    ) {
+        $ret = false;
+        
+        $this->_load_data(false, true);
+        
+        if (isset($this->_object_data)) {
+            $this->_object_data->tag8 = trim(strval($in_new_string_value));
+            $ret = $this->save_data();
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    This requires a detailed string load.
+    
+    \returns the string value of Tag 9, or NULL.
+     */
+    function tag9() {
+        $ret = NULL;
+        
+        $this->_load_data(false, true);
+        
+        if (isset($this->_object_data)) {
+            $ret = $this->_object_data->tag9;
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    This sets the value of tag 9.
+    
+    \returns true, if the operation suceeded.
+     */
+    function set_tag9(  $in_new_string_value    ///< REQUIRED: The new string value to be set. If empty, then the tag is cleared.
+                    ) {
+        $ret = false;
+        
+        $this->_load_data(false, true);
+        
+        if (isset($this->_object_data)) {
+            $this->_object_data->tag9 = trim(strval($in_new_string_value));
+            $ret = $this->save_data();
         }
         
         return $ret;
