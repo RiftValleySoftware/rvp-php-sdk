@@ -21,7 +21,7 @@ define('__LOGIN_WRITEABLE__', true);
 define('__LOGIN_MANAGER__', true);
 define('__LOGIN_MAIN_ADMIN__', false);
 define('__LOGIN_LOGGED_IN__', true);
-define('__LOGIN_TOKENS__', [12, 7, 8, 9, 10, 11]);
+define('__LOGIN_TOKENS__', [1, 7, 8, 9, 10, 11, 12]);
 define('__LOGIN_USER_ID__', 1730);
 
 define('__USER_NAME__', 'Main Admin');
