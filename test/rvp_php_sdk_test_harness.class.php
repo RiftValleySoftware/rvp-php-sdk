@@ -16,7 +16,8 @@ require_once (dirname(dirname(__FILE__)).'/rvp_php_sdk.class.php');
 
 define('LGV_CONFIG_CATCHER', true);
 require_once (dirname(__FILE__).'/config/s_config.class.php');
-define('__SERVER_URI__', 'http://localhost'.dirname($_SERVER['PHP_SELF']).'/baobab.php');
+// define('__SERVER_URI__', 'http://localhost'.dirname($_SERVER['PHP_SELF']).'/baobab.php');
+define('__SERVER_URI__', 'http://localhost/baobab/index.php');
 define('__SERVER_SECRET__', 'Supercalifragilisticexpialidocious');
 define('__TMP_DIR__', dirname(__FILE__).'/tmp');
 define('__LOG_FILE__', __TMP_DIR__.'/test_log_file.csv');
