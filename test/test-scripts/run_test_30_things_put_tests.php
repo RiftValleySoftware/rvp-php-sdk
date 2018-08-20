@@ -12,6 +12,7 @@
     Little Green Viper Software Development: https://littlegreenviper.com
 */
 defined('__TEST_30_WORTH_ENOUGH_KEY__') or define('__TEST_30_WORTH_ENOUGH_KEY__', 'basalt-test-0171: Worth Enough');
+defined('__CSV_TEST_30_FILE__') or define('__CSV_TEST_30_FILE__', 'test-30-small-worth-enough');
 function run_test_30_things_put_tests($test_harness_instance) {
     $all_pass = false;
     $test_count = $test_harness_instance->test_count;
@@ -43,6 +44,36 @@ function run_test_30_things_put_tests($test_harness_instance) {
                 echo('<h4 style="color:red">Cannot Fetch the Thing By Its String Key!</h4>');
             }
             
+            $test_file_loc = dirname(__FILE__).'/'.__CSV_TEST_30_FILE__.'.csv';
+            if (file_exists($test_file_loc)) {
+                $csv_data = file_get_contents($test_file_loc);
+                if (isset($csv_data) && $csv_data) {
+                    $control_sha = '0e3a7a6ba3182cf4ac6bf5cefa70848c50de07f8';
+                    $response = $test_harness_instance->sdk_instance->bulk_upload($csv_data);
+                    $variable_sha = sha1(serialize($response));
+                    RVP_PHP_SDK_Test_Harness::static_echo_sha_data($variable_sha);
+                    if ($variable_sha != $control_sha) {
+                        $all_pass = false;
+                        $test_harness_instance->write_log_entry('BULK LOAD SHA CHECK', $test_count++, false);
+                        echo('<h4 style="color:red">SHAS DO NOT MATCH!</h4>');
+                    } else {
+                        $test_harness_instance->write_log_entry('BULK LOAD SHA CHECK', $test_count++, true);
+                        $worth_enough_thing = $test_harness_instance->sdk_instance->get_thing_info(__CSV_TEST_30_FILE__);
+                        if (isset($worth_enough_thing) && ($worth_enough_thing instanceof RVP_PHP_SDK_Thing)) {
+                            $sha = 'f3e063b45b370a05d952deefceec2b6cae5f6877';
+                            $all_pass &= run_test_30_harness_get_payload_tests_load_1_payload($test_harness_instance, $worth_enough_thing, $sha, $test_count);
+                        }
+                    }
+                } else {
+                    $all_pass = false;
+                    $test_harness_instance->write_log_entry('BULK LOAD FILE VALIDITY CHECK', $test_count++, false);
+                    echo('<h4 style="color:red">BULK LOAD FILE ('.htmlspecialchars($test_file_loc).') DATA INVALID!</h4>');
+                }
+            } else {
+                $all_pass = false;
+                $test_harness_instance->write_log_entry('BULK LOAD FILE CHECK', $test_count++, false);
+                echo('<h4 style="color:red">NO BULK LOAD FILE ('.htmlspecialchars($test_file_loc).')!</h4>');
+            }
         } else {
             $test_harness_instance->write_log_entry('VALIDITY CHECK', $test_count++, false);
             echo('<h4 style="color:red">SERVER NOT VALID!</h4>');
