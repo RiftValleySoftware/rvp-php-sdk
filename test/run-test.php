@@ -118,11 +118,13 @@ RVP_PHP_SDK_Test_Harness::clear_out_tmp_dir();
                 text-align:left;
             }
             
+            h2.passed,
             div.test-pass div.closed h2 a,
             div.test-pass div.closed h2 a:visited {
                 color:green;
             }
             
+            h2.failed,
             div.test-fail div.closed h2 a,
             div.test-fail div.closed h2 a:visited {
                 color:red;
@@ -298,7 +300,7 @@ RVP_PHP_SDK_Test_Harness::clear_out_tmp_dir();
                 item = document.getElementById('tests-displayed');
                 
                 if (item) {
-                    item.innerHTML = '<h2 style="color:' + (in_pass ? 'green' : 'red') + '">' + (in_pass ? 'ALL TESTS PASS' : 'TEST FAILURES') + '</pre>';
+                    item.innerHTML = '<h2 class="' + (in_pass ? 'passed' : 'failed') + '">' + (in_pass ? 'ALL TESTS PASS' : 'TEST FAILURES') + '</pre>';
                 };
                 
                 item = document.getElementById('tests-wrapped-up');
