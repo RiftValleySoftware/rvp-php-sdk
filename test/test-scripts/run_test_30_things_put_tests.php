@@ -51,7 +51,6 @@ function run_test_30_things_put_tests($test_harness_instance) {
                     $control_sha = '0e3a7a6ba3182cf4ac6bf5cefa70848c50de07f8';
                     $response = $test_harness_instance->sdk_instance->bulk_upload($csv_data);
                     $variable_sha = sha1(serialize($response));
-                    RVP_PHP_SDK_Test_Harness::static_echo_sha_data($variable_sha);
                     if ($variable_sha != $control_sha) {
                         $all_pass = false;
                         $test_harness_instance->write_log_entry('BULK LOAD SHA CHECK', $test_count++, false);
