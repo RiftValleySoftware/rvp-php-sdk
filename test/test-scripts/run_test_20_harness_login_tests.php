@@ -105,7 +105,7 @@ function run_test_20_harness_login_tests_test_login($in_test_harness_instance, $
                 echo('<h3 style="color:red">Info for "'.$in_csv_row['login_id'].'" Failed!</h3>');
             } else {
                 $editable_places = $in_test_harness_instance->sdk_instance->places_search(NULL, NULL, true);
-                if (count($editable_places) != intval($in_csv_row['editable_record_count'])) {
+                if (isset($editable_places) && is_array($editable_places) && count($editable_places) && (count($editable_places) != intval($in_csv_row['editable_record_count']))) {
                     $all_pass = false;
                     $in_test_harness_instance->write_log_entry('Log In "'.$in_csv_row['login_id'].'" Editable Record Count Failure!', $test_count++, false);
                     echo('<h3 style="color:red">Info for "'.$in_csv_row['login_id'].'" Failed (Count Mismatch)!</h3>');

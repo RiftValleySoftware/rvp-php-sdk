@@ -76,8 +76,9 @@ abstract class A_RVP_PHP_SDK_Object {
     
     \returns the JSON change object. NULL if not successful.
      */
-    protected function _save_data(  $in_args = '',      ///< OPTIONAL: Default is an empty string. This is any previous arguments. This will be appeneded to the end of the list, so it should begin with an ampersand (&), and be url-encoded.
-                                    $in_payload = NULL  ///< OPTIONAL: Any payload to be asociated with this object. Must be an associative array (['data' => data, 'type' => MIME Type string]).
+    protected function _save_data(  $in_args = '',              ///< OPTIONAL: Default is an empty string. This is any previous arguments. This will be appeneded to the end of the list, so it should begin with an ampersand (&), and be url-encoded.
+                                    $in_payload = NULL,         ///< OPTIONAL: Any payload to be asociated with this object. Must be an associative array (['data' => data, 'type' => MIME Type string]).
+                                    $in_new_child_ids = NULL    ///< IGNORED. Just here to suppress PHP warnings.
                                 ) {
         $ret = NULL;
         
