@@ -14,8 +14,10 @@
 define('RVP_PHP_SDK_ACCESS', true);
 require_once (dirname(dirname(__FILE__)).'/rvp_php_sdk.class.php');
 
-defined('LGV_CONFIG_CATCHER') or define('LGV_CONFIG_CATCHER', true);
-require_once (dirname(__FILE__).'/config/s_config.class.php');
+if (!defined('LGV_CONFIG_CATCHER')) {
+    define('LGV_CONFIG_CATCHER', true);
+    require_once (dirname(__FILE__).'/config/s_config.class.php');
+}
 define('__SERVER_URI__', 'http://localhost'.dirname($_SERVER['PHP_SELF']).'/baobab.php');
 // define('__SERVER_URI__', 'http://localhost/baobab/index.php');
 define('__SERVER_SECRET__', 'Supercalifragilisticexpialidocious');
