@@ -87,7 +87,7 @@ abstract class A_RVP_PHP_SDK_Object {
         $read_token = isset($this->_object_data->read_token) ? intval($this->_object_data->read_token) : 0;
         $write_token = (isset($this->_object_data->write_token) && (0 < intval($this->_object_data->write_token))) ? intval($this->_object_data->write_token) : $this->_sdk_object->my_info()['login']->id();
         
-        $put_args = '&name='.urlencode($name).'&lang='.urlencode($lang).'&read_token='.$read_token.'&write_token='.$write_token.'&owner_id='.$owner_id.'&latitude='.$latitude.'&longitude='.$longitude;
+        $put_args = '&name='.urlencode($name).'&lang='.urlencode($lang).'&read_token='.$read_token.'&write_token='.$write_token;
         $result = json_decode($this->_sdk_object->put_data('/json/'.$this->_plugin_path.'/'.$this->id(), $put_args.$in_args, $in_payload));
         
         return $result;

@@ -497,7 +497,7 @@ class RVP_PHP_SDK_User extends A_RVP_PHP_SDK_Data_Object {
         
         $this->_load_data(false, true);
         
-        if (isset($this->_object_data)) {
+        if (isset($this->_object_data) && isset($this->_object_data->associated_login_id)) {
             $ret = intval($this->_object_data->associated_login_id);
         }
         
