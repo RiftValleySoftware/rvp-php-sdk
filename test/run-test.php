@@ -356,7 +356,7 @@ RVP_PHP_SDK_Test_Harness::clear_out_tmp_dir();
             <div id="throbber-container" style="text-align:center">
                 <h3 id="progress-report" style="margin-top:1em"></h3>
                 <div class="thermometer-div"><div class="thermometer-complete-div" id="thermometer-complete-div" style="width:0"></div></div>
-                <img src="basalt/test/images/throbber.gif" alt="throbber" style="position:absolute;width:190px;top:50%;left:50%;margin-top:-95px;margin-left:-95px" />
+                <img src="throbber.gif" alt="throbber" style="position:absolute;width:190px;top:50%;left:50%;margin-top:-95px;margin-left:-95px" />
                 <img src="../icon.png" alt="icon" style="position:absolute;width:128px;top:50%;left:50%;margin-top:-64px;margin-left:-64px" />
             </div>
             <?php

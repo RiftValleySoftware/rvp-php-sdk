@@ -13,8 +13,8 @@
 */
     set_time_limit(3600);
     
-    require_once(dirname(__FILE__).'/rvp_php_sdk_test_harness.class.php');
     require_once(dirname(__FILE__).'/rvp_php_sdk_test_manifest.php');
+    require_once(dirname(__FILE__).'/rvp_php_sdk_test_harness.class.php');
     
     $first = isset($_GET['first_test']);
     $last = isset($_GET['last_test']);

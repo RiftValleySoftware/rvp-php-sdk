@@ -12,7 +12,11 @@
     Little Green Viper Software Development: https://littlegreenviper.com
 */
 define('RVP_PHP_SDK_ACCESS', true);
-require_once (dirname(dirname(__FILE__)).'/rvp_php_sdk.class.php');
+if (file_exists(dirname(dirname(__FILE__)).'/rvp_php_sdk.class.php')) {
+    require_once (dirname(dirname(__FILE__)).'/rvp_php_sdk.class.php');
+} else {
+    require_once (dirname(dirname(dirname(__FILE__))).'/blue-dragon/rvp_php_sdk.class.php');
+}
 
 if (!defined('LGV_CONFIG_CATCHER')) {
     define('LGV_CONFIG_CATCHER', true);
