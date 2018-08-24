@@ -11,8 +11,8 @@
 
     Little Green Viper Software Development: https://littlegreenviper.com
 */
-defined('__CSV_TEST_FILE__') or define('__CSV_TEST_FILE__','test-19_bmlt-2.csv');
-
+ini_set('upload_max_filesize', '60M');     
+ini_set('post_max_size', '60M'); 
 function run_test_19_harness_baseline_bulk_loader_tests($test_harness_instance) {
     $all_pass = false;
     $test_count = $test_harness_instance->test_count;
@@ -20,7 +20,7 @@ function run_test_19_harness_baseline_bulk_loader_tests($test_harness_instance) 
     if (isset($test_harness_instance->sdk_instance)) {
         $all_pass = true;
         if ($test_harness_instance->sdk_instance->valid()) {
-            $test_file_loc = dirname(__FILE__).'/'.__CSV_TEST_FILE__;
+            $test_file_loc = dirname(__FILE__).'/test-18_bmlt-1.csv';
             if (file_exists($test_file_loc)) {
                 $get_file = file_get_contents($test_file_loc);
                 if (isset($get_file) && $get_file) {

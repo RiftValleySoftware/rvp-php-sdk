@@ -11,8 +11,8 @@
 
     Little Green Viper Software Development: https://littlegreenviper.com
 */
-defined('__CSV_TEST_BACKUP_FILE__') or define('__CSV_TEST_BACKUP_FILE__','tmp/backup-dump');
-
+ini_set('upload_max_filesize', '60M');     
+ini_set('post_max_size', '60M'); 
 function run_test_22_harness_test_restore($test_harness_instance) {
     $all_pass = false;
     $test_count = $test_harness_instance->test_count;
@@ -20,7 +20,7 @@ function run_test_22_harness_test_restore($test_harness_instance) {
     if (isset($test_harness_instance->sdk_instance)) {
         $all_pass = true;
         if ($test_harness_instance->sdk_instance->valid()) {
-            $test_file_loc = dirname(dirname(__FILE__)).'/'.__CSV_TEST_BACKUP_FILE__.'.csv';
+            $test_file_loc = dirname(dirname(__FILE__)).'/tmp/backup-dump.csv';
             if (file_exists($test_file_loc)) {
                 $csv_data = file_get_contents($test_file_loc);
                 if (isset($csv_data) && $csv_data) {
