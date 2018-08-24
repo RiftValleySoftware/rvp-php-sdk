@@ -13,5 +13,9 @@
 */
 define('LGV_CONFIG_CATCHER', true);
 require_once (dirname(__FILE__).'/config/s_config.class.php');
-require_once (dirname(__FILE__).'/basalt/entrypoint.php');
+if (file_exists(dirname(dirname(__FILE__)).'/basalt/entrypoint.php')) {
+    require_once (dirname(__FILE__).'/basalt/entrypoint.php');
+} else {
+    require_once (dirname(dirname(dirname(__FILE__))).'/baobab/basalt/entrypoint.php');
+}
 ?>
