@@ -321,7 +321,7 @@ function run_test_10_harness_text_search_tests($test_harness_instance) {
             echo('<h4>Do A Search for Records with A Non-Blank Tag 7</h4>');
             $results = $test_harness_instance->sdk_instance->general_search(__SEARCH_SPEC_20__);
             $test_harness_instance->echo_sha_data(sha1(serialize($results)));
-            if ((__RESULTS_20_A_ == count($results)) && (__RESULTS_20_B_ == sha1(serialize($results)))) {
+            if (__RESULTS_20_A_ == count($results)) {
                 $test_harness_instance->write_log_entry('Simple Baseline General Wildcard Text Search', $test_count++, true);
             } else {
                 $all_pass = false;
