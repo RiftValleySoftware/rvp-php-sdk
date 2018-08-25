@@ -11,8 +11,6 @@
 
     Little Green Viper Software Development: https://littlegreenviper.com
 */
-ini_set('upload_max_filesize', '60M');     
-ini_set('post_max_size', '60M'); 
 function run_test_18_harness_baseline_bulk_loader_tests($test_harness_instance) {
     $all_pass = false;
     $test_count = $test_harness_instance->test_count;

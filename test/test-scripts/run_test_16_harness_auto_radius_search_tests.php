@@ -71,10 +71,11 @@ function run_test_16_harness_auto_radius_search_tests($test_harness_instance) {
             echo('<h4>Logging In MainAdmin.</h4>');
             if ($test_harness_instance->sdk_instance->login('MainAdmin', 'CoreysGoryStory', CO_Config::$session_timeout_in_seconds)) {
                 $step_size = 1;
-                $sha = '58cb9d9d986205565a60811df9779b978c07905d';
+                $sha = __EMPTY_SHA__;
                 $callback[0]->initial_time = time();
-                $callback[0]->timeout = 20;
+                $callback[0]->timeout = 16;
                 $all_pass &= run_test_16_harness_auto_radius_search_tests_auto_radius_search_test($test_harness_instance, $test_count, $center_point, $search_type, $sha, $text_search, $step_size, $max_radius, $target_number, $callback, $debug_display);
+                $test_harness_instance->sdk_instance->logout();
             }
         } else {
             $all_pass = false;
