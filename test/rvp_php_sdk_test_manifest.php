@@ -423,6 +423,22 @@ $rvp_php_sdk_test_manifest = [
                                                     'logout'    =>  true
                                                     ]
                                 ],
+                                
+                                [
+                                    'blurb'     =>  'CHILDREN TESTS',
+                                    'explain'   =>  'Testing the Child Objects.',
+                                    'db'        =>  'sdk_1',
+                                    'closure'   =>  [
+                                                    'function'  =>  'run_test_31_child_tests',
+                                                    'file'      =>  'test-scripts/run_test_31_child_tests.php'
+                                                    ],
+                                    'login'     =>  [
+                                                    'login_id'  =>  'admin',
+                                                    'password'  =>  'CoreysGoryStory',
+                                                    'timeout'   =>  CO_Config::$god_session_timeout_in_seconds,
+                                                    'logout'    =>  true
+                                                    ]
+                                ],
 
     ];
 ?>

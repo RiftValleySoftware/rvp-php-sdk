@@ -929,10 +929,21 @@ class RVP_PHP_SDK {
     
     /***********************/
     /**
+    This requires an array of integers be passed in. These are IDs of the objects that you want to fetch.
+    
+    You can pass the IDs as a simple integer array in a single parameter.
+    
     \returns new user, place and/or thing objects (or NULL) for the given integer ID[s]. These will be "unresolved" objects, sorted by ID.
      */
     function get_objects() {
-        $args = array_map('intval', func_get_args());
+        $func_args = func_get_args();
+        
+        // If they passed an array as the only argument, then we switch to that.
+        if (is_array($func_args) && (1 == count($func_args)) && is_array($func_args[0]) && count($func_args[0])) {
+            $func_args = $func_args[0];
+        }
+        
+        $args = array_map('intval', $func_args);
         $ret = NULL;
         $plugin_list = [];
         $handlers = $this->fetch_data('json/baseline/handlers/'.implode(',', $args));
