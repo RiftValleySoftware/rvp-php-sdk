@@ -73,7 +73,7 @@ function run_test_16_harness_auto_radius_search_tests($test_harness_instance) {
                 $step_size = 1;
                 $sha = __EMPTY_SHA__;
                 $callback[0]->initial_time = time();
-                $callback[0]->timeout = 16;
+                $callback[0]->timeout = 5;
                 $all_pass &= run_test_16_harness_auto_radius_search_tests_auto_radius_search_test($test_harness_instance, $test_count, $center_point, $search_type, $sha, $text_search, $step_size, $max_radius, $target_number, $callback, $debug_display);
                 $test_harness_instance->sdk_instance->logout();
             }
