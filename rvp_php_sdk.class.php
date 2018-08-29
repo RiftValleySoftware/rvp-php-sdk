@@ -587,7 +587,8 @@ class RVP_PHP_SDK {
      */
     function logout() {
         if ($this->is_logged_in()) {
-            $this->_call_REST_API('GET', 'logout', NULL);
+            $this->_call_REST_API('GET', 'logout'); // We call this directly, because we will not be using a return type.
+
             if (205 == intval($this->_last_response_code)) {
                 $this->_api_key = NULL;
                 $this->_login_time_limit = -1;

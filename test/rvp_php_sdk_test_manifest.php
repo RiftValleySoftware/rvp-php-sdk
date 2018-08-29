@@ -433,6 +433,16 @@ $rvp_php_sdk_test_manifest = [
                                                     'file'      =>  'test-scripts/run_test_31_child_tests.php'
                                                     ]
                                 ],
+                                
+                                [
+                                    'blurb'     =>  'NESTED HIERARCHY CHILDREN TESTS',
+                                    'explain'   =>  'Testing the Child Objects of One Login User.',
+                                    'db'        =>  'sdk_1',
+                                    'closure'   =>  [
+                                                    'function'  =>  'run_test_32_child_tests',
+                                                    'file'      =>  'test-scripts/run_test_32_child_tests.php'
+                                                    ]
+                                ],
 
     ];
 ?>
