@@ -17,6 +17,7 @@ function run_test_33_post_people_tests($test_harness_instance) {
     
     if (isset($test_harness_instance->sdk_instance) && $test_harness_instance->sdk_instance->valid()) {
         $test_harness_instance->write_log_entry('INSTANTIATION CHECK', $test_count++, true);
+        $test_harness_instance->sdk_instance->new_user('Dorkbert', [], 'RVAAdmin');
     } else {
         $all_pass = false;
         $test_harness_instance->write_log_entry('INSTANTIATION CHECK', $test_count++, false);

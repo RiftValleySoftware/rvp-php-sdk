@@ -847,7 +847,7 @@ class RVP_PHP_SDK {
             $in_plugin_path .= '?'.ltrim($in_query_args, '&');
         }
         
-        $response = $this->_call_REST_API('GET', $in_plugin_path);
+        $response = $this->_call_REST_API('GET', $in_plugin_path, NULL, true);
         
         return $response;
     }
@@ -1639,6 +1639,52 @@ class RVP_PHP_SDK {
         } else {
             $this->set_error(_ERR_INVALID_PARAMETERS__);
             return NULL;
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    This requires that the current login be a manager.
+    This creates one user people object, and, possibly, an associated login.
+    
+    \returns the user object.
+     */
+    function new_user(  $in_user_name,          ///< REQUIRED: The name of the user object (not one of the tag names)
+                        $in_tokens,             /**< REQUIRED: An associative array, ['read' => integer, 'write' => integer, 'tokens' => [integer]]
+                                                        - 'read' is optional. If not supplied, the user read will be set to '1' (only logged0in user can see)
+                                                        - 'write' is optional if $in_login_id is set (the login ID will be used). If $in_login_id is not supplied, then this is required, and must be an integer greater than 0 (and which the current manager has). If supplied, and not "owned" by the manager, then it will be ignored. If $in_login_id is not set, and the write token is invalid, then the operation will abort. Remember that setting this to 1 means that ALL logins can read and write the user.
+                                                        - 'tokens' is optional, and will only be considered if $in_login_id is set. This will be an array of int, and the manager performing this should have all the tokens. If unqualified tokens are provided, they will not be set, but the operation will not be aborted.
+                                                */
+                        $in_login_id = NULL,    ///< OPTIONAL: (Default is NULL). If supplied, a login will also be created with a random password that will be in the returned object. This ID must be unique. If supplied, and not unique, the entire operation will fail.
+                        $in_surname = NULL,     ///< OPTIONAL: (Default is NULL). If supplied, the surname for this user.
+                        $in_middle_name = NULL, ///< OPTIONAL: (Default is NULL). If supplied, the middle name for this user.
+                        $in_given_name = NULL,  ///< OPTIONAL: (Default is NULL). If supplied, the given name for this user.
+                        $in_nickname = NULL,    ///< OPTIONAL: (Default is NULL). If supplied, the nickname for this user.
+                        $in_prefix = NULL,      ///< OPTIONAL: (Default is NULL). If supplied, the prefix for this user.
+                        $in_suffix = NULL,      ///< OPTIONAL: (Default is NULL). If supplied, the suffix for this user.
+                        $in_tag7 = NULL,        ///< OPTIONAL: (Default is NULL). If supplied, tag 7 for this user.
+                        $in_tag8 = NULL,        ///< OPTIONAL: (Default is NULL). If supplied, tag 8 for this user.
+                        $in_tag9 = NULL,        ///< OPTIONAL: (Default is NULL). If supplied, tag 9 for this user.
+                        $in_payload = NULL      ///< OPTIONAL: (Default is NULL). If supplied, a binary payload to be associated with this user.
+                    ) {
+        $ret = NULL;
+        if ($this->is_manager()) {  // Must be a manager.
+            $in_login_id = trim($in_login_id);  // Make sure we're skinny.
+            
+            if ($in_login_id) { // some prerequisites.
+                $uri = 'json/people/logins/'.$in_login_id.'?test';
+                $test_result = $this->fetch_data($uri);
+            } else {    // If we are not creating a login, then we are required to have a valid write token.
+                if (!isset($in_tokens) || !isset($in_tokens['write']) || (1 > intval($in_tokens['write'])) || !in_array(intval($in_tokens['write']), $this->my_tokens())) {
+                    $this->set_error(_ERR_INVALID_PARAMETERS__);
+                    return NULL;
+                }
+            }
+            
+        } else {
+            $this->set_error(_ERR_NOT_AUTHORIZED__);
         }
         
         return $ret;
