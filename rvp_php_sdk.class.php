@@ -847,7 +847,7 @@ class RVP_PHP_SDK {
             $in_plugin_path .= '?'.ltrim($in_query_args, '&');
         }
         
-        $response = $this->_call_REST_API('GET', $in_plugin_path, NULL, true);
+        $response = $this->_call_REST_API('GET', $in_plugin_path);
         
         return $response;
     }
