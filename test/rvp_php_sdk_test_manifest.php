@@ -443,6 +443,16 @@ $rvp_php_sdk_test_manifest = [
                                                     'file'      =>  'test-scripts/run_test_32_child_tests.php'
                                                     ]
                                 ],
+                                
+                                [
+                                    'blurb'     =>  'PEOPLE POST TESTS',
+                                    'explain'   =>  'Create new user and login objects.',
+                                    'db'        =>  'sdk_1',
+                                    'closure'   =>  [
+                                                    'function'  =>  'run_test_33_post_people_tests',
+                                                    'file'      =>  'test-scripts/run_test_33_post_people_tests.php'
+                                                    ]
+                                ],
 
     ];
 ?>

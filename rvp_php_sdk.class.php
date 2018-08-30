@@ -947,7 +947,7 @@ class RVP_PHP_SDK {
         $ret = [];
 
         $args = array_map('intval', $func_args);
-        $arg_array = array_chunk($args, 10);    // Split into grous of 10, so we don't create too large a GET request.
+        $arg_array = array_chunk($args, 10);    // Split into groups of 10, so we don't create too large a GET request.
         
         foreach($arg_array as $args) {
             $handlers = $this->fetch_data('json/baseline/handlers/'.implode(',', $args));
