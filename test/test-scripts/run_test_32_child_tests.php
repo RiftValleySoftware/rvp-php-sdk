@@ -71,7 +71,7 @@ function combine_users($test_harness_instance, &$test_count) {
             echo('<h4 style="color:red">Could not Get the DCAdmin Object!</h4>');
         }
         
-        $md_admin_user = $god_admin_login->get_objects(__TEST_32_LOGIN_2_ID__);
+        $md_admin_user = $god_admin_login->get_objects(__TEST_32_LOGIN_1_ID__);
         if (is_array($md_admin_user) && (1 == count($md_admin_user))) {
             $md_admin_user = $md_admin_user[0];
             $test_harness_instance->write_log_entry('Get the MDAdmin object.', $test_count++, true);
@@ -83,14 +83,17 @@ function combine_users($test_harness_instance, &$test_count) {
         }
         
         if ($md_admin_user && $va_admin_user && $dc_admin_user) {
-            if ($va_admin_user->set_new_children_ids($dc_admin_user->id())) {
+            if ($va_admin_user->set_new_children_ids([$dc_admin_user->id()])) {
                 $test_harness_instance->write_log_entry('Add the DC Admin to the VA Admin.', $test_count++, true);
             
-                if ($md_admin_user->set_new_children_ids($va_admin_user->id())) {
+                if ($md_admin_user->set_new_children_ids([$va_admin_user->id()])) {
                     $test_harness_instance->write_log_entry('Add the VA Admin to the MD Admin.', $test_count++, true);
                     $hierarchy = $md_admin_user->get_hierarchy();
-                    $all_pass = display_hierarchy($test_harness_instance, $hierarchy, $test_count);
-                    if (!$all_pass) {
+                    $all_pass = display_hierarchy($test_harness_instance, $hierarchy);
+                    if ($all_pass) {
+                        $test_harness_instance->write_log_entry('Displaying the hierarchy.', $test_count++, true);
+                    } else {
+                        $test_harness_instance->write_log_entry('Displaying the hierarchy.', $test_count++, false);
                         echo('<h4 style="color:red">Hieararchy Crawl Failed!</h4>');
                     }
                 } else {
@@ -109,28 +112,27 @@ function combine_users($test_harness_instance, &$test_count) {
     return $all_pass;
 }
 
-function display_hierarchy($test_harness_instance, $in_hierarchy, &$test_count) {
+function display_hierarchy($test_harness_instance, $in_hierarchy) {
     $all_pass = true;
-    
     if (isset($in_hierarchy) && is_array($in_hierarchy) && (0 < count($in_hierarchy)) && isset($in_hierarchy['object']) && ($in_hierarchy['object'] instanceof A_RVP_PHP_SDK_Data_Object)) {
-        $test_harness_instance->write_log_entry('Displaying Hierarchy Level.', $test_count++, true);
-        if (isset($in_hierarchy['children'])) {
+        if (isset($in_hierarchy['children']) && count($in_hierarchy['children'])) {
             $display_id = uniqid();
             echo('<div id="'.$display_id.'" class="inner_closed">');
             echo('<h3 class="inner_header"><a href="javascript:toggle_inner_state(\''.$display_id.'\')">');
         } else {
             echo('<div>');
-            echo('<h3>');
+            echo('<code>');
         }
         echo(htmlspecialchars($in_hierarchy['object']->name()));
-        if (isset($in_hierarchy['children'])) {
-            echo(' ('.count($in_hierarchy['children']).' children)');
+        if (isset($in_hierarchy['children']) && count($in_hierarchy['children'])) {
+            echo(' ('.count($in_hierarchy['children']).' children)</a></h3>');
+        } else {
+            echo('</code>');
         }
-        echo('</h3>');
-        if (isset($in_hierarchy['children'])) {
+        if (isset($in_hierarchy['children']) && count($in_hierarchy['children'])) {
             echo('<div class="main_div inner_container">');
             foreach($in_hierarchy['children'] as $child) {
-                $all_pass = display_hierarchy($test_harness_instance, $child, $test_count);
+                $all_pass = display_hierarchy($test_harness_instance, $child);
                 if (!$all_pass) {
                     break;
                 }
@@ -140,7 +142,6 @@ function display_hierarchy($test_harness_instance, $in_hierarchy, &$test_count) 
         echo('</div>');
     } else {
         $all_pass = false;
-        $test_harness_instance->write_log_entry('Displaying Hierarchy Level.', $test_count++, false);
         echo('<h4 style="color:red">Invalid Admin Object!</h4>');
     }
     

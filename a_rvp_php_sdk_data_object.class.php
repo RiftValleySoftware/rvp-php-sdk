@@ -43,13 +43,33 @@ abstract class A_RVP_PHP_SDK_Data_Object extends A_RVP_PHP_SDK_Object {
                                     $in_payload = NULL,         ///< OPTIONAL: Any payload to be asociated with this object. Must be an associative array (['data' => data, 'type' => MIME Type string]).
                                     $in_new_child_ids = NULL    ///< OPTIONAL: If provided, then this is an array of new child IDs (array of integer).
                                 ) {
+        $put_args = '';
+        
         $owner_id = isset($this->_object_data->owner_id) ? intval($this->_object_data->owner_id) : 0;
-        $latitude = isset($this->_object_data->raw_latitude) ? floatval($this->_object_data->raw_latitude) : floatval($this->_object_data->latitude);
-        $longitude = isset($this->_object_data->raw_longitude) ? floatval($this->_object_data->raw_longitude) : floatval($this->_object_data->longitude);
+        $latitude = isset($this->_object_data->raw_latitude) ? floatval($this->_object_data->raw_latitude) : isset($this->_object_data->latitude) ? floatval($this->_object_data->latitude) : NULL;
+        $longitude = isset($this->_object_data->raw_longitude) ? floatval($this->_object_data->raw_longitude) : isset($this->_object_data->longitude) ? floatval($this->_object_data->longitude) : NULL;
         $fuzz_factor = isset($this->_object_data->fuzz_factor) ? floatval($this->_object_data->fuzz_factor) : NULL;
         $can_see_through_the_fuzz = isset($this->_object_data->can_see_through_the_fuzz) ? intval($this->_object_data->can_see_through_the_fuzz) : NULL;
         
-        $put_args = '&owner_id='.$owner_id.'&latitude='.$latitude.'&longitude='.$longitude.(isset($fuzz_factor) ? '&fuzz_factor='.$fuzz_factor : '').(isset($can_see_through_the_fuzz) ? '&can_see_through_the_fuzz='.$can_see_through_the_fuzz : '');
+        if (isset($owner_id) && (1 < intval($owner_id))) {
+            $put_args .= '&owner_id='.$owner_id;
+        }
+        
+        if (isset($latitude)) {
+            $put_args .= '&latitude='.$latitude;
+        }
+        
+        if (isset($longitude)) {
+            $put_args .= '&longitude='.$longitude;
+        }
+        
+        if (isset($fuzz_factor)) {
+            $put_args .= '&fuzz_factor='.$fuzz_factor;
+        }
+        
+        if (isset($can_see_through_the_fuzz)) {
+            $put_args .= '&can_see_through_the_fuzz='.$can_see_through_the_fuzz;
+        }
         
         if (isset($in_new_child_ids) && is_array($in_new_child_ids) && count($in_new_child_ids)) {
             $in_new_child_ids = array_filter(array_map('intval', $in_new_child_ids), function($i) { return 0 != intval($i); });
@@ -355,7 +375,6 @@ abstract class A_RVP_PHP_SDK_Data_Object extends A_RVP_PHP_SDK_Object {
                                                     */
                                 ) {
         $ret = false;
-        
         // We circumvent our caller for this one.
         $ret = $this->_save_change_record(self::_save_data('', NULL, $in_child_ids));
         
@@ -393,6 +412,8 @@ abstract class A_RVP_PHP_SDK_Data_Object extends A_RVP_PHP_SDK_Object {
     
     /***********************/
     /**
+    This requires a detailed data load.
+    
     This returns a recursive hierarchy of instances for this object. It returns actual object instances; not IDs, using a simple tuple.
     
     \returns an associative array. One element will be 'object', and will refer to this object. If the object has child objects, then there will be a 'children' array of more of these nodes. Leaf nodes will contain only 'object' elements.
@@ -404,15 +425,19 @@ abstract class A_RVP_PHP_SDK_Data_Object extends A_RVP_PHP_SDK_Object {
         
         if (isset($this->_object_data) && isset($this->_object_data->children)) {
             $child_data = (array)$this->_object_data->children;
-
+            
             if (count($child_data)) {
-                $objects = $this->_sdk_object->get_objects($child_data);
+                $ret['children'] = [];
+                foreach ($child_data as $plugin) {
+                    if (count($plugin)) {
+                        $objects = $this->_sdk_object->get_objects($plugin);
                 
-                if (is_array($objects) && count($objects)) {
-                    $ret['children'] = [];
-                    foreach ($objects as $object) {
-                        if (method_exists($object, 'get_hierarchy')) {
-                            $ret['children'][] = $object->get_hierarchy();
+                        if (is_array($objects) && count($objects)) {
+                            foreach ($objects as $object) {
+                                if (method_exists($object, 'get_hierarchy')) {
+                                    $ret['children'][] = $object->get_hierarchy();
+                                }
+                            }
                         }
                     }
                 }

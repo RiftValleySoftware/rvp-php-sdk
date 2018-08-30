@@ -944,18 +944,24 @@ class RVP_PHP_SDK {
             $func_args = $func_args[0];
         }
         
+        $ret = [];
+
         $args = array_map('intval', $func_args);
-        $ret = NULL;
-        $plugin_list = [];
-        $handlers = $this->fetch_data('json/baseline/handlers/'.implode(',', $args));
-        if (isset($handlers)) {
-            $handlers = json_decode($handlers);
-            if (isset($handlers) && isset($handlers->baseline)) {
-                $ret = $this->_decode_handlers($handlers->baseline);
+        $arg_array = array_chunk($args, 10);    // Split into grous of 10, so we don't create too large a GET request.
+        
+        foreach($arg_array as $args) {
+            $handlers = $this->fetch_data('json/baseline/handlers/'.implode(',', $args));
+            if (isset($handlers)) {
+                $handlers = json_decode($handlers);
+                if (isset($handlers) && isset($handlers->baseline)) {
+                    $results = $this->_decode_handlers($handlers->baseline);
+                    
+                    $ret = array_merge($ret, $results);
+                }
+            } else {
+                $this->set_error(_ERR_COMM_ERR__);
+                return NULL;
             }
-        } else {
-            $this->set_error(_ERR_COMM_ERR__);
-            return NULL;
         }
         
         if (isset($ret) && is_array($ret) && (1 < count($ret))) {
