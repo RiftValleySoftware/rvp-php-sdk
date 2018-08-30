@@ -265,6 +265,21 @@ class RVP_PHP_SDK_Test_Harness {
     
         return $result;
     }
+
+    function new_login_instance($in_login_id, $in_password, $is_god = false) {
+        $timeout = $is_god ? CO_Config::$god_session_timeout_in_seconds : CO_Config::$session_timeout_in_seconds;
+        echo('<h6>Logging In '.$in_login_id.':</h6>');
+        $sdk_instance = new RVP_PHP_SDK(__SERVER_URI__, __SERVER_SECRET__, $in_login_id, $in_password, $timeout);
+        if (isset($sdk_instance) && ($sdk_instance instanceof RVP_PHP_SDK) && $sdk_instance->is_logged_in()) {
+            $this->write_log_entry('Log In "'.$in_login_id.'"', $this->test_count++, true);
+        } else {
+            $sdk_instance = NULL;
+            $this->write_log_entry('Verify Log In "'.$in_login_id.'"', $this->test_count++, false);
+            echo('<h4 style="color:red">LOGIN ('.$in_login_id.') DIDN\'T TAKE!</h4>');
+        }
+    
+        return $sdk_instance;
+    }
     
     function open_log_file( $in_clear_file = false
                             ) {
