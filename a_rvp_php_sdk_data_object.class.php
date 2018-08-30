@@ -43,33 +43,13 @@ abstract class A_RVP_PHP_SDK_Data_Object extends A_RVP_PHP_SDK_Object {
                                     $in_payload = NULL,         ///< OPTIONAL: Any payload to be asociated with this object. Must be an associative array (['data' => data, 'type' => MIME Type string]).
                                     $in_new_child_ids = NULL    ///< OPTIONAL: If provided, then this is an array of new child IDs (array of integer).
                                 ) {
-        $put_args = '';
-        
         $owner_id = isset($this->_object_data->owner_id) ? intval($this->_object_data->owner_id) : 0;
-        $latitude = isset($this->_object_data->raw_latitude) ? floatval($this->_object_data->raw_latitude) : isset($this->_object_data->latitude) ? floatval($this->_object_data->latitude) : NULL;
-        $longitude = isset($this->_object_data->raw_longitude) ? floatval($this->_object_data->raw_longitude) : isset($this->_object_data->longitude) ? floatval($this->_object_data->longitude) : NULL;
+        $latitude = isset($this->_object_data->raw_latitude) ? floatval($this->_object_data->raw_latitude) : floatval($this->_object_data->latitude);
+        $longitude = isset($this->_object_data->raw_longitude) ? floatval($this->_object_data->raw_longitude) : floatval($this->_object_data->longitude);
         $fuzz_factor = isset($this->_object_data->fuzz_factor) ? floatval($this->_object_data->fuzz_factor) : NULL;
         $can_see_through_the_fuzz = isset($this->_object_data->can_see_through_the_fuzz) ? intval($this->_object_data->can_see_through_the_fuzz) : NULL;
         
-        if (isset($owner_id) && (1 < intval($owner_id))) {
-            $put_args .= '&owner_id='.$owner_id;
-        }
-        
-        if (isset($latitude)) {
-            $put_args .= '&latitude='.$latitude;
-        }
-        
-        if (isset($longitude)) {
-            $put_args .= '&longitude='.$longitude;
-        }
-        
-        if (isset($fuzz_factor)) {
-            $put_args .= '&fuzz_factor='.$fuzz_factor;
-        }
-        
-        if (isset($can_see_through_the_fuzz)) {
-            $put_args .= '&can_see_through_the_fuzz='.$can_see_through_the_fuzz;
-        }
+        $put_args = '&owner_id='.$owner_id.'&latitude='.$latitude.'&longitude='.$longitude.(isset($fuzz_factor) ? '&fuzz_factor='.$fuzz_factor : '').(isset($can_see_through_the_fuzz) ? '&can_see_through_the_fuzz='.$can_see_through_the_fuzz : '');
         
         if (isset($in_new_child_ids) && is_array($in_new_child_ids) && count($in_new_child_ids)) {
             $in_new_child_ids = array_filter(array_map('intval', $in_new_child_ids), function($i) { return 0 != intval($i); });
