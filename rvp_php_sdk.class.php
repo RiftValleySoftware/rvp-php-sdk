@@ -1678,7 +1678,7 @@ class RVP_PHP_SDK {
                 $response = $this->fetch_data($uri);
                 if (isset($response)) {
                     $response = json_decode($response);
-                    if (isset($response) && isset($response->people && isset($response->logins) && isset($response->logins->login_exists) && $response->logins->login_exists) {
+                    if (isset($response) && isset($response->people) && isset($response->logins) && isset($response->logins->login_exists) && $response->logins->login_exists) {
                     }
                 }
             } else {    // If we are not creating a login, then we are required to have a valid write token.
