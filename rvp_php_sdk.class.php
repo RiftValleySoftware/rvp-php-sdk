@@ -1675,7 +1675,12 @@ class RVP_PHP_SDK {
             
             if ($in_login_id) { // some prerequisites.
                 $uri = 'json/people/logins/'.$in_login_id.'?test';
-                $test_result = $this->fetch_data($uri);
+                $response = $this->fetch_data($uri);
+                if (isset($response)) {
+                    $response = json_decode($response);
+                    if (isset($response) && isset($response->people && isset($response->logins) && isset($response->logins->login_exists) && $response->logins->login_exists) {
+                    }
+                }
             } else {    // If we are not creating a login, then we are required to have a valid write token.
                 if (!isset($in_tokens) || !isset($in_tokens['write']) || (1 > intval($in_tokens['write'])) || !in_array(intval($in_tokens['write']), $this->my_tokens())) {
                     $this->set_error(_ERR_INVALID_PARAMETERS__);
