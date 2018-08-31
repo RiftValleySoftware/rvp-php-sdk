@@ -896,7 +896,7 @@ class RVP_PHP_SDK {
                 $in_plugin_path .= '?'.ltrim($in_query_args, '&');
             }
             
-            $response = $this->_call_REST_API('POST', $in_plugin_path, $in_data_object);
+            $response = $this->_call_REST_API('POST', $in_plugin_path, $in_data_object, true);
         } elseif ($this->is_logged_in()) {
             $this->set_error(_ERR_NOT_AUTHORIZED__);
         } else {
@@ -1649,7 +1649,7 @@ class RVP_PHP_SDK {
     This requires that the current login be a manager.
     This creates one user people object, and, possibly, an associated login.
     
-    \returns the user object.
+    \returns the user object. The user will be completely "sparse," with no additional information, beyond the general name and any associated login ID.
      */
     function new_user(  $in_user_name,          ///< REQUIRED: The name of the user object (not one of the tag names)
                         $in_tokens,             /**< REQUIRED: An associative array, ['read' => integer, 'write' => integer, 'tokens' => [integer]]
@@ -1657,29 +1657,30 @@ class RVP_PHP_SDK {
                                                         - 'write' is optional if $in_login_id is set (the login ID will be used). If $in_login_id is not supplied, then this is required, and must be an integer greater than 0 (and which the current manager has). If supplied, and not "owned" by the manager, then it will be ignored. If $in_login_id is not set, and the write token is invalid, then the operation will abort. Remember that setting this to 1 means that ALL logins can read and write the user.
                                                         - 'tokens' is optional, and will only be considered if $in_login_id is set. This will be an array of int, and the manager performing this should have all the tokens. If unqualified tokens are provided, they will not be set, but the operation will not be aborted.
                                                 */
-                        $in_login_id = NULL,    ///< OPTIONAL: (Default is NULL). If supplied, a login will also be created with a random password that will be in the returned object. This ID must be unique. If supplied, and not unique, the entire operation will fail.
-                        $in_surname = NULL,     ///< OPTIONAL: (Default is NULL). If supplied, the surname for this user.
-                        $in_middle_name = NULL, ///< OPTIONAL: (Default is NULL). If supplied, the middle name for this user.
-                        $in_given_name = NULL,  ///< OPTIONAL: (Default is NULL). If supplied, the given name for this user.
-                        $in_nickname = NULL,    ///< OPTIONAL: (Default is NULL). If supplied, the nickname for this user.
-                        $in_prefix = NULL,      ///< OPTIONAL: (Default is NULL). If supplied, the prefix for this user.
-                        $in_suffix = NULL,      ///< OPTIONAL: (Default is NULL). If supplied, the suffix for this user.
-                        $in_tag7 = NULL,        ///< OPTIONAL: (Default is NULL). If supplied, tag 7 for this user.
-                        $in_tag8 = NULL,        ///< OPTIONAL: (Default is NULL). If supplied, tag 8 for this user.
-                        $in_tag9 = NULL,        ///< OPTIONAL: (Default is NULL). If supplied, tag 9 for this user.
-                        $in_payload = NULL      ///< OPTIONAL: (Default is NULL). If supplied, a binary payload to be associated with this user.
+                        $in_login_id = NULL     ////< OPTIONAL: This is a string, with a requested login ID. If supplied, then a new login will be created, along with the user. The login ID must be a unique string in the security DB, and the operation will fail, if a login ID is supplied, but is already in use. A random password will be generated, and returned in the function return object.
                     ) {
         $ret = NULL;
-        if ($this->is_manager()) {  // Must be a manager.
-            $in_login_id = trim($in_login_id);  // Make sure we're skinny.
+        $need_a_write_in = false;   // This will be true, if we need to force a write token.
+        $login_id = (isset($in_login_id) && trim($in_login_id)) ? trim($in_login_id) : NULL; // See if we have a login ID.
             
-            if ($in_login_id) { // some prerequisites.
-                $uri = 'json/people/logins/'.$in_login_id.'?test';
+        if ($this->is_manager()) {  // Must be a manager.
+            if ($login_id) { // some prerequisites.
+                // We test to see if the login they want is already in use.
+                $uri = 'json/people/logins/'.$login_id.'?test';
                 $response = $this->fetch_data($uri);
                 if (isset($response)) {
                     $response = json_decode($response);
-                    if (isset($response) && isset($response->people) && isset($response->logins) && isset($response->logins->login_exists) && $response->logins->login_exists) {
+                    if (isset($response) && isset($response->people) && isset($response->people->logins) && isset($response->people->logins->login_exists) && $response->people->logins->login_exists) {
+                        $this->set_error(_ERR_INVALID_LOGIN_ID__);
+                        return NULL;
+                    } else {
+                        if (!isset($in_tokens) || !is_array($in_tokens) || !isset($in_tokens['write']) || !intval($in_tokens['write'])) {   // If a valid write token was not supplied, we'll need to add one.
+                            $need_a_write_in = true;
+                        }
                     }
+                } else {
+                    $this->set_error(_ERR_COMM_ERR__);
+                    return NULL;
                 }
             } else {    // If we are not creating a login, then we are required to have a valid write token.
                 if (!isset($in_tokens) || !isset($in_tokens['write']) || (1 > intval($in_tokens['write'])) || !in_array(intval($in_tokens['write']), $this->my_tokens())) {
@@ -1690,7 +1691,31 @@ class RVP_PHP_SDK {
             
         } else {
             $this->set_error(_ERR_NOT_AUTHORIZED__);
+            return NULL;
         }
+        
+        // If we got here, then we're clear, so far.
+        $uri = 'json/people/people';
+        $params = '';
+        if ($login_id) {
+            $params .= '&login_id='.urlencode($login_id);
+        }
+        
+        if (isset($in_tokens) && is_array($in_tokens) && count($in_tokens) && isset($in_tokens['read'])) {
+            $params .= '&read_token='.intval($in_tokens['read']);
+        }
+        
+        if (isset($in_tokens) && is_array($in_tokens) && count($in_tokens) && isset($in_tokens['write'])) {
+            $params .= '&write_token='.intval($in_tokens['write']);
+        }
+        
+        if (isset($in_tokens) && is_array($in_tokens) && count($in_tokens) && isset($in_tokens['tokens'])) {
+            $params .= '&tokens='.implode(',', array_map('intval', $in_tokens['tokens']));
+        }
+        
+        $uri .= '/?'.trim($params, "\&");
+         
+        $ret = $this->post_data($uri);
         
         return $ret;
     }
