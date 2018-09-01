@@ -956,7 +956,9 @@ class RVP_PHP_SDK {
                 if (isset($handlers) && isset($handlers->baseline)) {
                     $results = $this->_decode_handlers($handlers->baseline);
                     
-                    $ret = array_merge($ret, $results);
+                    if (isset($results) && is_array($results) && count($results)) {
+                        $ret = array_merge($ret, $results);
+                    }
                 }
             } else {
                 $this->set_error(_ERR_COMM_ERR__);
@@ -1650,7 +1652,7 @@ class RVP_PHP_SDK {
     This creates one user people object, and, possibly, an associated login.
     NOTE: The login ID and password are returned as part of the response, but the password is not included in the new user object. If not retained after this call, the password will be lost.
     
-    \returns an associative array ('login_id' => string, 'password' => string, 'user' => object), containing the login ID (if requested), password (if requested) and the user object. The user will be completely "sparse," with no additional information, beyond the general name and any associated login ID.
+    \returns an associative array ('login_id' => string, 'password' => string, 'user' => object, 'login' => object), containing the login ID (if requested), password (if requested), the user object, and the login object (if requested). The user will be completely "sparse," with no additional information, beyond the general name and any associated login ID.
      */
     function new_user(  $in_user_name,          ///< REQUIRED: The name of the user object (not one of the tag names)
                         $in_tokens,             /**< REQUIRED: An associative array, ['read' => integer, 'write' => integer, 'tokens' => [integer]]
@@ -1728,6 +1730,7 @@ class RVP_PHP_SDK {
                     $ret['login_id'] = $response->people->people->new_user->associated_login->login_id;
                     $ret['password'] = $response->people->people->new_user->associated_login->password;
                     unset($response->people->people->new_user->associated_login->password);
+                    $ret['login'] = new RVP_PHP_SDK_Login($this, $response->people->people->new_user->associated_login->id, $response->people->people->new_user->associated_login, true);
                 }
                 
                 $ret['user'] = new RVP_PHP_SDK_User($this, $response->people->people->new_user->id, $response->people->people->new_user, true);
