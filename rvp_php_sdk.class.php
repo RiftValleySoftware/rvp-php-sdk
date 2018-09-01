@@ -896,7 +896,7 @@ class RVP_PHP_SDK {
                 $in_plugin_path .= '?'.ltrim($in_query_args, '&');
             }
             
-            $response = $this->_call_REST_API('POST', $in_plugin_path, $in_data_object, true);
+            $response = $this->_call_REST_API('POST', $in_plugin_path, $in_data_object);
         } elseif ($this->is_logged_in()) {
             $this->set_error(_ERR_NOT_AUTHORIZED__);
         } else {
@@ -1648,8 +1648,9 @@ class RVP_PHP_SDK {
     /**
     This requires that the current login be a manager.
     This creates one user people object, and, possibly, an associated login.
+    NOTE: The login ID and password are returned as part of the response, but the password is not included in the new user object. If not retained after this call, the password will be lost.
     
-    \returns the user object. The user will be completely "sparse," with no additional information, beyond the general name and any associated login ID.
+    \returns an associative array ('login_id' => string, 'password' => string, 'user' => object), containing the login ID (if requested), password (if requested) and the user object. The user will be completely "sparse," with no additional information, beyond the general name and any associated login ID.
      */
     function new_user(  $in_user_name,          ///< REQUIRED: The name of the user object (not one of the tag names)
                         $in_tokens,             /**< REQUIRED: An associative array, ['read' => integer, 'write' => integer, 'tokens' => [integer]]
@@ -1715,7 +1716,23 @@ class RVP_PHP_SDK {
         
         $uri .= '/?'.trim($params, "\&");
          
-        $ret = $this->post_data($uri);
+        $response = $this->post_data($uri);
+        
+        if (isset($response)) {
+            $response = json_decode($response);
+            
+            if (isset($response) && isset($response->people) && isset($response->people->people) && isset($response->people->people->new_user)) {
+                $ret = [];
+                
+                if (isset($response->people->people->new_user->associated_login)) {
+                    $ret['login_id'] = $response->people->people->new_user->associated_login->login_id;
+                    $ret['password'] = $response->people->people->new_user->associated_login->password;
+                    unset($response->people->people->new_user->associated_login->password);
+                }
+                
+                $ret['user'] = new RVP_PHP_SDK_User($this, $response->people->people->new_user->id, $response->people->people->new_user, true);
+            }
+        }
         
         return $ret;
     }
