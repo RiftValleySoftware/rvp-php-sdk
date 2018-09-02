@@ -134,7 +134,6 @@ class RVP_PHP_SDK {
                                         ) {
     
         $method = strtoupper(trim($method));            // Make sure the method is always uppercase.
-    
         // Initialize function local variables.
         $file = NULL;               // This will be a file handle, for uploads.
         $content_type = NULL;       // This is used to signal the content-type for uploaded files.
@@ -144,6 +143,7 @@ class RVP_PHP_SDK {
         
         // If data is provided by the caller, we read it into a temporary location, and Base64-encode it.
         if ($data_input) {
+
             $file_data = base64_encode($data_input['data']);
         
             $temp_file_name = tempnam(sys_get_temp_dir(), 'RVP');
@@ -202,7 +202,7 @@ class RVP_PHP_SDK {
             curl_setopt($curl, CURLOPT_USERPWD, $this->_server_secret.':'.$this->_api_key);
             
             // This is because some servers may intercept the auth headers, so we also supply the credentials as URL query arguments.
-            if (isset($url_extension) && (false !== strpos($url_extension, '?'))) {  // See iff we need to append, or begin a new query.
+            if (isset($url_extension) && (false !== strpos($url_extension, '?'))) {  // See if we need to append, or begin a new query.
                 $url_extension .= '&';
             } else {
                 $url_extension .= '?';
@@ -1754,13 +1754,13 @@ class RVP_PHP_SDK {
     \returns a new place object. The object will be basically uninitialized. NULL, if the create failed.
      */
     function new_place( $in_place_name,         ///< REQUIRED: A general name for the place (different from the venue name).
-                        $in_tokens = [],        /**< OPTIONAL: An associative array, ['read' => integer, 'write' => integer]
+                        $in_tokens = [],        /**< OPTIONAL: Default is an empty array. An associative array, ['read' => integer, 'write' => integer]
                                                         - 'read' is optional. If not supplied, the user read will be set to '0' (all can see)
                                                         - 'write' is optional and must be an integer greater than 0 (and which the current manager has). If supplied, and not "owned" by the manager, then it will be ignored. If the write token is invalid, then the operation will abort. Remember that setting this to 1 means that ALL logins can read and write the record.
                                                 */
                         $in_latitude = NULL,    ///< OPTIONAL: Default is NULL. If supplied, should be a floating-point value, in degrees latitude, of the place location. Must be supplied with valid $in_longitude value.
                         $in_longitude = NULL,   ///< OPTIONAL: Default is NULL. If supplied, should be a floating-point value, in degrees longitude, of the place location. Must be supplied with valid $in_latitude value.
-                        $in_fuzz_factor = NULL  ///< OPTIONAL: If supplied, should contain a floating-point number, with a "fuzz factor" distance, in Kilometers.
+                        $in_fuzz_factor = NULL  ///< OPTIONAL: Default is NULL. If supplied, should contain a floating-point number, with a "fuzz factor" distance, in Kilometers.
                         ) {
         $ret = NULL;
         
@@ -1791,9 +1791,9 @@ class RVP_PHP_SDK {
                 $params .= '&write_token='.intval($in_tokens['write']);
             }
         
-            $uri .= '/?'.trim($params, "\&");
+            $params = trim($params, "\&");
          
-            $response = $this->post_data($uri);
+            $response = $this->post_data($uri, $params);
         
             if (isset($response)) {
                 $response = json_decode($response);
@@ -1820,24 +1820,34 @@ class RVP_PHP_SDK {
     \returns a new thing object. The object will be basically uninitialized. NULL, if the create failed.
      */
     function new_thing( $in_thing_key,                  ///< REQUIRED: A key for the thing (must be a unique key). If this is not completely unique in the server, the operation will fail.
-                        $in_thing_value = NULL,         ///< OPTIONAL: This is a binary value to be associated with the thing.
-                        $in_tokens = [],                /**< OPTIONAL: An associative array, ['read' => integer, 'write' => integer]
+                        $in_thing_value,                ///< REQUIRED: This is a binary value to be associated with the thing.
+                        $in_tokens = [],                /**< OPTIONAL: Default is an empty array. An associative array, ['read' => integer, 'write' => integer]
                                                                 - 'read' is optional. If not supplied, the user read will be set to '0' (all can see)
                                                                 - 'write' is optional and must be an integer greater than 0 (and which the current manager has). If supplied, and not "owned" by the manager, then it will be ignored. If the write token is invalid, then the operation will abort. Remember that setting this to 1 means that ALL logins can read and write the record.
                                                         */
                         $in_thing_name = NULL,          ///< OPTIONAL: Default is NULL. If supplied, will be a general name for the thing.
-                        $in_thing_description = NULL    ///< OPTIONAL: If supplied, this should be a string up to 255 characters long, describing the thing.
+                        $in_thing_description = NULL    ///< OPTIONAL: Default is NULL. If supplied, this should be a string up to 255 characters long, describing the thing.
                         ) {
         $ret = NULL;
         
-        if ($this->is_logged_in()) {    // Must be logged in.
+        if ($this->is_logged_in() && isset($in_thing_key) && $in_thing_key && isset($in_thing_value) && $in_thing_value) {    // Must be logged in, and we must have the required parameters.
             $uri = 'json/things';
             $params = '';
-        
+            
+            $in_thing_key = trim($in_thing_key);
+            
+            if (false !== strpos($in_thing_key, ',')) {    // Cannot have commas in the key.
+                $in_thing_key = NULL;
+            }
+            
+            if ($in_thing_key) {
+                $params .= '&key='.urlencode($in_thing_key);
+            }
+            
             if (isset($in_tokens) && is_array($in_tokens) && count($in_tokens) && isset($in_tokens['read'])) {
                 $params .= '&read_token='.intval($in_tokens['read']);
             }
-        
+            
             if (isset($in_tokens) && is_array($in_tokens) && count($in_tokens) && isset($in_tokens['write']) && (0 < intval($in_tokens['write']))) {
                 $params .= '&write_token='.intval($in_tokens['write']);
             }
@@ -1850,9 +1860,16 @@ class RVP_PHP_SDK {
                 $params .= '&description='.urlencode($in_thing_description);
             }
         
-            $uri .= '/?'.trim($params, "\&");
-         
-            $response = $this->post_data($uri);
+            $params = trim($params, "\&");
+            
+            $temp_file = tempnam(sys_get_temp_dir(), 'RVP');  
+            file_put_contents($temp_file , $in_thing_value);
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);  
+            $content_type = finfo_file($finfo, $temp_file);
+            unlink($temp_file);
+            $payload = ['data' => $in_thing_value, 'type' => $content_type];
+     
+            $response = $this->post_data($uri, $params, $payload);
         
             if (isset($response)) {
                 $response = json_decode($response);
@@ -1864,7 +1881,8 @@ class RVP_PHP_SDK {
                 }
             }
         } else {
-            $this->set_error(_ERR_NOT_AUTHORIZED__);
+            // If they are logged in, then they are authorized, but they don't have required parameters.
+            $this->set_error($this->is_logged_in() ? _ERR_INVALID_PARAMETERS__ : _ERR_NOT_AUTHORIZED__);
             return NULL;
         }
         
