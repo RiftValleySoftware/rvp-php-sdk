@@ -55,6 +55,14 @@ function run_test_33_post_people_tests($test_harness_instance) {
                 $test_harness_instance->write_log_entry('Validate User Object', $test_count++, false);
                 echo('<h4 style="color:red">USER OBJECT INVALID!</h4>');
             }
+            
+            if (isset($new_user['login']) && ($new_user['login'] instanceof RVP_PHP_SDK_Login) && ('Dorkbert' == $new_user['login']->name()) && (20 == $new_user['login']->id())) {
+                $test_harness_instance->write_log_entry('Validate Login Object', $test_count++, true);
+            } else {
+                $all_pass = false;
+                $test_harness_instance->write_log_entry('Validate Login Object', $test_count++, false);
+                echo('<h4 style="color:red">LOGIN OBJECT INVALID!</h4>');
+            }
         } else {
             $all_pass = false;
             $test_harness_instance->write_log_entry('Allowed to Create New User', $test_count++, false);
