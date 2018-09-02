@@ -1708,7 +1708,7 @@ class RVP_PHP_SDK {
             $params .= '&read_token='.intval($in_tokens['read']);
         }
         
-        if (isset($in_tokens) && is_array($in_tokens) && count($in_tokens) && isset($in_tokens['write'])) {
+        if (isset($in_tokens) && is_array($in_tokens) && count($in_tokens) && isset($in_tokens['write']) && (0 < intval($in_tokens['write']))) {
             $params .= '&write_token='.intval($in_tokens['write']);
         }
         
@@ -1751,6 +1751,10 @@ class RVP_PHP_SDK {
     \returns a new place object. The object will be basically uninitialized. NULL, if the create failed. The read
      */
     function new_place( $in_place_name,         ///< REQUIRED: A general name for the place (different from the venue name).
+                        $in_tokens = [],        /**< OPTIONAL: An associative array, ['read' => integer, 'write' => integer]
+                                                        - 'read' is optional. If not supplied, the user read will be set to '0' (all can see)
+                                                        - 'write' is optional and must be an integer greater than 0 (and which the current manager has). If supplied, and not "owned" by the manager, then it will be ignored. If the write token is invalid, then the operation will abort. Remember that setting this to 1 means that ALL logins can read and write the record.
+                                                */
                         $in_latitude = NULL,    ///< OPTIONAL: Default is NULL. If supplied, should be a floating-point value, in degrees latitude, of the place location. Must be supplied with valid $in_longitude value.
                         $in_longitude = NULL,   ///< OPTIONAL: Default is NULL. If supplied, should be a floating-point value, in degrees longitude, of the place location. Must be supplied with valid $in_latitude value.
                         $in_fuzz_factor = NULL  ///< OPTIONAL: If supplied, should contain a floating-point number, with a "fuzz factor" distance, in Kilometers.
@@ -1774,6 +1778,14 @@ class RVP_PHP_SDK {
         
             if ($in_fuzz_factor) {
                 $params .= '&fuzz_factor='.floatval($in_fuzz_factor);
+            }
+        
+            if (isset($in_tokens) && is_array($in_tokens) && count($in_tokens) && isset($in_tokens['read'])) {
+                $params .= '&read_token='.intval($in_tokens['read']);
+            }
+        
+            if (isset($in_tokens) && is_array($in_tokens) && count($in_tokens) && isset($in_tokens['write']) && (0 < intval($in_tokens['write']))) {
+                $params .= '&write_token='.intval($in_tokens['write']);
             }
         
             $uri .= '/?'.trim($params, "\&");

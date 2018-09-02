@@ -18,7 +18,7 @@ function run_test_34_post_places_tests($test_harness_instance) {
     if (isset($test_harness_instance->sdk_instance) && $test_harness_instance->sdk_instance->valid()) {
         $test_harness_instance->write_log_entry('INSTANTIATION CHECK', $test_count++, true);
         
-        $new_place = $test_harness_instance->sdk_instance->new_place('Istanbul, Not Constantinople', 41.01224, 28.976018, 10);
+        $new_place = $test_harness_instance->sdk_instance->new_place('Istanbul, Not Constantinople', ['read' => 1, 'write' => 1], 41.01224, 28.976018, 10);
         
         if ((41.01224 == $new_place->raw_coords()['latitude']) && (28.976018 == $new_place->raw_coords()['longitude'])) {
             $test_harness_instance->write_log_entry('LONG/LAT CHECK', $test_count++, true);
@@ -34,6 +34,22 @@ function run_test_34_post_places_tests($test_harness_instance) {
             $all_pass = false;
             $test_harness_instance->write_log_entry('LOCATION OBFUSCATION CHECK', $test_count++, false);
             echo('<h4 style="color:red">LOCATION OBFUSCATION FAILED!</h4>');
+        }
+        
+        if (1 == $new_place->object_access()['read']) {
+            $test_harness_instance->write_log_entry('READ PERMISSION CHECK', $test_count++, true);
+        } else {
+            $all_pass = false;
+            $test_harness_instance->write_log_entry('READ PERMISSION CHECK', $test_count++, false);
+            echo('<h4 style="color:red">INCORRECT READ PERMISSION!</h4>');
+        }
+        
+        if (1 == $new_place->object_access()['write']) {
+            $test_harness_instance->write_log_entry('WRITE PERMISSION CHECK', $test_count++, true);
+        } else {
+            $all_pass = false;
+            $test_harness_instance->write_log_entry('WRITE PERMISSION CHECK', $test_count++, false);
+            echo('<h4 style="color:red">INCORRECT WRITE PERMISSION!</h4>');
         }
     } else {
         $all_pass = false;
