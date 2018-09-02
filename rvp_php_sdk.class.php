@@ -1739,4 +1739,61 @@ class RVP_PHP_SDK {
         
         return $ret;
     }
+    
+    /***********************/
+    /**
+    This creates a new, blank place object.
+    The user must be logged in (being a manager is not required), and you can optionally assign a longitude/latitude location.
+    BOTH longitude and latitude must be supplied in order to assign any value to either.
+    You can also supply a "fuzz factor" immediately.
+    The response will have a read token of 0 (everyone can read), and a write token of the ID of the creating login.
+    
+    \returns a new place object. The object will be basically uninitialized. NULL, if the create failed. The read
+     */
+    function new_place( $in_place_name,         ///< REQUIRED: A general name for the place (different from the venue name).
+                        $in_latitude = NULL,    ///< OPTIONAL: Default is NULL. If supplied, should be a floating-point value, in degrees latitude, of the place location. Must be supplied with valid $in_longitude value.
+                        $in_longitude = NULL,   ///< OPTIONAL: Default is NULL. If supplied, should be a floating-point value, in degrees longitude, of the place location. Must be supplied with valid $in_latitude value.
+                        $in_fuzz_factor = NULL  ///< OPTIONAL: If supplied, should contain a floating-point number, with a "fuzz factor" distance, in Kilometers.
+                        ) {
+        $ret = NULL;
+        
+        if ($this->is_logged_in()) {    // Must be logged in.
+            $uri = 'json/places';
+            $params = '';
+            if ($in_place_name) {
+                $params .= '&name='.urlencode($in_place_name);
+            }
+        
+            if ($in_latitude) {
+                $params .= '&latitude='.floatval($in_latitude);
+            }
+        
+            if ($in_longitude) {
+                $params .= '&longitude='.floatval($in_longitude);
+            }
+        
+            if ($in_fuzz_factor) {
+                $params .= '&fuzz_factor='.floatval($in_fuzz_factor);
+            }
+        
+            $uri .= '/?'.trim($params, "\&");
+         
+            $response = $this->post_data($uri);
+        
+            if (isset($response)) {
+                $response = json_decode($response);
+            
+                if (isset($response) && isset($response->places) && isset($response->places->new_place)) {
+                    $response = $response->places->new_place;
+                    
+                    $ret = new RVP_PHP_SDK_Place($this, $response->id, $response, true);
+                }
+            }
+        } else {
+            $this->set_error(_ERR_NOT_AUTHORIZED__);
+            return NULL;
+        }
+        
+        return $ret;
+    }
 };
