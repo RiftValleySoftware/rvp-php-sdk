@@ -1730,7 +1730,10 @@ class RVP_PHP_SDK {
                     $ret['login_id'] = $response->people->people->new_user->associated_login->login_id;
                     $ret['password'] = $response->people->people->new_user->associated_login->password;
                     unset($response->people->people->new_user->associated_login->password);
-                    $ret['login'] = new RVP_PHP_SDK_Login($this, $response->people->people->new_user->associated_login->id, $response->people->people->new_user->associated_login, true);
+                    $id = $response->people->people->new_user->associated_login->id;
+                    $response->people->people->new_user->associated_login_id = $id;
+                    $ret['login'] = new RVP_PHP_SDK_Login($this, $id, $response->people->people->new_user->associated_login, true);
+                    unset($response->people->people->new_user->associated_login);
                 }
                 
                 $ret['user'] = new RVP_PHP_SDK_User($this, $response->people->people->new_user->id, $response->people->people->new_user, true);
@@ -1748,7 +1751,7 @@ class RVP_PHP_SDK {
     You can also supply a "fuzz factor" immediately.
     The response will have a read token of 0 (everyone can read), and a write token of the ID of the creating login.
     
-    \returns a new place object. The object will be basically uninitialized. NULL, if the create failed. The read
+    \returns a new place object. The object will be basically uninitialized. NULL, if the create failed.
      */
     function new_place( $in_place_name,         ///< REQUIRED: A general name for the place (different from the venue name).
                         $in_tokens = [],        /**< OPTIONAL: An associative array, ['read' => integer, 'write' => integer]
@@ -1799,6 +1802,65 @@ class RVP_PHP_SDK {
                     $response = $response->places->new_place;
                     
                     $ret = new RVP_PHP_SDK_Place($this, $response->id, $response, true);
+                }
+            }
+        } else {
+            $this->set_error(_ERR_NOT_AUTHORIZED__);
+            return NULL;
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    This creates a new, blank thing object.
+    The user must be logged in (being a manager is not required).
+    
+    \returns a new thing object. The object will be basically uninitialized. NULL, if the create failed.
+     */
+    function new_thing( $in_thing_key,                  ///< REQUIRED: A key for the thing (must be a unique key). If this is not completely unique in the server, the operation will fail.
+                        $in_thing_value = NULL,         ///< OPTIONAL: This is a binary value to be associated with the thing.
+                        $in_tokens = [],                /**< OPTIONAL: An associative array, ['read' => integer, 'write' => integer]
+                                                                - 'read' is optional. If not supplied, the user read will be set to '0' (all can see)
+                                                                - 'write' is optional and must be an integer greater than 0 (and which the current manager has). If supplied, and not "owned" by the manager, then it will be ignored. If the write token is invalid, then the operation will abort. Remember that setting this to 1 means that ALL logins can read and write the record.
+                                                        */
+                        $in_thing_name = NULL,          ///< OPTIONAL: Default is NULL. If supplied, will be a general name for the thing.
+                        $in_thing_description = NULL    ///< OPTIONAL: If supplied, this should be a string up to 255 characters long, describing the thing.
+                        ) {
+        $ret = NULL;
+        
+        if ($this->is_logged_in()) {    // Must be logged in.
+            $uri = 'json/things';
+            $params = '';
+        
+            if (isset($in_tokens) && is_array($in_tokens) && count($in_tokens) && isset($in_tokens['read'])) {
+                $params .= '&read_token='.intval($in_tokens['read']);
+            }
+        
+            if (isset($in_tokens) && is_array($in_tokens) && count($in_tokens) && isset($in_tokens['write']) && (0 < intval($in_tokens['write']))) {
+                $params .= '&write_token='.intval($in_tokens['write']);
+            }
+
+            if ($in_thing_name) {
+                $params .= '&name='.urlencode($in_thing_name);
+            }
+        
+            if ($in_thing_description) {
+                $params .= '&description='.urlencode($in_thing_description);
+            }
+        
+            $uri .= '/?'.trim($params, "\&");
+         
+            $response = $this->post_data($uri);
+        
+            if (isset($response)) {
+                $response = json_decode($response);
+            
+                if (isset($response) && isset($response->things) && isset($response->things->new_thing)) {
+                    $response = $response->things->new_thing;
+                    
+                    $ret = new RVP_PHP_SDK_Thing($this, $response->id, $response, true);
                 }
             }
         } else {

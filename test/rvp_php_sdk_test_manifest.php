@@ -443,7 +443,7 @@ $rvp_php_sdk_test_manifest = [
                                                     'file'      =>  'test-scripts/run_test_32_child_tests.php'
                                                     ]
                                 ],
-                                
+
                                 [
                                     'blurb'     =>  'PEOPLE POST TESTS',
                                     'explain'   =>  'Create new user and login objects.',
@@ -467,6 +467,22 @@ $rvp_php_sdk_test_manifest = [
                                     'closure'   =>  [
                                                     'function'  =>  'run_test_34_post_places_tests',
                                                     'file'      =>  'test-scripts/run_test_34_post_places_tests.php'
+                                                    ],
+                                    'login'     =>  [
+                                                    'login_id'  =>  'MDAdmin',
+                                                    'password'  =>  'CoreysGoryStory',
+                                                    'timeout'   =>  CO_Config::$session_timeout_in_seconds,
+                                                    'logout'    =>  true
+                                                    ]
+                                ],
+                                
+                                [
+                                    'blurb'     =>  'THINGS POST TESTS',
+                                    'explain'   =>  'Create new thing.',
+                                    'db'        =>  'sdk_1',
+                                    'closure'   =>  [
+                                                    'function'  =>  'run_test_35_post_things_tests',
+                                                    'file'      =>  'test-scripts/run_test_35_post_things_tests.php'
                                                     ],
                                     'login'     =>  [
                                                     'login_id'  =>  'MDAdmin',
