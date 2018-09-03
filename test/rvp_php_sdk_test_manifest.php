@@ -523,6 +523,22 @@ $rvp_php_sdk_test_manifest = [
                                                     'logout'    =>  true
                                                     ]
                                 ],
+                                
+                                [
+                                    'blurb'     =>  'THING DELETE TESTS',
+                                    'explain'   =>  'Delete Things.',
+                                    'db'        =>  'sdk_1',
+                                    'closure'   =>  [
+                                                    'function'  =>  'run_test_38_delete_things_tests',
+                                                    'file'      =>  'test-scripts/run_test_38_delete_things_tests.php'
+                                                    ],
+                                    'login'     =>  [
+                                                    'login_id'  =>  'admin',
+                                                    'password'  =>  'CoreysGoryStory',
+                                                    'timeout'   =>  CO_Config::$session_timeout_in_seconds,
+                                                    'logout'    =>  true
+                                                    ]
+                                ],
 
     ];
 ?>

@@ -2008,4 +2008,52 @@ class RVP_PHP_SDK {
         
         return $ret;
     }
+    
+    /***********************/
+    /**
+    Deletes a thing object.
+    
+    \returns true, if the deletion succeeded.
+     */
+    function delete_thing(  $in_object  ///< REQUIRED: This can be a thing object, a string (key), or an integer (thing ID).
+                        ) {
+        $ret = false;
+        
+        if ($this->is_logged_in() && isset($in_object)) {  // Must be logged in.
+            $thing_id = 0;
+            
+            if ($in_object instanceof RVP_PHP_SDK_thing) {
+                $thing_id = $in_object->id();
+            } else {    // This is how we resolve string keys. Just fetch the damn object, and extract its ID.
+                $thing = $this->get_thing_info($in_object);
+                if (isset($thing) && ($thing instanceof RVP_PHP_SDK_thing)) {
+                    $thing_id = intval($thing->id());
+                }
+            }
+            
+            if ($thing_id) {    // Assuming that we have an ID...
+                if (isset($this->test_visibility($thing_id)['writeable'])) { // We must be able to write.
+                    $uri = 'json/things/'.$thing_id;
+                    $ret = true;
+                    $response = $this->delete_data($uri);
+        
+                    if (isset($response)) {
+                        $response = json_decode($response);
+            
+                        if (!(isset($response) && isset($response->things) && isset($response->things->deleted_things) && is_array($response->things->deleted_things) && (1 == count($response->things->deleted_things)))) {
+                            $this->set_error(_ERR_COMM_ERR__);
+                            $ret = false;
+                        }
+                    }
+                } else {
+                    $this->set_error(_ERR_NOT_AUTHORIZED__);
+                }
+            }
+        } else {
+            // If they are logged in, then they are authorized, but they don't have required parameters.
+            $this->set_error($this->is_logged_in() ? _ERR_INVALID_PARAMETERS__ : _ERR_NOT_AUTHORIZED__);
+        }
+        
+        return $ret;
+    }
 };
