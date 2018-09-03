@@ -47,9 +47,6 @@ function run_test_33_post_people_tests($test_harness_instance) {
                 $test_harness_instance->write_log_entry('Validate Password String Length', $test_count++, false);
                 echo('<h4 style="color:red">RETURNED PASSWORD INVALID!</h4>');
             }
-echo('<pre>');
-var_dump($new_user['user']);
-echo('</pre>');            
             if (isset($new_user['user']) && ($new_user['user'] instanceof RVP_PHP_SDK_User) && ('Dorkbert' == $new_user['user']->name()) && (20 == $new_user['user']->associated_login_id())) {
                 $test_harness_instance->write_log_entry('Validate User Object', $test_count++, true);
             } else {
