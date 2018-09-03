@@ -1957,8 +1957,53 @@ class RVP_PHP_SDK {
                 }
             }
         } else {
-            // If they are logged in, then they are authorized, but they don't have required parameters.
+            // If they are logged in as a manager, then they are authorized, but they don't have required parameters.
             $this->set_error($this->is_manager() ? _ERR_INVALID_PARAMETERS__ : _ERR_NOT_AUTHORIZED__);
+        }
+        
+        return $ret;
+    }
+    
+    /***********************/
+    /**
+    Deletes a place object.
+    
+    \returns true, if the deletion succeeded.
+     */
+    function delete_place(  $in_object  ///< REQUIRED: This can be a place object, or an integer (place ID).
+                        ) {
+        $ret = false;
+        
+        if ($this->is_logged_in() && isset($in_object)) {  // Must be logged in.
+            $place_id = 0;
+            
+            if ($in_object instanceof RVP_PHP_SDK_Place) {
+                $place_id = $in_object->id();
+            } else {
+                $place_id = intval($in_object);
+            }
+            
+            if ($place_id) {    // Assuming that we have an ID...
+                if (isset($this->test_visibility($place_id)['writeable'])) { // We must be able to write.
+                    $uri = 'json/places/'.$place_id;
+                    $ret = true;
+                    $response = $this->delete_data($uri);
+        
+                    if (isset($response)) {
+                        $response = json_decode($response);
+            
+                        if (!(isset($response) && isset($response->places) && isset($response->places->deleted_places) && is_array($response->places->deleted_places) && (1 == count($response->places->deleted_places)) && ($place_id == $response->places->deleted_places[0]->id))) {
+                            $this->set_error(_ERR_COMM_ERR__);
+                            $ret = false;
+                        }
+                    }
+                } else {
+                    $this->set_error(_ERR_NOT_AUTHORIZED__);
+                }
+            }
+        } else {
+            // If they are logged in, then they are authorized, but they don't have required parameters.
+            $this->set_error($this->is_logged_in() ? _ERR_INVALID_PARAMETERS__ : _ERR_NOT_AUTHORIZED__);
         }
         
         return $ret;
