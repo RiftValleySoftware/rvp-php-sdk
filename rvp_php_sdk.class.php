@@ -1888,4 +1888,79 @@ class RVP_PHP_SDK {
         
         return $ret;
     }
+    
+    /***********************/
+    /**
+    Deletes a user and associated login.
+    The caller must be a manager or main admin.
+    
+    \returns true, if the deletion succeeded.
+     */
+    function delete_user(   $in_object  ///< REQUIRED: This can be a user object, a login object, or an integer (user ID). If a user object, and if that object has an associated login, then both objects will be deleted. If a login object, then only the login will be deleted. An integer ID will always be considered to be a user object ID.
+                        ) {
+        $ret = false;
+        
+        if ($this->is_manager() && isset($in_object)) {  // Must be at least a manager.
+            $user_id = 0;
+            $login_id = 0;
+            
+            if ($in_object instanceof RVP_PHP_SDK_User) {
+                if ($in_object->writeable()) {  // Have to be able to edit.
+                    $user_id = $in_object->id();
+                }
+            } elseif ($in_object instanceof RVP_PHP_SDK_Login) {
+                if ($in_object->writeable()) {  // Have to be able to edit.
+                    $login_id = $in_object->id();
+                }
+            } else {
+                $user_id = intval($in_object);
+            }
+            
+            if ($user_id || $login_id) {    // We need to have something to proceed.
+                $uri = 'json/people';
+                $ret = true;
+                
+                if ($user_id) {
+                    $response = $this->delete_data($uri.'/people/'.$user_id);
+        
+                    if (isset($response)) {
+                        $response = json_decode($response);
+            
+                        if (!(isset($response) && isset($response->people->people) && isset($response->people->people->deleted_users) && is_array($response->people->people->deleted_users) && (1 == count($response->people->people->deleted_users)) && ($user_id == $response->people->people->deleted_users[0]->id))) {
+                            $this->set_error(_ERR_COMM_ERR__);
+                            $ret = false;
+                        } elseif (isset($response->people->people->deleted_users[0]->associated_login_id)) {
+                            $login_id = intval($response->people->people->deleted_users[0]->associated_login_id);
+                        } elseif (isset($response->people->people->deleted_users[0]->associated_login)) {
+                            $login_id = intval($response->people->people->deleted_users[0]->associated_login->id);
+                        }
+                    } else {
+                        $this->set_error(_ERR_COMM_ERR__);
+                        $ret = false;
+                    }
+                }
+                
+                if ($ret && $login_id) {
+                    $response = $this->delete_data($uri.'/logins/'.$login_id);
+        
+                    if (isset($response)) {
+                        $response = json_decode($response);
+            
+                        if (!(isset($response) && isset($response->people->logins) && isset($response->people->logins->deleted_logins) && is_array($response->people->logins->deleted_logins) && (1 == count($response->people->logins->deleted_logins)) && ($login_id == $response->people->logins->deleted_logins[0]->id))) {
+                            $this->set_error(_ERR_COMM_ERR__);
+                            $ret = false;
+                        }
+                    } else {
+                        $this->set_error(_ERR_COMM_ERR__);
+                        $ret = false;
+                    }
+                }
+            }
+        } else {
+            // If they are logged in, then they are authorized, but they don't have required parameters.
+            $this->set_error($this->is_manager() ? _ERR_INVALID_PARAMETERS__ : _ERR_NOT_AUTHORIZED__);
+        }
+        
+        return $ret;
+    }
 };
