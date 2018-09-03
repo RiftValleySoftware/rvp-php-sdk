@@ -11,7 +11,6 @@
 
     Little Green Viper Software Development: https://littlegreenviper.com
 */
-defined('__CSV_TEST_30_FILE__') or define('__CSV_TEST_30_FILE__', 'test-30-small-worth-enough');
 function run_test_35_post_things_tests($test_harness_instance) {
     $all_pass = true;
     $test_count = $test_harness_instance->test_count + 1;

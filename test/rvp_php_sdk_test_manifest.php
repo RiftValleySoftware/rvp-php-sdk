@@ -491,6 +491,22 @@ $rvp_php_sdk_test_manifest = [
                                                     'logout'    =>  true
                                                     ]
                                 ],
+                                
+                                [
+                                    'blurb'     =>  'PEOPLE DELETE TESTS',
+                                    'explain'   =>  'Delete Users and Logins.',
+                                    'db'        =>  'sdk_1',
+                                    'closure'   =>  [
+                                                    'function'  =>  'run_test_36_delete_people_tests',
+                                                    'file'      =>  'test-scripts/run_test_36_delete_people_tests.php'
+                                                    ],
+                                    'login'     =>  [
+                                                    'login_id'  =>  'MainAdmin',
+                                                    'password'  =>  'CoreysGoryStory',
+                                                    'timeout'   =>  CO_Config::$session_timeout_in_seconds,
+                                                    'logout'    =>  true
+                                                    ]
+                                ],
 
     ];
 ?>
