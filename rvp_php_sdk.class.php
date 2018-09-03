@@ -28,7 +28,7 @@ require_once(dirname(__FILE__).'/rvp_php_sdk_place.class.php');
 require_once(dirname(__FILE__).'/rvp_php_sdk_thing.class.php');
 require_once(dirname(__FILE__).'/lang/common.php');
 
-define('__SDK_VERSION__', '1.0.0.0000');
+define('__SDK_VERSION__', '1.0.0.2000');
 
 /****************************************************************************************************************************/
 /**
