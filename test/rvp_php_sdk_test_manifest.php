@@ -27,129 +27,129 @@ if (file_exists(dirname(__FILE__).'/config/s_config.class.php')) {
 }
 
 $rvp_php_sdk_test_manifest = [
-                                [
-                                    'blurb'     =>  'INITIAL INSTANTIATION TEST (NO LOGIN)',
-                                    'explain'   =>  'Set Up The SDK With No Login, And Make Sure the Initial Information Is Correct.',
-                                    'db'        =>  'sdk_1',
-                                    'closure'   =>  [
-                                                    'function'  =>  'run_test_01_harness_basic_login_tests',
-                                                    'file'      =>  'test-scripts/run_test_01_harness_basic_login_tests.php'
-                                                    ]
-                                ],
-                                
-                                [
-                                    'blurb'     =>  'INITIAL INSTANTIATION TEST (WITH LOGIN)',
-                                    'explain'   =>  'Set Up The SDK With A Login, And Make Sure the Initial Information Is Correct.',
-                                    'db'        =>  'sdk_1',
-                                    'closure'   =>  [
-                                                    'function'  =>  'run_test_02_harness_basic_login_tests',
-                                                    'file'      =>  'test-scripts/run_test_02_harness_basic_login_tests.php'
-                                                    ],
-                                    'login'     =>  [
-                                                    'login_id'  =>  'MainAdmin',
-                                                    'password'  =>  'CoreysGoryStory',
-                                                    'timeout'   =>  CO_Config::$session_timeout_in_seconds,
-                                                    'logout'    =>  true
-                                                    ]
-                                ],
-                                
-                                [
-                                    'blurb'     =>  'ACCESS OBJECTS TEST (NO LOGIN)',
-                                    'explain'   =>  'Set Up The SDK With No Login, And Access Some Objects By ID.',
-                                    'db'        =>  'sdk_1',
-                                    'closure'   =>  [
-                                                    'function'  =>  'run_test_03_harness_basic_access_tests',
-                                                    'file'      =>  'test-scripts/run_test_03_harness_basic_access_tests.php'
-                                                    ]
-                                ],
-                                
-                                [
-                                    'blurb'     =>  'ACCESS OBJECTS TEST (WITH LOGIN)',
-                                    'explain'   =>  'Set Up The SDK With A Login, And Access Some Objects By ID. There will be one additional Thing Object.',
-                                    'db'        =>  'sdk_1',
-                                    'closure'   =>  [
-                                                    'function'  =>  'run_test_04_harness_basic_access_tests',
-                                                    'file'      =>  'test-scripts/run_test_04_harness_basic_access_tests.php'
-                                                    ],
-                                    'login'     =>  [
-                                                    'login_id'  =>  'MainAdmin',
-                                                    'password'  =>  'CoreysGoryStory',
-                                                    'timeout'   =>  CO_Config::$session_timeout_in_seconds,
-                                                    'logout'    =>  true
-                                                    ]
-                                ],
-                                
-                                [
-                                    'blurb'     =>  'MULTIPLE SUCCESSFUL LOGIN TESTS',
-                                    'explain'   =>  'Set Up The SDK With No Login, Then Log In And Out With Multiple Logins.',
-                                    'db'        =>  'sdk_1',
-                                    'closure'   =>  [
-                                                    'function'  =>  'run_test_05_harness_multiple_logins_tests',
-                                                    'file'      =>  'test-scripts/run_test_05_harness_multiple_logins_tests.php'
-                                                    ]
-                                ],
-                                
-                                [
-                                    'blurb'     =>  'MULTIPLE SDK INSTANCE LOGIN TESTS',
-                                    'explain'   =>  'Stand Up Multiple SDK Instances With Logins.',
-                                    'db'        =>  'sdk_1',
-                                    'closure'   =>  [
-                                                    'function'  =>  'run_test_06_harness_multiple_logins_tests',
-                                                    'file'      =>  'test-scripts/run_test_06_harness_multiple_logins_tests.php'
-                                                    ],
-                                    'login'     =>  [
-                                                    'login_id'  =>  'admin',
-                                                    'password'  =>  'CoreysGoryStory',
-                                                    'timeout'   =>  CO_Config::$god_session_timeout_in_seconds,
-                                                    'logout'    =>  true
-                                                    ]
-                                ],
-                                
-                                [
-                                    'blurb'     =>  'LOCATION OBFUSCATION TESTS',
-                                    'explain'   =>  'Stand Up A Non-Logged-In Instance, And Test Some Specific Places For Location "Fuzzing."',
-                                    'db'        =>  'sdk_1',
-                                    'closure'   =>  [
-                                                    'function'  =>  'run_test_07_harness_location_obfuscation_tests',
-                                                    'file'      =>  'test-scripts/run_test_07_harness_location_obfuscation_tests.php'
-                                                    ]
-                                ],
-                                
-                                [
-                                    'blurb'     =>  'NON-LOGGED-IN LOCATION SEARCH TESTS',
-                                    'explain'   =>  'Without logging in, try doing a series of simple location-based searches, using each of the plugins.',
-                                    'db'        =>  'sdk_1',
-                                    'closure'   =>  [
-                                                    'function'  =>  'run_test_08_harness_baseline_search_tests',
-                                                    'file'      =>  'test-scripts/run_test_08_harness_baseline_search_tests.php'
-                                                    ]
-                                ],
-                                
-                                [
-                                    'blurb'     =>  'LOGGED-IN LOCATION SEARCH TESTS',
-                                    'explain'   =>  'After logging in, try doing a series of simple location-based searches, using each of the plugins.',
-                                    'db'        =>  'sdk_1',
-                                    'closure'   =>  [
-                                                    'function'  =>  'run_test_09_harness_baseline_search_tests',
-                                                    'file'      =>  'test-scripts/run_test_09_harness_baseline_search_tests.php'
-                                                    ],
-                                    'login'     =>  [
-                                                    'login_id'  =>  'MainAdmin',
-                                                    'password'  =>  'CoreysGoryStory',
-                                                    'timeout'   =>  CO_Config::$session_timeout_in_seconds,
-                                                    'logout'    =>  true
-                                                    ]
-                                ],
-                                
-                                [
-                                    'blurb'     =>  'SIMPLE BASELINE TEXT SEARCH TESTS',
-                                    'explain'   =>  'Try various text searches.',
-                                    'db'        =>  'sdk_1',
-                                    'closure'   =>  [
-                                                    'function'  =>  'run_test_10_harness_text_search_tests',
-                                                    'file'      =>  'test-scripts/run_test_10_harness_text_search_tests.php'
-                                                    ]
-                                ],
+//                                 [
+//                                     'blurb'     =>  'INITIAL INSTANTIATION TEST (NO LOGIN)',
+//                                     'explain'   =>  'Set Up The SDK With No Login, And Make Sure the Initial Information Is Correct.',
+//                                     'db'        =>  'sdk_1',
+//                                     'closure'   =>  [
+//                                                     'function'  =>  'run_test_01_harness_basic_login_tests',
+//                                                     'file'      =>  'test-scripts/run_test_01_harness_basic_login_tests.php'
+//                                                     ]
+//                                 ],
+//                                 
+//                                 [
+//                                     'blurb'     =>  'INITIAL INSTANTIATION TEST (WITH LOGIN)',
+//                                     'explain'   =>  'Set Up The SDK With A Login, And Make Sure the Initial Information Is Correct.',
+//                                     'db'        =>  'sdk_1',
+//                                     'closure'   =>  [
+//                                                     'function'  =>  'run_test_02_harness_basic_login_tests',
+//                                                     'file'      =>  'test-scripts/run_test_02_harness_basic_login_tests.php'
+//                                                     ],
+//                                     'login'     =>  [
+//                                                     'login_id'  =>  'MainAdmin',
+//                                                     'password'  =>  'CoreysGoryStory',
+//                                                     'timeout'   =>  CO_Config::$session_timeout_in_seconds,
+//                                                     'logout'    =>  true
+//                                                     ]
+//                                 ],
+//                                 
+//                                 [
+//                                     'blurb'     =>  'ACCESS OBJECTS TEST (NO LOGIN)',
+//                                     'explain'   =>  'Set Up The SDK With No Login, And Access Some Objects By ID.',
+//                                     'db'        =>  'sdk_1',
+//                                     'closure'   =>  [
+//                                                     'function'  =>  'run_test_03_harness_basic_access_tests',
+//                                                     'file'      =>  'test-scripts/run_test_03_harness_basic_access_tests.php'
+//                                                     ]
+//                                 ],
+//                                 
+//                                 [
+//                                     'blurb'     =>  'ACCESS OBJECTS TEST (WITH LOGIN)',
+//                                     'explain'   =>  'Set Up The SDK With A Login, And Access Some Objects By ID. There will be one additional Thing Object.',
+//                                     'db'        =>  'sdk_1',
+//                                     'closure'   =>  [
+//                                                     'function'  =>  'run_test_04_harness_basic_access_tests',
+//                                                     'file'      =>  'test-scripts/run_test_04_harness_basic_access_tests.php'
+//                                                     ],
+//                                     'login'     =>  [
+//                                                     'login_id'  =>  'MainAdmin',
+//                                                     'password'  =>  'CoreysGoryStory',
+//                                                     'timeout'   =>  CO_Config::$session_timeout_in_seconds,
+//                                                     'logout'    =>  true
+//                                                     ]
+//                                 ],
+//                                 
+//                                 [
+//                                     'blurb'     =>  'MULTIPLE SUCCESSFUL LOGIN TESTS',
+//                                     'explain'   =>  'Set Up The SDK With No Login, Then Log In And Out With Multiple Logins.',
+//                                     'db'        =>  'sdk_1',
+//                                     'closure'   =>  [
+//                                                     'function'  =>  'run_test_05_harness_multiple_logins_tests',
+//                                                     'file'      =>  'test-scripts/run_test_05_harness_multiple_logins_tests.php'
+//                                                     ]
+//                                 ],
+//                                 
+//                                 [
+//                                     'blurb'     =>  'MULTIPLE SDK INSTANCE LOGIN TESTS',
+//                                     'explain'   =>  'Stand Up Multiple SDK Instances With Logins.',
+//                                     'db'        =>  'sdk_1',
+//                                     'closure'   =>  [
+//                                                     'function'  =>  'run_test_06_harness_multiple_logins_tests',
+//                                                     'file'      =>  'test-scripts/run_test_06_harness_multiple_logins_tests.php'
+//                                                     ],
+//                                     'login'     =>  [
+//                                                     'login_id'  =>  'admin',
+//                                                     'password'  =>  'CoreysGoryStory',
+//                                                     'timeout'   =>  CO_Config::$god_session_timeout_in_seconds,
+//                                                     'logout'    =>  true
+//                                                     ]
+//                                 ],
+//                                 
+//                                 [
+//                                     'blurb'     =>  'LOCATION OBFUSCATION TESTS',
+//                                     'explain'   =>  'Stand Up A Non-Logged-In Instance, And Test Some Specific Places For Location "Fuzzing."',
+//                                     'db'        =>  'sdk_1',
+//                                     'closure'   =>  [
+//                                                     'function'  =>  'run_test_07_harness_location_obfuscation_tests',
+//                                                     'file'      =>  'test-scripts/run_test_07_harness_location_obfuscation_tests.php'
+//                                                     ]
+//                                 ],
+//                                 
+//                                 [
+//                                     'blurb'     =>  'NON-LOGGED-IN LOCATION SEARCH TESTS',
+//                                     'explain'   =>  'Without logging in, try doing a series of simple location-based searches, using each of the plugins.',
+//                                     'db'        =>  'sdk_1',
+//                                     'closure'   =>  [
+//                                                     'function'  =>  'run_test_08_harness_baseline_search_tests',
+//                                                     'file'      =>  'test-scripts/run_test_08_harness_baseline_search_tests.php'
+//                                                     ]
+//                                 ],
+//                                 
+//                                 [
+//                                     'blurb'     =>  'LOGGED-IN LOCATION SEARCH TESTS',
+//                                     'explain'   =>  'After logging in, try doing a series of simple location-based searches, using each of the plugins.',
+//                                     'db'        =>  'sdk_1',
+//                                     'closure'   =>  [
+//                                                     'function'  =>  'run_test_09_harness_baseline_search_tests',
+//                                                     'file'      =>  'test-scripts/run_test_09_harness_baseline_search_tests.php'
+//                                                     ],
+//                                     'login'     =>  [
+//                                                     'login_id'  =>  'MainAdmin',
+//                                                     'password'  =>  'CoreysGoryStory',
+//                                                     'timeout'   =>  CO_Config::$session_timeout_in_seconds,
+//                                                     'logout'    =>  true
+//                                                     ]
+//                                 ],
+//                                 
+//                                 [
+//                                     'blurb'     =>  'SIMPLE BASELINE TEXT SEARCH TESTS',
+//                                     'explain'   =>  'Try various text searches.',
+//                                     'db'        =>  'sdk_1',
+//                                     'closure'   =>  [
+//                                                     'function'  =>  'run_test_10_harness_text_search_tests',
+//                                                     'file'      =>  'test-scripts/run_test_10_harness_text_search_tests.php'
+//                                                     ]
+//                                 ],
                                 
                                 [
                                     'blurb'     =>  'BASELINE VISIBILITY COMMAND TESTS',

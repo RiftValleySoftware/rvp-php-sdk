@@ -29,24 +29,12 @@ function prepare_databases($in_file_prefix) {
 
     require_once(CO_Config::db_class_dir().'/co_pdo.class.php');
 
-    if ( !defined('LGV_ERROR_CATCHER') ) {
-        define('LGV_ERROR_CATCHER', 1);
-    }
-
-    require_once(CO_Config::badger_shared_class_dir().'/error.class.php');
-
     $pdo_data_db = NULL;
     
     try {
         $pdo_data_db = new CO_PDO(CO_Config::$data_db_type, CO_Config::$data_db_host, CO_Config::$data_db_name, CO_Config::$data_db_login, CO_Config::$data_db_password);
     } catch (Exception $exception) {
 // die('<pre style="text-align:left">'.htmlspecialchars(print_r($exception, true)).'</pre>');
-                $error = new LGV_Error( 1,
-                                        'INITIAL DATABASE SETUP FAILURE',
-                                        'FAILED TO INITIALIZE A DATABASE!',
-                                        $exception->getFile(),
-                                        $exception->getLine(),
-                                        $exception->getMessage());
             $ret = '<h2 style="color:red">ERROR WHILE TRYING TO ACCESS DATABASES!</h2>';
             $ret .= '<pre>'.htmlspecialchars(print_r($error, true)).'</pre>';
     }
@@ -55,24 +43,18 @@ function prepare_databases($in_file_prefix) {
         $pdo_security_db = new CO_PDO(CO_Config::$sec_db_type, CO_Config::$sec_db_host, CO_Config::$sec_db_name, CO_Config::$sec_db_login, CO_Config::$sec_db_password);
     
         if ($pdo_security_db) {
-            $data_db_sql = file_get_contents(dirname(dirname(__FILE__)).'/sql/'.$in_file_prefix.'_data_'.CO_Config::$data_db_type.'.sql');
-            $security_db_sql = file_get_contents(dirname(dirname(__FILE__)).'/sql/'.$in_file_prefix.'_security_'.CO_Config::$sec_db_type.'.sql');
-        
+            $data_db_file = dirname(dirname(__FILE__)).'/sql/'.$in_file_prefix.'_data_'.CO_Config::$data_db_type.'.sql';
+            $security_db_file = dirname(dirname(__FILE__)).'/sql/'.$in_file_prefix.'_security_'.CO_Config::$sec_db_type.'.sql';
+            
+            $data_db_sql = file_get_contents($data_db_file);
+            $security_db_sql = file_get_contents($security_db_file);
             $error = NULL;
 
             try {
                 $pdo_data_db->preparedExec($data_db_sql);
                 $pdo_security_db->preparedExec($security_db_sql);
-                $ret = '<h1>COOL</h1>';
             } catch (Exception $exception) {
 // die('<pre style="text-align:left">'.htmlspecialchars(print_r($exception, true)).'</pre>');
-                $error = new LGV_Error( 1,
-                                        'INITIAL DATABASE SETUP FAILURE',
-                                        'FAILED TO INITIALIZE A DATABASE!',
-                                        $exception->getFile(),
-                                        $exception->getLine(),
-                                        $exception->getMessage());
-                                            
             $ret = '<h2 style="color:red">ERROR WHILE TRYING TO OPEN DATABASES!</h2>';
             $ret .= '<pre>'.htmlspecialchars(print_r($error, true)).'</pre>';
             }

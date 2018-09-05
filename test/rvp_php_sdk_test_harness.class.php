@@ -11,6 +11,8 @@
 
     Little Green Viper Software Development: https://littlegreenviper.com
 */
+define('___LOCAL', false);
+
 define('RVP_PHP_SDK_ACCESS', true);
 if (file_exists(dirname(dirname(__FILE__)).'/rvp_php_sdk.class.php')) {
     require_once (dirname(dirname(__FILE__)).'/rvp_php_sdk.class.php');
@@ -22,8 +24,18 @@ if (!defined('LGV_CONFIG_CATCHER')) {
     define('LGV_CONFIG_CATCHER', true);
     require_once (dirname(__FILE__).'/config/s_config.class.php');
 }
-define('__SERVER_URI__', 'http://localhost'.dirname($_SERVER['PHP_SELF']).'/baobab.php');
-// define('__SERVER_URI__', 'http://localhost/baobab/index.php');
+
+define('__SERVER_EXT', '/baobab/index.php');
+define('__SET_DB_EXT', '/set-db/index.php?l=2&s=Rambunkchous&d=');
+
+if (___LOCAL) {
+    define('__SERVER_URI__', 'http://localhost'.dirname($_SERVER['PHP_SELF']).__SERVER_EXT);
+    define('__SET_DB_URI__', 'http://localhost'.dirname($_SERVER['PHP_SELF']).__SET_DB_EXT);
+} else {
+    define('__SERVER_URI__', 'https://littlegreenviper.com/fuggedaboudit'.__SERVER_EXT);
+    define('__SET_DB_URI__', 'https://littlegreenviper.com/fuggedaboudit'.__SET_DB_EXT);
+}
+
 define('__SERVER_SECRET__', 'Supercalifragilisticexpialidocious');
 define('__TMP_DIR__', dirname(__FILE__).'/tmp');
 define('__LOG_FILE__', __TMP_DIR__.'/test_log_file.csv');
@@ -38,6 +50,26 @@ class RVP_PHP_SDK_Test_Harness {
     var $test_start_time = NULL;
     var $current_test_name = NULL;
     var $test_count = 0;
+	
+    static protected function _call_curl(   $url
+                                        ) {
+        $resource = curl_init();                    // Initialize the cURL handle.
+
+		curl_setopt ( $resource, CURLOPT_URL, $url );
+		curl_setopt ( $resource, CURLOPT_RETURNTRANSFER, true );
+		curl_setopt ( $resource, CURLOPT_HEADER, false );
+		curl_setopt ( $resource, CURLOPT_MAXREDIRS, 3 );
+		curl_setopt ( $resource, CURLOPT_CONNECTTIMEOUT, 90 );
+		curl_setopt ( $resource, CURLOPT_ENCODING, 'gzip,deflate' );
+        curl_setopt ( $resource, CURLOPT_USERAGENT, "cURL Mozilla/5.0 (Windows NT 5.1; rv:21.0) Gecko/20130401 Firefox/21.0" ); 
+        curl_setopt ( $resource, CURLOPT_SSL_VERIFYPEER, FALSE);
+        
+		$content = curl_exec ( $resource );
+		
+		curl_close ( $resource );
+
+        return $content;
+    }
     
     static function static_echo_sha_data($in_sha) {
         echo('<p><strong>SHA:</strong> <big><code>'.$in_sha.'</code></big></p>');
@@ -114,6 +146,11 @@ class RVP_PHP_SDK_Test_Harness {
 	}
 	
     static function prepare_databases($in_file_prefix) {
+        $url = __SET_DB_URI__.$in_file_prefix;
+
+        $ret = self::_call_curl($url);
+        return $ret;
+        
         $ret = '';
         
         if ( !defined('LGV_DB_CATCHER') ) {
@@ -148,8 +185,10 @@ class RVP_PHP_SDK_Test_Harness {
             $pdo_security_db = new CO_PDO(CO_Config::$sec_db_type, CO_Config::$sec_db_host, CO_Config::$sec_db_name, CO_Config::$sec_db_login, CO_Config::$sec_db_password);
         
             if ($pdo_security_db) {
-                $data_db_sql = file_get_contents(dirname(__FILE__).'/sql/'.$in_file_prefix.'_data_'.CO_Config::$data_db_type.'.sql');
-                $security_db_sql = file_get_contents(dirname(__FILE__).'/sql/'.$in_file_prefix.'_security_'.CO_Config::$sec_db_type.'.sql');
+                $data_db_file = dirname(__FILE__).'/sql/'.$in_file_prefix.'_data_'.CO_Config::$data_db_type.'.sql';
+                $security_db_file = dirname(__FILE__).'/sql/'.$in_file_prefix.'_security_'.CO_Config::$sec_db_type.'.sql';
+                $data_db_sql = file_get_contents($data_db_file);
+                $security_db_sql = file_get_contents($security_db_file);
             
                 $error = NULL;
     
@@ -160,7 +199,7 @@ class RVP_PHP_SDK_Test_Harness {
 // die('<pre style="text-align:left">'.htmlspecialchars(print_r($exception, true)).'</pre>');
                     $error = new LGV_Error( 1,
                                             'INITIAL DATABASE SETUP FAILURE',
-                                            'FAILED TO INITIALIZE A DATABASE!',
+                                            'FAILED TO INITIALIZE A DATABASE!'.$security_db_file,
                                             $exception->getFile(),
                                             $exception->getLine(),
                                             $exception->getMessage());
@@ -385,8 +424,9 @@ class RVP_PHP_SDK_Test_Harness {
             }
             
             if (isset($db_prefix) && $db_prefix) {
-                echo('<h3>Preparing the "'.htmlspecialchars($db_prefix).'" Databases.</h3>');
-                $result = self::prepare_databases($db_prefix);
+                echo('<h3>I\'m Preparing the "'.htmlspecialchars($db_prefix).'" Databases.</h3>');
+                $url = __SET_DB_URI__.$db_prefix;
+                $result = self::_call_curl($url);
                 if (!$result) {
                     echo('<h3>Databases Ready.</h3>');
                 } else {
