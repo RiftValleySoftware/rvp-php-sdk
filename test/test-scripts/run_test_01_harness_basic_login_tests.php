@@ -32,7 +32,7 @@ function run_test_01_harness_basic_login_tests($test_harness_instance) {
                         $serverinfo = $test_harness_instance->sdk_instance->get_serverinfo();
                         
                         if (isset($serverinfo) && isset($serverinfo->basalt_version) && ($serverinfo->god_timeout_in_seconds == CO_Config::$god_session_timeout_in_seconds)) {
-                            $test_harness_instance->write_log_entry('SERVERINFO CHECK', $test_count++, false);
+                            $test_harness_instance->write_log_entry('SERVERINFO CHECK', $test_count++, true);
                         } else {
                             $all_pass = false;
                             $test_harness_instance->write_log_entry('SERVERINFO CHECK', $test_count++, false);
