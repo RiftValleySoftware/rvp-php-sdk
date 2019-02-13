@@ -102,6 +102,7 @@ We've written every. single. line. of. code. in The Great Rift Valley BAOBAB Ser
 
 Of course, one of the things that you do get with dependencies is a much "shinier" product. You can add a lot of "bells and whistles" by adding these libraries. The BAOBAB server may seem "dorky" compared to some of what's out there, but it is solid, secure and fast.
 
+![The Great Rift Valley Software Company](images/RiftValleySimpleCorpLogo.png)
 LICENSE (BLUE DRAGON SDK)
 =========================
 MIT License
